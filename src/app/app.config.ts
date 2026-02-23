@@ -3,13 +3,15 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import {API_URL} from './core/http/api-url.token';
 import {environment} from '../environments/environment.development';
-import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, withInterceptors} from '@angular/common/http';
+import { Token } from '@angular/compiler';
+import { tokenInterceptor } from './core/auth/services/token-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([tokenInterceptor])),
     {
       provide: API_URL,
       useValue: environment.api_url,
