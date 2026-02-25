@@ -1,0 +1,83 @@
+<h2 mat-dialog-title>
+  <mat-icon>person_add</mat-icon>
+  Создать пользователя
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="createUserForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email / Логин</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="email" type="text" placeholder="Введите email или логин" />
+      @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+        <mat-error>Поле обязательно для заполнения</mat-error>
+      }
+      @if (form.get('email')?.hasError('minlength') && form.get('email')?.touched) {
+        <mat-error>Минимум 3 символа</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Пароль</mat-label>
+      <mat-icon matPrefix>lock</mat-icon>
+      <input
+        matInput
+        formControlName="password"
+        [type]="hidePassword ? 'password' : 'text'"
+        placeholder="Минимум 6 символов"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+        <mat-error>Пароль обязателен</mat-error>
+      }
+      @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+        <mat-error>Минимум 6 символов</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Роль</mat-label>
+      <mat-icon matPrefix>admin_panel_settings</mat-icon>
+      <mat-select formControlName="role">
+        <mat-option value="user">Пользователь</mat-option>
+        <mat-option value="teacher">Учитель</mat-option>
+        <mat-option value="admin">Администратор</mat-option>
+      </mat-select>
+      @if (form.get('role')?.hasError('required') && form.get('role')?.touched) {
+        <mat-error>Выберите роль</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">Отмена</button>
+  <button
+    mat-flat-button
+    color="primary"
+    form="createUserForm"
+    type="submit"
+    [disabled]="isLoading"
+  >
+    @if (isLoading) {
+      <ng-container>
+        <mat-spinner diameter="18" />
+        Создание...
+      </ng-container>
+    } @else {
+      <ng-container>
+        <mat-icon>person_add</mat-icon>
+        Создать
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

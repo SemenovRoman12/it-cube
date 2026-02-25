@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { UserEntity } from '../../../models/user.model';
 import { UsersService } from '../../../core/admin/services/users.service';
 import { UserEditDialogComponent } from '../../../core/admin/features/user-edit-dialog/user-edit-dialog.component';
+import { UserCreateDialogComponent } from '../../../core/admin/features/user-create-dialog/user-create-dialog.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -105,6 +106,19 @@ export class AdminUsersComponent implements OnInit {
         this.dataSource.data = this.dataSource.data.map((u) =>
           u.id === updatedUser.id ? updatedUser : u
         );
+      }
+    });
+  }
+
+  public openCreateDialog(): void {
+    const dialogRef = this.dialog.open(UserCreateDialogComponent, {
+      width: '480px',
+      data: { isAdminFlow: true },
+    });
+
+    dialogRef.afterClosed().subscribe((createdUser: UserEntity | undefined) => {
+      if (createdUser) {
+        this.dataSource.data = [...this.dataSource.data, createdUser];
       }
     });
   }

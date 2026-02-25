@@ -4,6 +4,7 @@ import { ApiService } from '../../http/api.service';
 import { UserEntity } from '../../../models/user.model';
 
 export type UserUpdate = Partial<Omit<UserEntity, 'id'>>;
+export type UserCreate = Omit<UserEntity, 'id'>;
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,10 @@ export class UsersService {
 
   public updateUser(id: number, data: UserUpdate): Observable<UserEntity> {
     return this.api.put<UserEntity>(`users/${id}`, data as UserEntity);
+  }
+
+  public createUser(data: UserCreate): Observable<UserEntity> {
+    return this.api.post<UserCreate, UserEntity>('users', data);
   }
 
   public deleteUser(id: number): Observable<UserEntity> {
