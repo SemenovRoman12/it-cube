@@ -27,6 +27,10 @@ export const routes: Routes = [
     canActivate: [authGuard, studentGuard],
     loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent)
   },
+  {
+    path: 'home',
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+  },
   { 
     path: 'login', 
     loadComponent: () => import('./core/auth/features/login/login.component').then(m => m.LoginComponent) 
