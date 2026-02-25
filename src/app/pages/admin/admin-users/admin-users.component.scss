@@ -1,0 +1,138 @@
+.admin-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-title-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .title-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: #6366f1;
+  }
+}
+
+.admin-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+mat-card {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+mat-card-header {
+  padding: 16px 16px 0 !important;
+}
+
+mat-card-content {
+  padding: 0 !important;
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+}
+
+.user-id {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-email {
+  font-weight: 500;
+  color: #111827;
+}
+
+.actions-cell {
+  text-align: right;
+}
+
+.user-row {
+  transition: background 0.12s;
+
+  &:hover {
+    background: #f9fafb;
+  }
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 48px 16px;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 20px;
+  color: #6b7280;
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 24px;
+  color: #b91c1c;
+  text-align: center;
+
+  .error-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}

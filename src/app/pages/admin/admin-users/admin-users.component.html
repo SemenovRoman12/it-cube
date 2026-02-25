@@ -1,0 +1,89 @@
+<div class="admin-page">
+  <div class="admin-header">
+    <div class="admin-title-block">
+      <mat-icon class="title-icon">manage_accounts</mat-icon>
+      <h1 class="admin-title">Управление пользователями</h1>
+    </div>
+    <button mat-stroked-button (click)="loadUsers()" [disabled]="isLoading()">
+      <mat-icon>refresh</mat-icon>
+      Обновить
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48" />
+      <p>Загрузка пользователей...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-state">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-flat-button color="primary" (click)="loadUsers()">Попробовать снова</button>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Всего пользователей: {{ users().length }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <table mat-table [dataSource]="users()" class="users-table">
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="user-id">{{ user.id }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email / Логин</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="user-info">
+                <div class="user-avatar">{{ user.email.charAt(0).toUpperCase() }}</div>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Role Column -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Роль</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip [color]="getRoleColor(user.role)" highlighted>
+                {{ getRoleLabel(user.role) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let user" class="actions-cell">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openEditDialog(user)"
+                matTooltip="Редактировать"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="user-row"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-cell" [attr.colspan]="displayedColumns.length">
+              Пользователи не найдены
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
