@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,11 +34,27 @@ import { UserEditDialogComponent } from '../../../core/admin/features/user-edit-
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
 })
-export class AdminUsersComponent implements OnInit, AfterViewInit {
+export class AdminUsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly dialog = inject(MatDialog);
 
-  @ViewChild(MatSort) sort!: MatSort;
+  private _sort!: MatSort;
+
+  @ViewChild(MatSort)
+  set sort(value: MatSort) {
+    if (value) {
+      this._sort = value;
+      this.dataSource.sort = value;
+      this.dataSource.sortingDataAccessor = (item, property) => {
+        switch (property) {
+          case 'id': return item.id;
+          case 'email': return item.email.toLowerCase();
+          case 'role': return item.role;
+          default: return '';
+        }
+      };
+    }
+  }
 
   public dataSource = new MatTableDataSource<UserEntity>([]);
   public isLoading = signal(false);
@@ -51,18 +67,6 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
     this.loadUsers();
   }
 
-  public ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'id': return item.id;
-        case 'email': return item.email.toLowerCase();
-        case 'role': return item.role;
-        default: return '';
-      }
-    };
-  }
-
   public loadUsers(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
@@ -70,10 +74,6 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
     this.usersService.getUsers().subscribe({
       next: (users) => {
         this.dataSource.data = users;
-        // Re-assign sort after data load to ensure it works
-        if (this.sort) {
-          this.dataSource.sort = this.sort;
-        }
         this.isLoading.set(false);
       },
       error: (err) => {
