@@ -19,25 +19,29 @@ export class AuthService {
 
   public readonly isAuthenticated = computed(() => !!this._user());
 
-  public login(credentials: UserToLogin): Observable<AuthResponse> {
+  public login(credentials: UserToLogin): Observable<AuthResponse | null> {
     console.log(credentials);
     return this.api.post<UserToLogin, AuthResponse>('auth', credentials).pipe(
       tap((response) => {
         this.tokenService.setToken(response.token);
         this._user.set(response.data);
       }),
-      catchError((error) => {
+      catchError((error: Error) => {
         console.error('Login failed', error);
-        return of({} as AuthResponse);
+        return of();
       })
     );
   }
 
-  public register(userData: UserToRegister) {
+  public register(userData: UserToRegister): Observable<AuthResponse | null> {
     return this.api.post<UserToRegister, AuthResponse>('register', userData).pipe(
       tap((response) => {
         this.tokenService.setToken(response.token);
         this._user.set(response.data);
+      }),
+      catchError((error: Error) => {
+        console.error('Register failed', error);
+        return of();
       })
     );
   }
