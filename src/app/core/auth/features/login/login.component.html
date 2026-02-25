@@ -8,9 +8,9 @@
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Имя пользователя</mat-label>
-          <input matInput formControlName="username" type="text" placeholder="Введите имя пользователя" />
+          <input matInput formControlName="email" type="text" placeholder="Введите имя пользователя" />
           <mat-icon matPrefix>person</mat-icon>
-          @if (loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched) {
+          @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
           <mat-error>Введите имя пользователя</mat-error>
           }
         </mat-form-field>

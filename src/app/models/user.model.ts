@@ -1,5 +1,5 @@
 export interface UserEntity {
   id: number;
-  username: string;
+  email: string;
   role: 'admin' | 'user' | 'teacher';
 }

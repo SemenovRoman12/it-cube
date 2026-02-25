@@ -20,9 +20,9 @@ export class AuthService {
   public readonly isAuthenticated = computed(() => !!this._user());
 
   public login(credentials: UserToLogin): Observable<AuthResponse> {
+    console.log(credentials);
     return this.api.post<UserToLogin, AuthResponse>('auth', credentials).pipe(
       tap((response) => {
-        console.log(response);
         this.tokenService.setToken(response.token);
         this._user.set(response.data);
       }),
