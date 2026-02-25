@@ -6,7 +6,7 @@ import { TokenService } from './token.service';
 
 
 const shouldIntercept = (req: HttpRequest<any>): boolean => {
-  const shouldInterceptUrls = ['auth_me'];
+  const shouldInterceptUrls = ['auth_me', 'users'];
 
   for (const url of shouldInterceptUrls) {
     

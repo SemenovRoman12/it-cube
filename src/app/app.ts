@@ -16,10 +16,10 @@ export class App {
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
   
-  public ngOnInit(): void {
-    this.tokenService.getToken()
-      ? this.authService.authMe().pipe(tap(() => this.router.navigateByUrl(''))).subscribe()
-      : this.router.navigateByUrl('login');
+  // public ngOnInit(): void {
+  //   this.tokenService.getToken()
+  //     ? this.authService.authMe().pipe(tap(() => this.router.navigateByUrl(''))).subscribe()
+  //     : this.router.navigateByUrl('login');
     
-  }      
+  // }      
 }

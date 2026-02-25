@@ -36,7 +36,7 @@ export class LoginComponent {
   public loginError = '';
 
   public loginForm: FormGroup<FormType<UserToLogin>> = this.fb.group({
-    username: ['', [Validators.required]],
+    email: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
@@ -46,7 +46,7 @@ export class LoginComponent {
       this.loginError = '';
 
       const credentials: UserToLogin = {
-        username: this.loginForm.value.username!,
+        email: this.loginForm.value.email!,
         password: this.loginForm.value.password!,
       }
 
@@ -61,4 +61,3 @@ export class LoginComponent {
     }
   }
 }
-

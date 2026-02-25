@@ -1,8 +1,8 @@
 import { UserEntity } from "../../../models/user.model";
 
-export type UserToLogin = Omit<UserEntity, 'id' | 'role'> & { password: string };
+export type UserToLogin = { email: string; password: string };
 
-export type UserToRegister = Omit<UserEntity, 'id' | 'role'> & { password: string };
+export type UserToRegister = Omit<UserEntity, 'id' | 'role'>;
 
 export interface AuthResponse {
   token: string;
