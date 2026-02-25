@@ -22,6 +22,11 @@
         }
       </div>
 
+      <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isLoading()">
+        <mat-icon>person_add</mat-icon>
+        Добавить пользователя
+      </button>
+
       <button mat-stroked-button (click)="loadUsers()" [disabled]="isLoading()">
         <mat-icon>refresh</mat-icon>
         Обновить
