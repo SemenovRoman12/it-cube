@@ -10,7 +10,7 @@
   justify-content: space-between;
   margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
 }
 
 .admin-title-block {
@@ -22,20 +22,88 @@
     font-size: 2rem;
     width: 2rem;
     height: 2rem;
-    color: #6366f1;
+    color: var(--mat-sys-primary);
   }
 }
 
 .admin-title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--mat-sys-on-surface);
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Custom search input */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mat-sys-surface-container);
+  border: 1.5px solid var(--mat-sys-outline-variant);
+  border-radius: 24px;
+  padding: 6px 14px;
+  min-width: 260px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+  }
+
+  .search-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--mat-sys-on-surface-variant);
+    flex-shrink: 0;
+  }
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface);
+  flex: 1;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: var(--mat-sys-on-surface-variant);
+  border-radius: 50%;
+  transition: color 0.15s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--mat-sys-on-surface);
+  }
 }
 
 mat-card {
   border-radius: 12px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
 }
 
 mat-card-header {
@@ -51,9 +119,23 @@ mat-card-content {
   width: 100%;
 }
 
+/* Make sort headers visually obvious */
+::ng-deep .users-table .mat-sort-header-arrow {
+  opacity: 1 !important;
+}
+
+::ng-deep .users-table th.mat-sort-header {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+}
+
 .user-id {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--mat-sys-on-surface-variant);
   font-weight: 500;
 }
 
@@ -67,8 +149,8 @@ mat-card-content {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
   font-weight: 600;
   font-size: 0.9rem;
   display: flex;
@@ -79,7 +161,7 @@ mat-card-content {
 
 .user-email {
   font-weight: 500;
-  color: #111827;
+  color: var(--mat-sys-on-surface);
 }
 
 .actions-cell {
@@ -90,14 +172,14 @@ mat-card-content {
   transition: background 0.12s;
 
   &:hover {
-    background: #f9fafb;
+    background: var(--mat-sys-surface-container-low);
   }
 }
 
 .empty-cell {
   text-align: center;
   padding: 48px 16px;
-  color: #9ca3af;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.95rem;
 }
 
@@ -108,7 +190,7 @@ mat-card-content {
   justify-content: center;
   padding: 80px 24px;
   gap: 20px;
-  color: #6b7280;
+  color: var(--mat-sys-on-surface-variant);
 
   p {
     margin: 0;
@@ -122,7 +204,7 @@ mat-card-content {
   align-items: center;
   gap: 16px;
   padding: 60px 24px;
-  color: #b91c1c;
+  color: var(--mat-sys-error);
   text-align: center;
 
   .error-icon {
