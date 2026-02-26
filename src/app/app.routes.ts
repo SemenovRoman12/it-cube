@@ -24,17 +24,20 @@ export const routes: Routes = [
       {
         path: 'admin',
         canActivate: [adminGuard],
-        loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
+        loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+        children: []
       },
       {
         path: 'teacher',
         canActivate: [teacherGuard],
-        loadComponent: () => import('./pages/teacher/teacher.component').then(m => m.TeacherComponent)
+        loadComponent: () => import('./pages/teacher/teacher.component').then(m => m.TeacherComponent),
+        children: []
       },
       {
         path: 'student',
         canActivate: [studentGuard],
-        loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent)
+        loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent),
+        children: []
       },
     ]
   },
