@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 import { UserToLogin } from '../../models/auth.model';
-import { FormType } from '../../../../models/form.type';
+import { FormType } from '../../../models/form.type';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, of, throwError } from 'rxjs';
 

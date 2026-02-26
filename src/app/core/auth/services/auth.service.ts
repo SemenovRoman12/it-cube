@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { ApiService } from '../../http/api.service';
 import { TokenService } from './token.service';
-import { UserEntity } from '../../../models/user.model';
+import { UserEntity } from '../../models/user.model';
 import { UserToLogin } from '../models/auth.model';
 import { UserToRegister } from '../models/auth.model';
 import { catchError, Observable, of, tap, throwError } from 'rxjs';
