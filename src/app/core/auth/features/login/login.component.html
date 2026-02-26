@@ -7,11 +7,14 @@
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Имя пользователя</mat-label>
-          <input matInput formControlName="email" type="text" placeholder="Введите имя пользователя" />
+          <mat-label>E-mail</mat-label>
+          <input matInput formControlName="email" type="text" placeholder="Введите email" />
           <mat-icon matPrefix>person</mat-icon>
           @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
-          <mat-error>Введите имя пользователя</mat-error>
+          <mat-error>Введите email</mat-error>
+          }
+          @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
+          <mat-error>Введите корректный email</mat-error>
           }
         </mat-form-field>
 
@@ -30,15 +33,15 @@
           }
         </mat-form-field>
 
-        @if (loginError) {
+        @if (loginError()) {
         <div class="error-message">
           <mat-icon>error</mat-icon>
-          <span>{{ loginError }}</span>
+          <span>{{ loginError() }}</span>
         </div>
         }
 
-        <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="isLoading">
-          @if (isLoading) {
+        <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="isLoading()">
+          @if (isLoading()) {
           <mat-spinner diameter="20" />
           } @else {
           Войти

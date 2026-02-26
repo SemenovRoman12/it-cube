@@ -1,11 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { ApiService } from '../../http/api.service';
 import { TokenService } from './token.service';
-import { UserEntity } from '../../../models/user.model';
+import { UserEntity } from '../../models/user.model';
 import { UserToLogin } from '../models/auth.model';
 import { UserToRegister } from '../models/auth.model';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { AuthResponse } from '../models/auth.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -19,26 +20,23 @@ export class AuthService {
 
   public readonly isAuthenticated = computed(() => !!this._user());
 
-  public login(credentials: UserToLogin): Observable<AuthResponse> {
-    console.log(credentials);
+  public login(credentials: UserToLogin): Observable<AuthResponse | HttpErrorResponse> {
     return this.api.post<UserToLogin, AuthResponse>('auth', credentials).pipe(
       tap((response) => {
         this.tokenService.setToken(response.token);
         this._user.set(response.data);
       }),
-      catchError((error) => {
-        console.error('Login failed', error);
-        return of({} as AuthResponse);
-      })
+      catchError((error: HttpErrorResponse) => throwError(() => error))
     );
   }
 
-  public register(userData: UserToRegister) {
+  public register(userData: UserToRegister): Observable<AuthResponse | HttpErrorResponse> {
     return this.api.post<UserToRegister, AuthResponse>('register', userData).pipe(
       tap((response) => {
         this.tokenService.setToken(response.token);
         this._user.set(response.data);
-      })
+      }),
+      catchError((error: HttpErrorResponse) => throwError(() => error))
     );
   }
 
