@@ -10,16 +10,12 @@ export const roleRedirectGuard: CanActivateFn = () => {
 
   switch (role) {
     case 'admin':
-      router.navigate(['/admin']);
-      return false;
+      return router.navigate(['/admin']);
     case 'teacher':
-      router.navigate(['/teacher']);
-      return false;
+      return router.navigate(['/teacher']);
     case 'user':
-      router.navigate(['/student']);
-      return false;
+      return router.navigate(['/student']);
     default:
-      router.navigate(['/login']);
-      return false;
+      return router.navigate(['/login']);
   }
 };

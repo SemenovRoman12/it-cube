@@ -7,29 +7,36 @@ import { roleRedirectGuard } from './core/auth/guards/role-redirect-guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () => import('./core/auth/features/login/login.component').then(m => m.LoginComponent)
+  },
+  {
     path: '',
-    canActivate: [authGuard, roleRedirectGuard],
-    pathMatch: 'full',
-    children: []
-  },
-  {
-    path: 'admin',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
-  },
-  {
-    path: 'teacher',
-    canActivate: [authGuard, teacherGuard],
-    loadComponent: () => import('./pages/teacher/teacher.component').then(m => m.TeacherComponent)
-  },
-  {
-    path: 'student',
-    canActivate: [authGuard, studentGuard],
-    loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent)
-  },
-  { 
-    path: 'login', 
-    loadComponent: () => import('./core/auth/features/login/login.component').then(m => m.LoginComponent) 
+    loadComponent: () => import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [roleRedirectGuard],
+        children: []
+      },
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
+      },
+      {
+        path: 'teacher',
+        canActivate: [teacherGuard],
+        loadComponent: () => import('./pages/teacher/teacher.component').then(m => m.TeacherComponent)
+      },
+      {
+        path: 'student',
+        canActivate: [studentGuard],
+        loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent)
+      },
+    ]
   },
   {
     path: '**',
