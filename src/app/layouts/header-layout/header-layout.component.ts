@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
@@ -6,6 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   imports: [MatToolbarModule],
   templateUrl: './header-layout.component.html',
   styleUrl: './header-layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderLayoutComponent {
 

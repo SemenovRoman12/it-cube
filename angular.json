@@ -15,7 +15,8 @@
           "standalone": true,
           "prefix": "",
           "skipTests": true,
-          "type": "component"
+          "type": "component",
+          "changeDetection": "OnPush"
         },
         "@schematics/angular:service": {
           "skipTests": true,

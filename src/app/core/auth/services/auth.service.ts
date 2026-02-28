@@ -7,6 +7,7 @@ import { UserToRegister } from '../models/auth.model';
 import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { AuthResponse } from '../models/auth.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class AuthService {
   public readonly user = this._user.asReadonly();
 
   public readonly isAuthenticated = computed(() => !!this._user());
+  private readonly router = inject(Router);
 
   public login(credentials: UserToLogin): Observable<AuthResponse | HttpErrorResponse> {
     return this.api.post<UserToLogin, AuthResponse>('auth', credentials).pipe(
@@ -42,9 +44,11 @@ export class AuthService {
 
   public authMe(): Observable<UserEntity> {
     return this.api.get<UserEntity>('auth_me').pipe(
-      tap(user => this._user.set(user))
+      tap(user => {
+        this.router.navigateByUrl('');
+        return this._user.set(user)
+      })
     )
-  
   }
 
   public logout(): void {
