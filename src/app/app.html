@@ -1,1 +1,7 @@
+@if (isAppLoading()) {
+<div class="d-flex align-items-center justify-content-center min-vh-100 px-3">
+  <mat-progress-spinner mode="indeterminate" class="w-100" style="max-width: 360px"></mat-progress-spinner>
+</div>
+} @else {
 <router-outlet />
+}

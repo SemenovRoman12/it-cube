@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +11,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserToLogin } from '../../models/auth.model';
 import { FormType } from '../../../models/form.type';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, of, throwError } from 'rxjs';
+import { catchError, of, Subscription, throwError } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'login',
@@ -32,6 +33,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef)
 
   public isLoading = signal<boolean>(false);
   public hidePassword = true;
@@ -53,13 +55,13 @@ export class LoginComponent {
       }
 
       this.authService.login(credentials).pipe(
+        takeUntilDestroyed(this.destroyRef),
         catchError((error: HttpErrorResponse) => {
           this.isLoading.set(false);
           this.loginError.set('Неверное имя пользователя или пароль');
           return throwError(() => error);
         })
       ).subscribe((response) => {
-      console.log(response);
         if (response && !(response instanceof HttpErrorResponse)) {
           this.isLoading.set(false);
           this.router.navigateByUrl('');

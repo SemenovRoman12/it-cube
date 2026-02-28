@@ -1,25 +1,40 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth/services/auth.service';
 import { TokenService } from './core/auth/services/token.service';
-import { ApiService } from './core/http/api.service';
-import { tap } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, MatProgressSpinner],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
-  
+  public readonly isAppLoading = signal(true);
+
   public ngOnInit(): void {
-    this.tokenService.getToken()
-      ? this.authService.authMe().pipe(tap(() => this.router.navigateByUrl(''))).subscribe()
-      : this.router.navigateByUrl('login');
-    
-  }      
+    if (!this.tokenService.getToken()) {
+      this.router.navigateByUrl('login');
+      this.isAppLoading.set(false);
+      return;
+    }
+
+    this.authService
+      .authMe()
+      .pipe(
+        catchError(() => {
+          this.tokenService.removeToken();
+          this.router.navigateByUrl('login');
+          return of(null);
+        }),
+        finalize(() => this.isAppLoading.set(false)),
+      )
+      .subscribe();
+  }
 }
