@@ -1,3 +1,9 @@
-<header-layout />
-<router-outlet />
-<footer-layout />
+<div class="main-layout d-flex flex-column min-vh-100">
+  <header-layout />
+
+  <main class="main-layout-content flex-grow-1 d-flex align-items-center justify-content-center container py-4">
+    <router-outlet />
+  </main>
+
+  <footer-layout />
+</div>
