@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
+import { HttpErrorResponse } from '@angular/common/http';
 import { UserEntity } from '../../../core/models/user.model';
 import { UsersService } from '../../../core/admin/services/users.service';
 import { UserEditDialogComponent } from '../../../core/admin/features/user-edit-dialog/user-edit-dialog.component';
@@ -61,6 +62,7 @@ export class AdminUsersComponent implements OnInit {
   public isLoading = signal(false);
   public errorMessage = signal('');
   public searchValue = signal('');
+  public deletingUserId = signal<number | null>(null);
 
   public displayedColumns = ['id', 'email', 'role', 'actions'];
 
@@ -145,6 +147,27 @@ export class AdminUsersComponent implements OnInit {
 
   public get filteredUsers(): number {
     return this.dataSource.filteredData.length;
+  }
+
+  public deleteUser(user: UserEntity): void {
+    const isConfirmed = window.confirm(`Удалить пользователя ${user.email}?`);
+    if (!isConfirmed) {
+      return;
+    }
+
+    this.deletingUserId.set(user.id);
+
+    this.usersService.deleteUser(user.id).subscribe({
+      next: () => {
+        this.dataSource.data = this.dataSource.data.filter((u) => u.id !== user.id);
+        this.deletingUserId.set(null);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage.set('Ошибка при удалении пользователя. Попробуйте снова.');
+        this.deletingUserId.set(null);
+        console.error(err);
+      },
+    });
   }
 }
 

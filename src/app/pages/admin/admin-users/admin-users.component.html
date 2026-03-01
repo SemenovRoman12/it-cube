@@ -101,6 +101,15 @@
               >
                 <mat-icon>edit</mat-icon>
               </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="deleteUser(user)"
+                matTooltip="Удалить"
+                [disabled]="deletingUserId() === user.id"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
             </td>
           </ng-container>
 
