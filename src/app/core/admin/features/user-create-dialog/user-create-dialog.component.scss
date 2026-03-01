@@ -1,0 +1,47 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+mat-dialog-content {
+  padding-top: 16px !important;
+  min-width: 400px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  margin-top: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+mat-dialog-actions {
+  gap: 8px;
+  padding: 16px 24px !important;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}

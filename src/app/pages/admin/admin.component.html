@@ -1,1 +1,13 @@
-<p>admin works!</p>
+<section class="admin-home">
+  <h1 class="admin-home__title">Панель администратора</h1>
+  <p class="admin-home__subtitle">Выберите раздел для перехода в новый функционал.</p>
+
+  <div class="admin-home__actions">
+    <a mat-flat-button color="primary" [routerLink]="['./users']">
+      <mat-icon>manage_accounts</mat-icon>
+      Управление пользователями
+    </a>
+  </div>
+</section>
+
+<router-outlet />
