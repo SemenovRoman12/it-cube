@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { GroupCreateDialogComponent } from '../../../core/admin/features/group-create-dialog/group-create-dialog.component';
 import { GroupEntity } from '../../../core/models/group.model';
 import { GroupsService } from '../../../core/admin/services/groups.service';
@@ -27,6 +28,7 @@ import { GroupsService } from '../../../core/admin/services/groups.service';
 export class AdminGroupsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   public readonly isLoading = signal(false);
   public readonly errorMessage = signal('');
@@ -63,6 +65,10 @@ export class AdminGroupsComponent implements OnInit {
         this.groups.set([...this.groups(), createdGroup]);
       }
     });
+  }
+
+  public openGroup(groupId: number): void {
+    this.router.navigate(['/admin/groups', groupId]);
   }
 }
 

@@ -37,9 +37,18 @@
         @if (groups().length) {
           <mat-list>
             @for (group of groups(); track group.id) {
-              <mat-list-item>
+              <mat-list-item class="group-item" (click)="openGroup(group.id)">
                 <div matListItemTitle>{{ group.name }}</div>
                 <div matListItemLine>ID: {{ group.id }}</div>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  matListItemMeta
+                  type="button"
+                  (click)="$event.stopPropagation(); openGroup(group.id)"
+                >
+                  Открыть группу
+                </button>
               </mat-list-item>
             }
           </mat-list>

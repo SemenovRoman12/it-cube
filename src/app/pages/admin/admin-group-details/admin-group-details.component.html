@@ -1,0 +1,66 @@
+<div class="group-details-page">
+  <div class="group-details-header">
+    <a mat-button [routerLink]="['/admin/groups']">
+      <mat-icon>arrow_back</mat-icon>
+      К группам
+    </a>
+
+    <div class="header-actions">
+      <button mat-flat-button color="primary" (click)="openAddStudentDialog()" [disabled]="!availableStudents().length || isLoading()">
+        <mat-icon>person_add</mat-icon>
+        Добавить ученика
+      </button>
+
+      <button mat-stroked-button (click)="loadData()" [disabled]="isLoading()">
+        <mat-icon>refresh</mat-icon>
+        Обновить
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state">
+      <mat-spinner diameter="44" />
+      <p>Загрузка группы...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ group()?.name }}</mat-card-title>
+        <mat-card-subtitle>ID: {{ group()?.id }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <h3 class="section-title">Ученики в группе: {{ students().length }}</h3>
+
+        @if (students().length) {
+          <mat-list>
+            @for (student of students(); track student.id) {
+              <mat-list-item>
+                <div matListItemTitle>{{ student.email }}</div>
+                <div matListItemLine>ID: {{ student.id }}</div>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  matListItemMeta
+                  (click)="removeStudent(student)"
+                  [disabled]="removingStudentId() === student.id"
+                >
+                  <mat-icon>person_remove</mat-icon>
+                </button>
+              </mat-list-item>
+            }
+          </mat-list>
+        } @else {
+          <div class="empty-state">В этой группе пока нет учеников</div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

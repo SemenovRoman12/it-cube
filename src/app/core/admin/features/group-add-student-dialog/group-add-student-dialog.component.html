@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>
+  <mat-icon>person_add</mat-icon>
+  Добавить ученика в группу
+</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Ученик</mat-label>
+    <mat-select [(value)]="selectedUserId">
+      @for (user of data.users; track user.id) {
+        <mat-option [value]="user.id">{{ user.email }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (errorMessage) {
+    <div class="error-alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">Отмена</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="isLoading || !selectedUserId">
+    @if (isLoading) {
+      <ng-container>
+        <mat-spinner diameter="18" />
+        Добавление...
+      </ng-container>
+    } @else {
+      <ng-container>
+        <mat-icon>check</mat-icon>
+        Добавить
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>
+

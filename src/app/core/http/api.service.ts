@@ -30,6 +30,12 @@ export class ApiService {
     });
   }
 
+  public patch<T>(url: string, data: Partial<T>): Observable<T> {
+    return this.http.patch<T>(`${this.apiUrl}/${url}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
   public delete<T>(url: string, data: T): Observable<T> {
     return this.http.delete<T>(`${this.apiUrl}/${url}`, {
       headers: this.headers

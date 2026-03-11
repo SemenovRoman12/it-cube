@@ -1,0 +1,116 @@
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { GroupAddStudentDialogComponent } from '../../../core/admin/features/group-add-student-dialog/group-add-student-dialog.component';
+import { GroupsService } from '../../../core/admin/services/groups.service';
+import { UsersService } from '../../../core/admin/services/users.service';
+import { GroupEntity } from '../../../core/models/group.model';
+import { UserEntity } from '../../../core/models/user.model';
+
+@Component({
+  selector: 'app-admin-group-details',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatListModule,
+    MatProgressSpinnerModule,
+  ],
+  templateUrl: './admin-group-details.component.html',
+  styleUrl: './admin-group-details.component.scss',
+})
+export class AdminGroupDetailsComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly groupsService = inject(GroupsService);
+  private readonly usersService = inject(UsersService);
+  private readonly dialog = inject(MatDialog);
+
+  public readonly isLoading = signal(false);
+  public readonly errorMessage = signal('');
+  public readonly group = signal<GroupEntity | null>(null);
+  public readonly students = signal<UserEntity[]>([]);
+  public readonly availableStudents = signal<UserEntity[]>([]);
+  public readonly removingStudentId = signal<number | null>(null);
+
+  private groupId = 0;
+
+  public ngOnInit(): void {
+    this.groupId = Number(this.route.snapshot.paramMap.get('id') ?? 0);
+    this.loadData();
+  }
+
+  public loadData(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    forkJoin({
+      group: this.groupsService.getGroupById(this.groupId),
+      users: this.usersService.getUsers(),
+    }).subscribe({
+      next: ({ group, users }) => {
+        this.group.set(group);
+        this.students.set(users.filter((u) => u.role === 'user' && u.group_id === this.groupId));
+        this.availableStudents.set(users.filter((u) => u.role === 'user' && (u.group_id == null || u.group_id === 0)));
+        this.isLoading.set(false);
+      },
+      error: (err: unknown) => {
+        this.errorMessage.set('Ошибка при загрузке группы.');
+        this.isLoading.set(false);
+        console.error(err);
+      },
+    });
+  }
+
+  public openAddStudentDialog(): void {
+    const dialogRef = this.dialog.open(GroupAddStudentDialogComponent, {
+      width: '460px',
+      data: {
+        groupId: this.groupId,
+        users: this.availableStudents(),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
+      if (!updatedUser) {
+        return;
+      }
+
+      this.students.set([...this.students(), updatedUser]);
+      this.availableStudents.set(this.availableStudents().filter((u) => u.id !== updatedUser.id));
+    });
+  }
+
+  public removeStudent(student: UserEntity): void {
+    const confirmed = window.confirm(`Удалить ученика ${student.email} из группы?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.removingStudentId.set(student.id);
+
+    this.usersService.removeUserFromGroup(student.id).subscribe({
+      next: (updatedUser) => {
+        this.students.set(this.students().filter((u) => u.id !== student.id));
+        this.availableStudents.set([...this.availableStudents(), updatedUser]);
+        this.removingStudentId.set(null);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage.set('Ошибка при удалении ученика из группы.');
+        this.removingStudentId.set(null);
+        console.error(err);
+      },
+    });
+  }
+}
+

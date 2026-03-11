@@ -15,6 +15,10 @@ export class GroupsService {
     return this.api.get<GroupEntity[]>('group');
   }
 
+  public getGroupById(id: number): Observable<GroupEntity> {
+    return this.api.get<GroupEntity>(`group/${id}`);
+  }
+
   public createGroup(data: GroupCreate): Observable<GroupEntity> {
     return this.api.post<GroupCreate, GroupEntity>('group', data);
   }

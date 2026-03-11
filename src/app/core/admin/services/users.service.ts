@@ -17,7 +17,15 @@ export class UsersService {
   }
 
   public updateUser(id: number, data: UserUpdate): Observable<UserEntity> {
-    return this.api.put<UserEntity>(`users/${id}`, data as UserEntity);
+    return this.api.patch<UserEntity>(`users/${id}`, data as Partial<UserEntity>);
+  }
+
+  public assignUserToGroup(id: number, groupId: number): Observable<UserEntity> {
+    return this.updateUser(id, { group_id: groupId });
+  }
+
+  public removeUserFromGroup(id: number): Observable<UserEntity> {
+    return this.updateUser(id, { group_id: null });
   }
 
   public createUser(data: UserCreate): Observable<UserEntity> {

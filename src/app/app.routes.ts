@@ -34,6 +34,10 @@ export const routes: Routes = [
             path: 'groups',
             loadComponent: () => import('./pages/admin/admin-groups/admin-groups.component').then(m => m.AdminGroupsComponent),
           },
+          {
+            path: 'groups/:id',
+            loadComponent: () => import('./pages/admin/admin-group-details/admin-group-details.component').then(m => m.AdminGroupDetailsComponent),
+          },
         ]
       },
       {
