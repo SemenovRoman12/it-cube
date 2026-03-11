@@ -1,0 +1,53 @@
+<div class="groups-page">
+  <div class="groups-header">
+    <div class="groups-title-block">
+      <mat-icon class="title-icon">groups</mat-icon>
+      <h1 class="groups-title">Группы</h1>
+    </div>
+
+    <div class="groups-header-actions">
+      <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isLoading()">
+        <mat-icon>group_add</mat-icon>
+        Добавить группу
+      </button>
+
+      <button mat-stroked-button (click)="loadGroups()" [disabled]="isLoading()">
+        <mat-icon>refresh</mat-icon>
+        Обновить
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state state--loading">
+      <mat-spinner diameter="44" />
+      <p>Загрузка групп...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Всего групп: <strong>{{ groups().length }}</strong></mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (groups().length) {
+          <mat-list>
+            @for (group of groups(); track group.id) {
+              <mat-list-item>
+                <div matListItemTitle>{{ group.name }}</div>
+                <div matListItemLine>ID: {{ group.id }}</div>
+              </mat-list-item>
+            }
+          </mat-list>
+        } @else {
+          <div class="empty-state">Группы пока не созданы</div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

@@ -30,6 +30,10 @@ export const routes: Routes = [
             path: 'users',
             loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
           },
+          {
+            path: 'groups',
+            loadComponent: () => import('./pages/admin/admin-groups/admin-groups.component').then(m => m.AdminGroupsComponent),
+          },
         ]
       },
       {
