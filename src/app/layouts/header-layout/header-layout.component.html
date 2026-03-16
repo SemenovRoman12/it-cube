@@ -1,3 +1,11 @@
 <mat-toolbar class="header-toolbar px-3 px-md-4 d-flex justify-content-center">
   <span class="fw-semibold">IT-Cube</span>
+
+  <button mat-icon-button (click)="darkMode.set(!darkMode())">
+    @if(darkMode()) {
+      <mat-icon>light_mode</mat-icon>
+    } @else {
+      <mat-icon>dark_mode</mat-icon>
+    }
+  </button>
 </mat-toolbar>

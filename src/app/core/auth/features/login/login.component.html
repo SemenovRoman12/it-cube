@@ -11,10 +11,10 @@
           <input matInput formControlName="email" type="text" placeholder="Введите email" />
           <mat-icon matPrefix>person</mat-icon>
           @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
-          <mat-error>Введите email</mat-error>
+          <mat-error class="error-message">Введите email</mat-error>
           }
           @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
-          <mat-error>Введите корректный email</mat-error>
+          <mat-error class="error-message">Введите корректный email</mat-error>
           }
         </mat-form-field>
 
@@ -26,10 +26,10 @@
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
-          <mat-error>Введите пароль</mat-error>
+          <mat-error class="error-message">Введите пароль</mat-error>
           }
           @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
-          <mat-error>Пароль должен быть не менее 6 символов</mat-error>
+          <mat-error class="error-message">Пароль должен быть не менее 6 символов</mat-error>
           }
         </mat-form-field>
 
@@ -40,9 +40,9 @@
         </div>
         }
 
-        <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="isLoading()">
+        <button mat-flat-button type="submit" class="submit-btn full-width" [disabled]="isLoading()">
           @if (isLoading()) {
-          <mat-spinner diameter="20" />
+            <mat-spinner diameter="20" />
           } @else {
           Войти
           }
