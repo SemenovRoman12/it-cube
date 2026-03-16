@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatOptionModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { UserEntity } from '../../../models/user.model';
+import { UserEntity } from '../../../../core/models/user.model';
 import { UsersService } from '../../services/users.service';
 
 type DialogData = {

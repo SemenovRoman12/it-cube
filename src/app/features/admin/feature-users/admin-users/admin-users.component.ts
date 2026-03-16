@@ -10,13 +10,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserEntity } from '../../../core/models/user.model';
-import { UsersService } from '../../../core/admin/services/users.service';
-import { UserEditDialogComponent } from '../../../core/admin/features/user-edit-dialog/user-edit-dialog.component';
-import { UserCreateDialogComponent } from '../../../core/admin/features/user-create-dialog/user-create-dialog.component';
+import { UserEntity } from '../../../../core/models/user.model';
+import { UsersService } from '../../services/users.service';
+import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
+import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dialog.component';
 
 @Component({
-  selector: 'app-admin-users',
+  selector: 'app-admin-container-users',
   standalone: true,
   imports: [
     CommonModule,

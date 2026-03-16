@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../http/api.service';
-import { GroupEntity } from '../../models/group.model';
+import { ApiService } from '../../../core/http/api.service';
+import { GroupEntity } from '../../../core/models/group.model';
 
 export type GroupCreate = Omit<GroupEntity, 'id'>;
 

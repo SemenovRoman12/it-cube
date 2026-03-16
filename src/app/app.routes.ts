@@ -24,19 +24,19 @@ export const routes: Routes = [
       {
         path: 'admin',
         canActivate: [adminGuard],
-        loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+        loadComponent: () => import('./features/admin/admin-container/admin.component').then(m => m.AdminComponent),
         children: [
           {
             path: 'users',
-            loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
+            loadComponent: () => import('./features/admin/feature-users/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
           },
           {
             path: 'groups',
-            loadComponent: () => import('./pages/admin/admin-groups/admin-groups.component').then(m => m.AdminGroupsComponent),
+            loadComponent: () => import('./features/admin/feature-groups/admin-groups/admin-groups.component').then(m => m.AdminGroupsComponent),
           },
           {
             path: 'groups/:id',
-            loadComponent: () => import('./pages/admin/admin-group-details/admin-group-details.component').then(m => m.AdminGroupDetailsComponent),
+            loadComponent: () => import('./features/admin/feature-groups/admin-group-details/admin-group-details.component').then(m => m.AdminGroupDetailsComponent),
           },
         ]
       },

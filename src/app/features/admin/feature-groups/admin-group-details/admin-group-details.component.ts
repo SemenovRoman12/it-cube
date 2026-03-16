@@ -9,14 +9,14 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { GroupAddStudentDialogComponent } from '../../../core/admin/features/group-add-student-dialog/group-add-student-dialog.component';
-import { GroupsService } from '../../../core/admin/services/groups.service';
-import { UsersService } from '../../../core/admin/services/users.service';
-import { GroupEntity } from '../../../core/models/group.model';
-import { UserEntity } from '../../../core/models/user.model';
+import { GroupAddStudentDialogComponent } from '../group-add-student-dialog/group-add-student-dialog.component';
+import { GroupsService } from '../../services/groups.service';
+import { UsersService } from '../../services/users.service';
+import { GroupEntity } from '../../../../core/models/group.model';
+import { UserEntity } from '../../../../core/models/user.model';
 
 @Component({
-  selector: 'app-admin-group-details',
+  selector: 'app-admin-container-group-details',
   standalone: true,
   imports: [
     CommonModule,

@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'admin',
+  selector: 'admin-container',
   imports: [RouterLink, RouterOutlet, MatButtonModule, MatIconModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',

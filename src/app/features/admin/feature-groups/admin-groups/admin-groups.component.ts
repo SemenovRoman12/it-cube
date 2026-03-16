@@ -7,12 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { GroupCreateDialogComponent } from '../../../core/admin/features/group-create-dialog/group-create-dialog.component';
-import { GroupEntity } from '../../../core/models/group.model';
-import { GroupsService } from '../../../core/admin/services/groups.service';
+import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
+import { GroupEntity } from '../../../../core/models/group.model';
+import { GroupsService } from '../../services/groups.service';
 
 @Component({
-  selector: 'app-admin-groups',
+  selector: 'app-admin-container-groups',
   standalone: true,
   imports: [
     CommonModule,
