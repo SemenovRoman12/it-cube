@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../http/api.service';
-import { UserEntity } from '../../models/user.model';
+import { ApiService } from '../../../core/http/api.service';
+import { UserEntity } from '../../../core/models/user.model';
 
 export type UserUpdate = Partial<Omit<UserEntity, 'id'>> & { password?: string };
 export type UserCreate = Omit<UserEntity, 'id'> & { password: string };

@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { GroupEntity } from '../../../models/group.model';
+import { GroupEntity } from '../../../../core/models/group.model';
 import { GroupCreate, GroupsService } from '../../services/groups.service';
 
 type CreateGroupForm = {
