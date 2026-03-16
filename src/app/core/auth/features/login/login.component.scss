@@ -4,7 +4,6 @@
   align-items: center;
   min-height: 100vh;
   padding: 16px;
-  background-color: var(--mat-sys-surface-container-low);
 }
 
 .login-card {
@@ -39,6 +38,7 @@
   margin-top: 16px;
   height: 48px;
   font-size: 16px;
+  background-color: var(--sys-primary) !important;
 
   mat-spinner {
     margin: 0 auto;
@@ -49,11 +49,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
-  background-color: var(--mat-sys-error-container);
-  color: var(--mat-sys-on-error-container);
   border-radius: 8px;
-  margin-top: 8px;
+  color: var(--sys-error);
 
   mat-icon {
     font-size: 20px;
