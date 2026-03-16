@@ -49,9 +49,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
   border-radius: 8px;
-  margin-top: 8px;
+  color: var(--sys-error);
 
   mat-icon {
     font-size: 20px;
