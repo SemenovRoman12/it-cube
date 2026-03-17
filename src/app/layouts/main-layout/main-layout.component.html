@@ -1,9 +1,7 @@
 <div class="wrapper main-layout d-flex flex-column min-vh-100">
-  <header-layout />
+  <header-layout (sidenavToggle)="onToggleSidenav()" />
 
-  <main class="main-layout-content flex-grow-1 d-flex align-items-center justify-content-center container py-4">
-    <router-outlet />
-  </main>
+  <sidenav-layout class="flex-grow-1" [toggleRequested]="toggleRequested()" />
 
   <footer-layout />
 </div>

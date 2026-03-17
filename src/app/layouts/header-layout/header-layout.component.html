@@ -1,15 +1,15 @@
-<mat-toolbar class="header-toolbar px-3 px-md-4 d-flex justify-content-center">
-  <span class="fw-semibold">IT-Cube</span>
+<mat-toolbar class="header-toolbar px-3 px-md-4">
+  <button mat-icon-button aria-label="Toggle navigation menu" (click)="onToggleSidenav()" class="menu-btn">
+    <mat-icon>menu</mat-icon>
+  </button>
 
-  <button
-    mat-icon-button
-    (click)="darkMode.set(!darkMode())"
-    class="dark-mode-btn"
-  >
+  <a class="fw-semibold app-title title-link" routerLink="/">IT-Cube</a>
+
+  <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn" aria-label="Toggle dark mode">
     @if(darkMode()) {
-      <mat-icon>light_mode</mat-icon>
+    <mat-icon>light_mode</mat-icon>
     } @else {
-      <mat-icon>dark_mode</mat-icon>
+    <mat-icon>dark_mode</mat-icon>
     }
   </button>
 </mat-toolbar>
