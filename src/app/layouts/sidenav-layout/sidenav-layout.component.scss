@@ -1,0 +1,28 @@
+.sidenav-container {
+  min-height: 0;
+}
+
+.sidenav {
+  width: 240px;
+  border-right: 1px solid var(--sys-outline-variant);
+  border-radius: 0;
+}
+
+.side-nav-item {
+  border-radius: 0 !important;
+  border: 0;
+}
+
+.sidenav-content {
+  display: block;
+}
+
+.main-layout-content {
+  min-height: calc(100vh - 64px - 48px);
+}
+
+@media (max-width: 991px) {
+  .main-layout-content {
+    min-height: calc(100vh - 64px - 48px);
+  }
+}

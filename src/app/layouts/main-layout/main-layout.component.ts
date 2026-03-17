@@ -1,16 +1,24 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { HeaderLayoutComponent } from '../header-layout/header-layout.component';
-import { RouterOutlet } from "@angular/router";
 import { FooterLayoutComponent } from '../footer-layout/footer-layout.component';
-import { ChangeDetectionStrategy } from '@angular/core';
+import { SidenavLayoutComponent } from '../sidenav-layout/sidenav-layout.component';
 
 @Component({
   selector: 'main-layout',
-  imports: [HeaderLayoutComponent, RouterOutlet, FooterLayoutComponent],
+  imports: [
+    HeaderLayoutComponent,
+    SidenavLayoutComponent,
+    FooterLayoutComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {
+  public readonly toggleRequested = signal(false);
+
+  public onToggleSidenav(): void {
+    this.toggleRequested.update((value) => !value);
+  }
 
 }
