@@ -45,6 +45,13 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ID группы (необязательно)</mat-label>
+      <mat-icon matPrefix>groups</mat-icon>
+      <input matInput formControlName="group_id" type="number" min="1" placeholder="Например, 1" />
+      <mat-hint>Оставьте пустым, если пользователь без группы</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Роль</mat-label>
       <mat-icon matPrefix>admin_panel_settings</mat-icon>
       <mat-select formControlName="role">

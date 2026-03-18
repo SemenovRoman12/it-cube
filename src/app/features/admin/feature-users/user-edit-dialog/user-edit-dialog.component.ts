@@ -42,6 +42,7 @@ export class UserEditDialogComponent implements OnInit {
     full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
     email: new FormControl('', [Validators.required, Validators.minLength(3)]),
     password: new FormControl(''),
+    group_id: new FormControl<number | null>(null),
     role: new FormControl<'admin' | 'user' | 'teacher'>('user', [Validators.required]),
   });
 
@@ -50,6 +51,7 @@ export class UserEditDialogComponent implements OnInit {
       full_name: this.user.full_name,
       email: this.user.email,
       password: '',
+      group_id: this.user.group_id,
       role: this.user.role,
     });
   }
@@ -64,9 +66,13 @@ export class UserEditDialogComponent implements OnInit {
     this.errorMessage = '';
 
     const formValue = this.form.value;
+    const groupIdRaw = formValue.group_id;
+    const groupId = groupIdRaw == null ? null : Number(groupIdRaw);
+
     const updateData: UserUpdate = {
       full_name: formValue.full_name?.trim() ?? undefined,
       email: formValue.email ?? undefined,
+      group_id: Number.isNaN(groupId) ? null : groupId,
       role: (formValue.role as 'admin' | 'user' | 'teacher') ?? undefined,
     };
 
