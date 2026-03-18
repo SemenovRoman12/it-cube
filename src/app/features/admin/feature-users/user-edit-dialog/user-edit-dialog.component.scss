@@ -4,6 +4,7 @@ h2[mat-dialog-title] {
   gap: 8px;
   font-size: 1.2rem;
   font-weight: 600;
+  padding: 24px 24px 13px 24px !important;
 }
 
 mat-dialog-content {
@@ -43,5 +44,25 @@ mat-dialog-actions {
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+}
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button[mat-flat-button][color='primary'] {
+  .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: currentColor;
+  }
+
+  mat-icon,
+  .mat-icon {
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }

@@ -6,14 +6,26 @@
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" id="createUserForm">
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Email / Логин</mat-label>
-      <mat-icon matPrefix>person</mat-icon>
-      <input matInput formControlName="email" type="text" placeholder="Введите email или логин" />
-      @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+      <mat-label>ФИО</mat-label>
+      <mat-icon matPrefix>badge</mat-icon>
+      <input matInput formControlName="full_name" type="text" placeholder="Иванов Михаил Александрович" />
+      @if (form.get('full_name')?.hasError('required') && form.get('full_name')?.touched) {
         <mat-error>Поле обязательно для заполнения</mat-error>
       }
-      @if (form.get('email')?.hasError('minlength') && form.get('email')?.touched) {
+      @if (form.get('full_name')?.hasError('minlength') && form.get('full_name')?.touched) {
         <mat-error>Минимум 3 символа</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="email" type="text" placeholder="example@example.com" />
+      @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
+        <mat-error>Поле обязательно для заполнения</mat-error>
+      }
+      @if (form.get('email')?.hasError('email') && (form.get('email')?.touched || form.get('email')?.dirty)) {
+        <mat-error>Введите корректный email</mat-error>
       }
     </mat-form-field>
 
@@ -35,6 +47,18 @@
       @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
         <mat-error>Минимум 6 символов</mat-error>
       }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Группа (необязательно)</mat-label>
+      <mat-icon matPrefix>groups</mat-icon>
+      <mat-select formControlName="group_id" [disabled]="isGroupsLoading">
+        <mat-option [value]="null">Без группы</mat-option>
+        @for (group of groups; track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Выберите группу по названию</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -69,15 +93,15 @@
     [disabled]="isLoading"
   >
     @if (isLoading) {
-      <ng-container>
+      <span class="button-content">
         <mat-spinner diameter="18" />
         Создание...
-      </ng-container>
+      </span>
     } @else {
-      <ng-container>
+      <span class="button-content">
         <mat-icon>person_add</mat-icon>
         Создать
-      </ng-container>
+      </span>
     }
   </button>
 </mat-dialog-actions>

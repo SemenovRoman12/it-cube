@@ -10,7 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { GroupEntity } from '../../../../core/models/group.model';
 import { UserEntity } from '../../../../core/models/user.model';
+import { GroupsService } from '../../services/groups.service';
 import { UsersService } from '../../services/users.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dialog.component';
@@ -34,6 +37,7 @@ import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dia
 })
 export class AdminUsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
+  private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
 
   private _sort!: MatSort;
@@ -43,14 +47,34 @@ export class AdminUsersComponent implements OnInit {
     if (value) {
       this._sort = value;
       this.dataSource.sort = value;
+      this.dataSource.filterPredicate = (item, filter) => {
+        const search = [
+          String(item.id),
+          item.full_name,
+          item.email,
+          item.role,
+          this.getGroupName(item.group_id),
+          this.formatDate(item.created_at),
+        ]
+          .join(' ')
+          .toLowerCase();
+
+        return search.includes(filter);
+      };
       this.dataSource.sortingDataAccessor = (item, property) => {
         switch (property) {
           case 'id':
             return item.id;
+          case 'full_name':
+            return item.full_name.toLowerCase();
           case 'email':
             return item.email.toLowerCase();
           case 'role':
             return item.role;
+          case 'group_id':
+            return this.getGroupName(item.group_id).toLowerCase();
+          case 'created_at':
+            return new Date(item.created_at).getTime();
           default:
             return '';
         }
@@ -63,8 +87,9 @@ export class AdminUsersComponent implements OnInit {
   public errorMessage = signal('');
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
+  public groupNames = signal<Record<number, string>>({});
 
-  public displayedColumns = ['id', 'email', 'role', 'actions'];
+  public displayedColumns = ['id', 'full_name', 'email', 'role', 'group_id', 'created_at', 'actions'];
 
   public ngOnInit(): void {
     this.loadUsers();
@@ -74,8 +99,17 @@ export class AdminUsersComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.usersService.getUsers().subscribe({
-      next: (users) => {
+    forkJoin({
+      users: this.usersService.getUsers(),
+      groups: this.groupsService.getGroups(),
+    }).subscribe({
+      next: ({ users, groups }) => {
+        const names: Record<number, string> = {};
+        groups.forEach((group: GroupEntity) => {
+          names[group.id] = group.name;
+        });
+
+        this.groupNames.set(names);
         this.dataSource.data = users;
         this.isLoading.set(false);
       },
@@ -141,12 +175,35 @@ export class AdminUsersComponent implements OnInit {
     return colors[role] ?? 'primary';
   }
 
+  public formatDate(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('ru-RU', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  }
+
   public get totalUsers(): number {
     return this.dataSource.data.length;
   }
 
   public get filteredUsers(): number {
     return this.dataSource.filteredData.length;
+  }
+
+  public getGroupName(groupId: number | null): string {
+    if (groupId == null) {
+      return 'Без группы';
+    }
+
+    return this.groupNames()[groupId] ?? `Группа #${groupId}`;
   }
 
   public deleteUser(user: UserEntity): void {
