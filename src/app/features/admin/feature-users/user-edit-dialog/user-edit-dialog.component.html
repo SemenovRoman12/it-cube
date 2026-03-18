@@ -6,6 +6,18 @@
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" id="editUserForm">
     <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ФИО</mat-label>
+      <mat-icon matPrefix>badge</mat-icon>
+      <input matInput formControlName="full_name" type="text" placeholder="Введите полное имя" />
+      @if (form.get('full_name')?.hasError('required') && form.get('full_name')?.touched) {
+        <mat-error>Поле обязательно для заполнения</mat-error>
+      }
+      @if (form.get('full_name')?.hasError('minlength') && form.get('full_name')?.touched) {
+        <mat-error>Минимум 3 символа</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email / Логин</mat-label>
       <mat-icon matPrefix>person</mat-icon>
       <input matInput formControlName="email" type="text" placeholder="Введите email или логин" />

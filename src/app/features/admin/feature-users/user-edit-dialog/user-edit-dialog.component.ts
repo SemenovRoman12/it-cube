@@ -39,6 +39,7 @@ export class UserEditDialogComponent implements OnInit {
   public hidePassword = true;
 
   public form = new FormGroup({
+    full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
     email: new FormControl('', [Validators.required, Validators.minLength(3)]),
     password: new FormControl(''),
     role: new FormControl<'admin' | 'user' | 'teacher'>('user', [Validators.required]),
@@ -46,6 +47,7 @@ export class UserEditDialogComponent implements OnInit {
 
   public ngOnInit(): void {
     this.form.patchValue({
+      full_name: this.user.full_name,
       email: this.user.email,
       password: '',
       role: this.user.role,
@@ -63,6 +65,7 @@ export class UserEditDialogComponent implements OnInit {
 
     const formValue = this.form.value;
     const updateData: UserUpdate = {
+      full_name: formValue.full_name?.trim() ?? undefined,
       email: formValue.email ?? undefined,
       role: (formValue.role as 'admin' | 'user' | 'teacher') ?? undefined,
     };
