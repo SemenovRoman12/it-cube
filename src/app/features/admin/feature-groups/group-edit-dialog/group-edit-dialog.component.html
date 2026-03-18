@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>
+  <mat-icon>edit</mat-icon>
+  Редактировать группу
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="editGroupForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Название группы</mat-label>
+      <mat-icon matPrefix>groups</mat-icon>
+      <input matInput formControlName="name" type="text" placeholder="Например, 9А" />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Поле обязательно для заполнения</mat-error>
+      }
+      @if (form.get('name')?.hasError('minlength') && form.get('name')?.touched) {
+        <mat-error>Минимум 2 символа</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">Отмена</button>
+  <button
+    mat-flat-button
+    color="primary"
+    form="editGroupForm"
+    type="submit"
+    [disabled]="isLoading"
+  >
+    @if (isLoading) {
+      <ng-container>
+        <mat-spinner diameter="18" />
+        Сохранение...
+      </ng-container>
+    } @else {
+      <ng-container>
+        <mat-icon>save</mat-icon>
+        Сохранить
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>
+
