@@ -43,14 +43,34 @@ export class AdminUsersComponent implements OnInit {
     if (value) {
       this._sort = value;
       this.dataSource.sort = value;
+      this.dataSource.filterPredicate = (item, filter) => {
+        const search = [
+          String(item.id),
+          item.full_name,
+          item.email,
+          item.role,
+          item.group_id == null ? 'без группы' : String(item.group_id),
+          this.formatDate(item.created_at),
+        ]
+          .join(' ')
+          .toLowerCase();
+
+        return search.includes(filter);
+      };
       this.dataSource.sortingDataAccessor = (item, property) => {
         switch (property) {
           case 'id':
             return item.id;
+          case 'full_name':
+            return item.full_name.toLowerCase();
           case 'email':
             return item.email.toLowerCase();
           case 'role':
             return item.role;
+          case 'group_id':
+            return item.group_id ?? -1;
+          case 'created_at':
+            return new Date(item.created_at).getTime();
           default:
             return '';
         }
@@ -64,7 +84,7 @@ export class AdminUsersComponent implements OnInit {
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
 
-  public displayedColumns = ['id', 'email', 'role', 'actions'];
+  public displayedColumns = ['id', 'full_name', 'email', 'role', 'group_id', 'created_at', 'actions'];
 
   public ngOnInit(): void {
     this.loadUsers();
@@ -139,6 +159,21 @@ export class AdminUsersComponent implements OnInit {
       user: 'accent',
     };
     return colors[role] ?? 'primary';
+  }
+
+  public formatDate(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('ru-RU', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   }
 
   public get totalUsers(): number {

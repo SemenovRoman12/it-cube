@@ -13,9 +13,11 @@ import { UserEntity } from '../../../../core/models/user.model';
 import { UserCreate, UsersService } from '../../services/users.service';
 
 type CreateUserForm = {
+  full_name: string;
   email: string;
   password: string;
   role: 'admin' | 'user' | 'teacher';
+  group_id: number | null;
 };
 
 @Component({
@@ -44,9 +46,11 @@ export class UserCreateDialogComponent {
   public hidePassword = true;
 
   public form = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
     role: new FormControl<'admin' | 'user' | 'teacher'>('user', [Validators.required]),
+    group_id: new FormControl<number | null>(null),
   });
 
   public onSubmit(): void {
@@ -60,9 +64,11 @@ export class UserCreateDialogComponent {
 
     const formValue = this.form.value as CreateUserForm;
     const createData: UserCreate = {
-      email: formValue.email,
-      password: formValue.password,
+      full_name: formValue.full_name.trim(),
+      email: formValue.email.trim(),
+      password: formValue.password.trim(),
       role: formValue.role,
+      group_id: formValue.group_id,
     };
 
     this.usersService.createUser(createData).subscribe({
