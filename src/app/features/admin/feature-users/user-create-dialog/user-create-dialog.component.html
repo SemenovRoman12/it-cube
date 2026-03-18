@@ -8,7 +8,7 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>ФИО</mat-label>
       <mat-icon matPrefix>badge</mat-icon>
-      <input matInput formControlName="full_name" type="text" placeholder="Введите полное имя" />
+      <input matInput formControlName="full_name" type="text" placeholder="Иванов Михаил Александрович" />
       @if (form.get('full_name')?.hasError('required') && form.get('full_name')?.touched) {
         <mat-error>Поле обязательно для заполнения</mat-error>
       }
@@ -20,12 +20,12 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email</mat-label>
       <mat-icon matPrefix>person</mat-icon>
-      <input matInput formControlName="email" type="text" placeholder="Введите email" />
+      <input matInput formControlName="email" type="text" placeholder="example@example.com" />
       @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
         <mat-error>Поле обязательно для заполнения</mat-error>
       }
       @if (form.get('email')?.hasError('email') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-        <mat-error>Введите корректный email (example@example.com)</mat-error>
+        <mat-error>Введите корректный email</mat-error>
       }
     </mat-form-field>
 
