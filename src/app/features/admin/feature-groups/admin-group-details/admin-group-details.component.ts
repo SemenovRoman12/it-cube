@@ -81,13 +81,14 @@ export class AdminGroupDetailsComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
-      if (!updatedUser) {
+    dialogRef.afterClosed().subscribe((updatedUsers: UserEntity[] | undefined) => {
+      if (!updatedUsers?.length) {
         return;
       }
 
-      this.students.set([...this.students(), updatedUser]);
-      this.availableStudents.set(this.availableStudents().filter((u) => u.id !== updatedUser.id));
+      this.students.set([...this.students(), ...updatedUsers]);
+      const selectedIds = new Set(updatedUsers.map((user) => user.id));
+      this.availableStudents.set(this.availableStudents().filter((u) => !selectedIds.has(u.id)));
     });
   }
 
