@@ -93,15 +93,15 @@
     [disabled]="isLoading"
   >
     @if (isLoading) {
-      <ng-container>
+      <span class="button-content">
         <mat-spinner diameter="18" />
         Создание...
-      </ng-container>
+      </span>
     } @else {
-      <ng-container>
+      <span class="button-content">
         <mat-icon>person_add</mat-icon>
         Создать
-      </ng-container>
+      </span>
     }
   </button>
 </mat-dialog-actions>
