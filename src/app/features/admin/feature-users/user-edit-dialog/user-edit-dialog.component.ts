@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserEntity } from '../../../../core/models/user.model';
+import { GroupEntity } from '../../../../core/models/group.model';
+import { GroupsService } from '../../services/groups.service';
 import { UsersService, UserUpdate } from '../../services/users.service';
 
 @Component({
@@ -33,10 +35,13 @@ export class UserEditDialogComponent implements OnInit {
   public readonly dialogRef = inject(MatDialogRef<UserEditDialogComponent>);
   public readonly user: UserEntity = inject(MAT_DIALOG_DATA);
   private readonly usersService = inject(UsersService);
+  private readonly groupsService = inject(GroupsService);
 
   public isLoading = false;
+  public isGroupsLoading = false;
   public errorMessage = '';
   public hidePassword = true;
+  public groups: GroupEntity[] = [];
 
   public form = new FormGroup({
     full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -47,6 +52,20 @@ export class UserEditDialogComponent implements OnInit {
   });
 
   public ngOnInit(): void {
+    this.isGroupsLoading = true;
+
+    this.groupsService.getGroups().subscribe({
+      next: (groups) => {
+        this.groups = groups;
+        this.isGroupsLoading = false;
+      },
+      error: (err: unknown) => {
+        this.errorMessage = 'Не удалось загрузить список групп.';
+        this.isGroupsLoading = false;
+        console.error(err);
+      },
+    });
+
     this.form.patchValue({
       full_name: this.user.full_name,
       email: this.user.email,

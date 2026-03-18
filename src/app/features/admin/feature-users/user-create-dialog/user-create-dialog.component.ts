@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -10,7 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserEntity } from '../../../../core/models/user.model';
+import { GroupEntity } from '../../../../core/models/group.model';
 import { UserCreate, UsersService } from '../../services/users.service';
+import { GroupsService } from '../../services/groups.service';
 
 type CreateUserForm = {
   full_name: string;
@@ -37,13 +39,16 @@ type CreateUserForm = {
   templateUrl: './user-create-dialog.component.html',
   styleUrl: './user-create-dialog.component.scss',
 })
-export class UserCreateDialogComponent {
+export class UserCreateDialogComponent implements OnInit {
   public readonly dialogRef = inject(MatDialogRef<UserCreateDialogComponent>);
   private readonly usersService = inject(UsersService);
+  private readonly groupsService = inject(GroupsService);
 
   public isLoading = false;
+  public isGroupsLoading = false;
   public errorMessage = '';
   public hidePassword = true;
+  public groups: GroupEntity[] = [];
 
   public form = new FormGroup({
     full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -52,6 +57,22 @@ export class UserCreateDialogComponent {
     role: new FormControl<'admin' | 'user' | 'teacher'>('user', [Validators.required]),
     group_id: new FormControl<number | null>(null),
   });
+
+  public ngOnInit(): void {
+    this.isGroupsLoading = true;
+
+    this.groupsService.getGroups().subscribe({
+      next: (groups) => {
+        this.groups = groups;
+        this.isGroupsLoading = false;
+      },
+      error: (err: unknown) => {
+        this.errorMessage = 'Не удалось загрузить список групп.';
+        this.isGroupsLoading = false;
+        console.error(err);
+      },
+    });
+  }
 
   public onSubmit(): void {
     if (this.form.invalid) {

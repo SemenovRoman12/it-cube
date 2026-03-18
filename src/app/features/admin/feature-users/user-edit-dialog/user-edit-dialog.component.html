@@ -45,10 +45,15 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>ID группы (необязательно)</mat-label>
+      <mat-label>Группа (необязательно)</mat-label>
       <mat-icon matPrefix>groups</mat-icon>
-      <input matInput formControlName="group_id" type="number" min="1" placeholder="Например, 1" />
-      <mat-hint>Оставьте пустым, если пользователь без группы</mat-hint>
+      <mat-select formControlName="group_id" [disabled]="isGroupsLoading">
+        <mat-option [value]="null">Без группы</mat-option>
+        @for (group of groups; track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Выберите группу по названию</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
