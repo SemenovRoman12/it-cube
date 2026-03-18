@@ -69,6 +69,7 @@ export class UserCreateDialogComponent {
       password: formValue.password.trim(),
       role: formValue.role,
       group_id: formValue.group_id,
+      created_at: new Date().toISOString(),
     };
 
     this.usersService.createUser(createData).subscribe({
