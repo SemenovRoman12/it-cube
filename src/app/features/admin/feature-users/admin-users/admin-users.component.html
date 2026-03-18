@@ -115,7 +115,7 @@
             </th>
             <td mat-cell *matCellDef="let user">
               <span class="group-badge" [class.group-badge--none]="user.group_id == null">
-                {{ user.group_id == null ? '—' : user.group_id }}
+                {{ getGroupName(user.group_id) }}
               </span>
             </td>
           </ng-container>
