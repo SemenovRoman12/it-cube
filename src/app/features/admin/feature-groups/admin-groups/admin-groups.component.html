@@ -2,10 +2,26 @@
   <div class="groups-header">
     <div class="groups-title-block">
       <mat-icon class="title-icon">groups</mat-icon>
-      <h1 class="groups-title">Группы</h1>
+      <h1 class="groups-title">Управление группами</h1>
     </div>
 
     <div class="groups-header-actions">
+      <div class="search-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Поиск по названию или ID..."
+          [value]="searchValue()"
+          (input)="applyFilter($any($event.target).value)"
+        />
+        @if (searchValue()) {
+          <button class="search-clear" (click)="clearSearch()" type="button" matTooltip="Очистить">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
       <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isLoading()">
         <mat-icon>group_add</mat-icon>
         Добавить группу
@@ -27,16 +43,22 @@
     <div class="state state--error">
       <mat-icon>error_outline</mat-icon>
       <p>{{ errorMessage() }}</p>
+      <button mat-flat-button color="primary" (click)="loadGroups()">Попробовать снова</button>
     </div>
   } @else {
     <mat-card>
       <mat-card-header>
-        <mat-card-subtitle>Всего групп: <strong>{{ groups().length }}</strong></mat-card-subtitle>
+        <mat-card-subtitle>
+          Всего: <strong>{{ groups().length }}</strong>
+          @if (searchValue()) {
+            &nbsp;/ Найдено: <strong>{{ filteredGroups().length }}</strong>
+          }
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        @if (groups().length) {
+        @if (filteredGroups().length) {
           <mat-list>
-            @for (group of groups(); track group.id) {
+            @for (group of filteredGroups(); track group.id) {
               <mat-list-item class="group-item" (click)="openGroup(group.id)">
                 <div matListItemTitle>{{ group.name }}</div>
                 <div matListItemLine>ID: {{ group.id }}</div>
@@ -53,7 +75,13 @@
             }
           </mat-list>
         } @else {
-          <div class="empty-state">Группы пока не созданы</div>
+          <div class="empty-state">
+            @if (searchValue()) {
+              Ничего не найдено по запросу «{{ searchValue() }}»
+            } @else {
+              Группы пока не созданы
+            }
+          </div>
         }
       </mat-card-content>
     </mat-card>

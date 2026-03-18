@@ -1,16 +1,14 @@
 .groups-page {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .groups-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 24px;
   gap: 16px;
   flex-wrap: wrap;
 }
@@ -39,6 +37,68 @@
   margin: 0;
   font-size: 1.6rem;
   font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mat-sys-surface-container);
+  border: 1.5px solid var(--mat-sys-outline-variant);
+  border-radius: 24px;
+  padding: 6px 14px;
+  min-width: 260px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+  }
+
+  .search-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--mat-sys-on-surface-variant);
+    flex-shrink: 0;
+  }
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface);
+  flex: 1;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: var(--mat-sys-on-surface-variant);
+  border-radius: 50%;
+  transition: color 0.15s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--mat-sys-on-surface);
+  }
 }
 
 .state {
@@ -46,26 +106,51 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 12px;
-  padding: 42px 24px;
+  gap: 16px;
+  padding: 60px 24px;
 
   p {
     margin: 0;
+    font-size: 0.95rem;
   }
 
   &.state--error {
     color: var(--mat-sys-error);
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
   }
+}
+
+mat-card {
+  border-radius: 12px !important;
+}
+
+mat-card-header {
+  padding: 16px 16px 0 !important;
+}
+
+mat-card-content {
+  padding: 0 !important;
+}
+
+mat-list {
+  padding-top: 0;
 }
 
 .empty-state {
   color: var(--mat-sys-on-surface-variant);
   text-align: center;
-  padding: 24px;
+  padding: 48px 16px;
+  font-size: 0.95rem;
 }
 
 .group-item {
   cursor: pointer;
+  transition: background 0.12s;
 
   &:hover {
     background: var(--mat-sys-surface-container-low);

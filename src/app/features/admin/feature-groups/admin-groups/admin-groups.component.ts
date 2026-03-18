@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
 import { GroupEntity } from '../../../../core/models/group.model';
@@ -21,6 +22,7 @@ import { GroupsService } from '../../services/groups.service';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatListModule,
+    MatTooltipModule,
   ],
   templateUrl: './admin-groups.component.html',
   styleUrl: './admin-groups.component.scss',
@@ -33,6 +35,18 @@ export class AdminGroupsComponent implements OnInit {
   public readonly isLoading = signal(false);
   public readonly errorMessage = signal('');
   public readonly groups = signal<GroupEntity[]>([]);
+  public readonly searchValue = signal('');
+  public readonly filteredGroups = computed(() => {
+    const query = this.searchValue().trim().toLowerCase();
+
+    if (!query) {
+      return this.groups();
+    }
+
+    return this.groups().filter(
+      (group) => group.name.toLowerCase().includes(query) || String(group.id).includes(query),
+    );
+  });
 
   public ngOnInit(): void {
     this.loadGroups();
@@ -69,6 +83,14 @@ export class AdminGroupsComponent implements OnInit {
 
   public openGroup(groupId: number): void {
     this.router.navigate(['/admin/groups', groupId]);
+  }
+
+  public applyFilter(value: string): void {
+    this.searchValue.set(value);
+  }
+
+  public clearSearch(): void {
+    this.searchValue.set('');
   }
 }
 
