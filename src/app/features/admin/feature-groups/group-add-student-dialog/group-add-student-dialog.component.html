@@ -1,16 +1,17 @@
 <h2 mat-dialog-title>
   <mat-icon>person_add</mat-icon>
-  Добавить ученика в группу
+  Добавить учеников в группу
 </h2>
 
 <mat-dialog-content>
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Ученик</mat-label>
-    <mat-select [(value)]="selectedUserId">
+    <mat-label>Ученики</mat-label>
+    <mat-select [(value)]="selectedUserIds" multiple>
       @for (user of data.users; track user.id) {
         <mat-option [value]="user.id">{{ user.email }}</mat-option>
       }
     </mat-select>
+    <mat-hint>Можно выбрать сразу несколько учеников</mat-hint>
   </mat-form-field>
 
   @if (errorMessage) {
@@ -23,7 +24,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()" [disabled]="isLoading">Отмена</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="isLoading || !selectedUserId">
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="isLoading || !selectedUserIds.length">
     @if (isLoading) {
       <ng-container>
         <mat-spinner diameter="18" />
@@ -32,7 +33,7 @@
     } @else {
       <ng-container>
         <mat-icon>check</mat-icon>
-        Добавить
+        Добавить выбранных ({{ selectedUserIds.length }})
       </ng-container>
     }
   </button>

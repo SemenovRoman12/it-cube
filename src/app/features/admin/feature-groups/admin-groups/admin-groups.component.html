@@ -2,10 +2,26 @@
   <div class="groups-header">
     <div class="groups-title-block">
       <mat-icon class="title-icon">groups</mat-icon>
-      <h1 class="groups-title">Группы</h1>
+      <h1 class="groups-title">Управление группами</h1>
     </div>
 
     <div class="groups-header-actions">
+      <div class="search-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Поиск по названию или ID..."
+          [value]="searchValue()"
+          (input)="applyFilter($any($event.target).value)"
+        />
+        @if (searchValue()) {
+          <button class="search-clear" (click)="clearSearch()" type="button" matTooltip="Очистить">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
       <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isLoading()">
         <mat-icon>group_add</mat-icon>
         Добавить группу
@@ -27,34 +43,83 @@
     <div class="state state--error">
       <mat-icon>error_outline</mat-icon>
       <p>{{ errorMessage() }}</p>
+      <button mat-flat-button color="primary" (click)="loadGroups()">Попробовать снова</button>
     </div>
   } @else {
     <mat-card>
       <mat-card-header>
-        <mat-card-subtitle>Всего групп: <strong>{{ groups().length }}</strong></mat-card-subtitle>
+        <mat-card-subtitle>
+          Всего: <strong>{{ totalGroups }}</strong>
+          @if (searchValue()) {
+            &nbsp;/ Найдено: <strong>{{ filteredGroupsCount }}</strong>
+          }
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        @if (groups().length) {
-          <mat-list>
-            @for (group of groups(); track group.id) {
-              <mat-list-item class="group-item" (click)="openGroup(group.id)">
-                <div matListItemTitle>{{ group.name }}</div>
-                <div matListItemLine>ID: {{ group.id }}</div>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  matListItemMeta
-                  type="button"
-                  (click)="$event.stopPropagation(); openGroup(group.id)"
-                >
-                  Открыть группу
-                </button>
-              </mat-list-item>
-            }
-          </mat-list>
-        } @else {
-          <div class="empty-state">Группы пока не созданы</div>
-        }
+        <table mat-table [dataSource]="dataSource" matSort class="groups-table">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по ID">#</th>
+            <td mat-cell *matCellDef="let group">
+              <span class="group-id">{{ group.id }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по названию">
+              Название группы
+            </th>
+            <td mat-cell *matCellDef="let group">
+              <div class="group-info">
+                <div class="group-avatar">{{ group.name.charAt(0).toUpperCase() }}</div>
+                <span class="group-name">{{ group.name }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let group" class="actions-cell">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openGroup(group.id)"
+                matTooltip="Открыть группу"
+              >
+                <mat-icon>open_in_new</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openEditDialog(group)"
+                matTooltip="Редактировать"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="deleteGroup(group)"
+                matTooltip="Удалить"
+                [disabled]="deletingGroupId() === group.id"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="group-row"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">
+              @if (searchValue()) {
+                Ничего не найдено по запросу «{{ searchValue() }}»
+              } @else {
+                Группы пока не созданы
+              }
+            </td>
+          </tr>
+        </table>
       </mat-card-content>
     </mat-card>
   }
