@@ -135,6 +135,21 @@ export class AdminUsersComponent implements OnInit {
     this.fetchUsers(false);
   }
 
+  public resetFilters(): void {
+    this.searchValue.set('');
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.sortField = null;
+    this.sortOrder = 'asc';
+
+    if (this._sort) {
+      this._sort.active = '';
+      this._sort.direction = '';
+    }
+
+    this.fetchUsers(false);
+  }
+
   public openEditDialog(user: UserEntity): void {
     const dialogRef = this.dialog.open(UserEditDialogComponent, {
       width: '480px',
