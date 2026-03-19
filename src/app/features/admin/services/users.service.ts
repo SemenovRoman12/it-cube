@@ -12,6 +12,9 @@ export type UserCreate = Omit<UserEntity, 'id'> & { password: string };
 export interface UsersPageResult {
   items: UserEntity[];
   total: number;
+  currentPage: number;
+  totalPages: number;
+  remainingCount: number;
 }
 
 interface MokkyPageMeta {
@@ -47,6 +50,16 @@ export class UsersService {
     return this.api.get<UserEntity[]>('users');
   }
 
+  public getUsersByFilters(filters: Record<string, string | number>): Observable<UserEntity[]> {
+    let params = new HttpParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      params = params.set(key, String(value));
+    });
+
+    return this.http.get<UserEntity[]>(`${this.apiUrl}/users`, { params });
+  }
+
   public getUsersPage(query: UsersPageQuery): Observable<UsersPageResult> {
     let params = new HttpParams().set('page', query.page).set('limit', query.limit);
 
@@ -65,6 +78,9 @@ export class UsersService {
       map((response) => ({
         items: response.items ?? [],
         total: response.meta?.total_items ?? response.items?.length ?? 0,
+        currentPage: response.meta?.current_page ?? query.page,
+        totalPages: response.meta?.total_pages ?? 1,
+        remainingCount: response.meta?.remaining_count ?? 0,
       })),
     );
   }
