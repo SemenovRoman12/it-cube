@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatOptionModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { forkJoin } from 'rxjs';
 import { UserEntity } from '../../../../core/models/user.model';
 import { UsersService } from '../../services/users.service';
@@ -22,12 +23,13 @@ type DialogData = {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
-    MatSelectModule,
-    MatOptionModule,
+    MatInputModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './group-add-student-dialog.component.html',
@@ -38,10 +40,59 @@ export class GroupAddStudentDialogComponent {
   public readonly dialogRef = inject(MatDialogRef<GroupAddStudentDialogComponent>);
 
   public selectedUserIds: number[] = [];
+  public searchQuery = '';
+  public showOnlyWithoutGroup = false;
+  public showOnlySelected = false;
   public isLoading = false;
   public errorMessage = '';
 
   constructor(@Inject(MAT_DIALOG_DATA) public readonly data: DialogData) {}
+
+  public get filteredUsers(): UserEntity[] {
+    const normalizedSearch = this.searchQuery.trim().toLowerCase();
+
+    return this.data.users.filter((user) => {
+      if (this.showOnlyWithoutGroup && user.group_id !== null) {
+        return false;
+      }
+
+      const isSelected = this.selectedUserIds.includes(user.id);
+      if (this.showOnlySelected && !isSelected) {
+        return false;
+      }
+
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      return (
+        user.full_name.toLowerCase().includes(normalizedSearch) ||
+        user.email.toLowerCase().includes(normalizedSearch)
+      );
+    });
+  }
+
+  public toggleUserSelection(userId: number): void {
+    if (this.isLoading) {
+      return;
+    }
+
+    const selectedIndex = this.selectedUserIds.indexOf(userId);
+    if (selectedIndex >= 0) {
+      this.selectedUserIds = this.selectedUserIds.filter((id) => id !== userId);
+      return;
+    }
+
+    this.selectedUserIds = [...this.selectedUserIds, userId];
+  }
+
+  public isUserSelected(userId: number): boolean {
+    return this.selectedUserIds.includes(userId);
+  }
+
+  public clearSearch(): void {
+    this.searchQuery = '';
+  }
 
   public onSubmit(): void {
     if (!this.selectedUserIds.length) {

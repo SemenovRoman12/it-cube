@@ -5,14 +5,63 @@
 
 <mat-dialog-content>
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Ученики</mat-label>
-    <mat-select [(value)]="selectedUserIds" multiple>
-      @for (user of data.users; track user.id) {
-        <mat-option [value]="user.id">{{ user.email }}</mat-option>
-      }
-    </mat-select>
-    <mat-hint>Можно выбрать сразу несколько учеников</mat-hint>
+    <mat-label>Поиск ученика</mat-label>
+    <input
+      matInput
+      [(ngModel)]="searchQuery"
+      [disabled]="isLoading"
+      placeholder="Имя или email"
+    />
+    @if (searchQuery) {
+      <button mat-icon-button matSuffix (click)="clearSearch()" [disabled]="isLoading">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
   </mat-form-field>
+
+  <div class="filters-row">
+    <mat-checkbox [(ngModel)]="showOnlyWithoutGroup" [disabled]="isLoading">
+      Только без группы
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="showOnlySelected" [disabled]="isLoading">
+      Только выбранные
+    </mat-checkbox>
+  </div>
+
+  <div class="students-list" role="list">
+    @if (filteredUsers.length) {
+      @for (user of filteredUsers; track user.id) {
+        <button
+          type="button"
+          class="student-row"
+          role="listitem"
+          (click)="toggleUserSelection(user.id)"
+          [disabled]="isLoading"
+          [class.selected]="isUserSelected(user.id)"
+        >
+          <mat-checkbox
+            [checked]="isUserSelected(user.id)"
+            [disabled]="isLoading"
+            (click)="$event.stopPropagation(); toggleUserSelection(user.id)"
+          />
+          <div class="student-meta">
+            <span class="name">{{ user.full_name }}</span>
+            <span class="email">{{ user.email }}</span>
+          </div>
+          @if (user.group_id !== null) {
+            <span class="chip">В группе #{{ user.group_id }}</span>
+          }
+        </button>
+      }
+    } @else {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <span>По вашему запросу ученики не найдены</span>
+      </div>
+    }
+  </div>
+
+  <div class="list-hint">Можно выбрать сразу несколько учеников</div>
 
   @if (errorMessage) {
     <div class="error-alert">
