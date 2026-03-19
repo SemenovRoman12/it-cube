@@ -50,10 +50,11 @@ export class GroupAddStudentDialogComponent {
   public isUsersLoading = false;
   public isLoadingMore = false;
   public errorMessage = '';
-  public totalUsers = 0;
+  public loadedUsersCount = 0;
 
   private currentPage = 1;
-  private readonly pageSize = 20;
+  private readonly pageSize = 5;
+  private totalPages = 1;
 
   constructor(@Inject(MAT_DIALOG_DATA) public readonly data: DialogData) {}
 
@@ -79,7 +80,7 @@ export class GroupAddStudentDialogComponent {
   }
 
   public get hasMoreUsers(): boolean {
-    return this.users.length < this.totalUsers;
+    return this.currentPage < this.totalPages;
   }
 
   public onSearchChange(value: string): void {
@@ -147,8 +148,9 @@ export class GroupAddStudentDialogComponent {
 
   private resetAndLoadUsers(): void {
     this.currentPage = 1;
+    this.totalPages = 1;
     this.users = [];
-    this.totalUsers = 0;
+    this.loadedUsersCount = 0;
     this.fetchUsers(false);
   }
 
@@ -179,9 +181,10 @@ export class GroupAddStudentDialogComponent {
       )
       .subscribe({
         next: (usersPage) => {
-          this.totalUsers = usersPage.total;
+          this.totalPages = usersPage.totalPages;
           const ungroupedItems = usersPage.items.filter((user) => user.group_id == null || user.group_id === 0);
           this.users = append ? [...this.users, ...ungroupedItems] : ungroupedItems;
+          this.loadedUsersCount = this.users.length;
           this.cdr.detectChanges();
         },
         error: (err: HttpErrorResponse) => {

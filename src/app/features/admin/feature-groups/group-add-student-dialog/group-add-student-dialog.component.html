@@ -70,7 +70,7 @@
 
   @if (!showOnlySelected) {
     <div class="load-more-row">
-      <span class="load-more-info">Показано {{ users.length }} из {{ totalUsers }}</span>
+      <span class="load-more-info">Показано свободных учеников: {{ loadedUsersCount }}</span>
       @if (hasMoreUsers) {
         <button mat-stroked-button (click)="loadMoreUsers()" [disabled]="isLoadingMore || isLoading || isUsersLoading">
           @if (isLoadingMore) {

@@ -12,6 +12,9 @@ export type UserCreate = Omit<UserEntity, 'id'> & { password: string };
 export interface UsersPageResult {
   items: UserEntity[];
   total: number;
+  currentPage: number;
+  totalPages: number;
+  remainingCount: number;
 }
 
 interface MokkyPageMeta {
@@ -75,6 +78,9 @@ export class UsersService {
       map((response) => ({
         items: response.items ?? [],
         total: response.meta?.total_items ?? response.items?.length ?? 0,
+        currentPage: response.meta?.current_page ?? query.page,
+        totalPages: response.meta?.total_pages ?? 1,
+        remainingCount: response.meta?.remaining_count ?? 0,
       })),
     );
   }
