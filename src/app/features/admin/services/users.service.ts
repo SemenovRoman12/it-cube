@@ -14,6 +14,19 @@ export interface UsersPageResult {
   total: number;
 }
 
+interface MokkyPageMeta {
+  total_items: number;
+  total_pages: number;
+  current_page: number;
+  per_page: number;
+  remaining_count: number;
+}
+
+interface MokkyPageResponse<T> {
+  meta: MokkyPageMeta;
+  items: T[];
+}
+
 export interface UsersPageQuery {
   page: number;
   limit: number;
@@ -34,32 +47,19 @@ export class UsersService {
   }
 
   public getUsersPage(query: UsersPageQuery): Observable<UsersPageResult> {
-    let params = new HttpParams().set('_page', query.page).set('_limit', query.limit);
+    let params = new HttpParams().set('page', query.page).set('limit', query.limit);
 
     if (query.sortBy) {
-      params = params.set('_sort', query.sortBy);
+      const prefix = query.order === 'desc' ? '-' : '';
+      params = params.set('sortBy', `${prefix}${query.sortBy}`);
     }
 
-    if (query.order) {
-      params = params.set('_order', query.order);
-    }
-
-    return this.http
-      .get<UserEntity[]>(`${this.apiUrl}/users`, {
-        params,
-        observe: 'response',
-      })
-      .pipe(
-        map((response) => {
-          const totalHeader = response.headers.get('x-total-count') ?? response.headers.get('X-Total-Count');
-          const fallbackTotal = response.body?.length ?? 0;
-
-          return {
-            items: response.body ?? [],
-            total: Number(totalHeader ?? fallbackTotal),
-          };
-        }),
-      );
+    return this.http.get<MokkyPageResponse<UserEntity>>(`${this.apiUrl}/users`, { params }).pipe(
+      map((response) => ({
+        items: response.items ?? [],
+        total: response.meta?.total_items ?? response.items?.length ?? 0,
+      })),
+    );
   }
 
   public updateUser(id: number, data: UserUpdate): Observable<UserEntity> {
