@@ -5,15 +5,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
-import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { GroupsService } from '../../services/groups.service';
+import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
+import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
 
 @Component({
   selector: 'app-admin-container-groups',
@@ -27,6 +28,7 @@ import { GroupsService } from '../../services/groups.service';
     MatTableModule,
     MatTooltipModule,
     MatSortModule,
+    MatPaginatorModule,
   ],
   templateUrl: './admin-groups.component.html',
   styleUrl: './admin-groups.component.scss',
@@ -36,23 +38,18 @@ export class AdminGroupsComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
 
+  public readonly pageSize = 10;
+
   private _sort!: MatSort;
+  private allGroups: GroupEntity[] = [];
+  private totalGroupsCount = 0;
+  private sortField: string | null = null;
+  private sortOrder: 'asc' | 'desc' = 'asc';
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
     if (value) {
       this._sort = value;
-      this.dataSource.sort = value;
-      this.dataSource.sortingDataAccessor = (item, property) => {
-        switch (property) {
-          case 'id':
-            return item.id;
-          case 'name':
-            return item.name.toLowerCase();
-          default:
-            return '';
-        }
-      };
     }
   }
 
@@ -60,29 +57,44 @@ export class AdminGroupsComponent implements OnInit {
   public readonly errorMessage = signal('');
   public readonly searchValue = signal('');
   public readonly deletingGroupId = signal<number | null>(null);
+  public readonly currentPage = signal(1);
 
   public readonly dataSource = new MatTableDataSource<GroupEntity>([]);
   public readonly displayedColumns = ['id', 'name', 'actions'];
 
   public ngOnInit(): void {
-    this.loadGroups();
+    this.loadGroups(true);
   }
 
-  public loadGroups(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+  public loadGroups(resetToFirstPage = false): void {
+    if (resetToFirstPage) {
+      this.currentPage.set(1);
+    }
 
-    this.groupsService.getGroups().subscribe({
-      next: (groups) => {
-        this.dataSource.data = groups;
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        this.errorMessage.set('Ошибка при загрузке групп.');
-        this.isLoading.set(false);
-        console.error(err);
-      },
-    });
+    this.fetchGroups();
+  }
+
+  public onPageChange(event: PageEvent): void {
+    const page = event.pageIndex + 1;
+    if (page === this.currentPage()) {
+      return;
+    }
+
+    this.currentPage.set(page);
+    this.fetchGroups();
+  }
+
+  public onSortChange(sort: Sort): void {
+    if (!sort.active || !sort.direction) {
+      this.sortField = null;
+      this.sortOrder = 'asc';
+    } else {
+      this.sortField = sort.active;
+      this.sortOrder = sort.direction;
+    }
+
+    this.currentPage.set(1);
+    this.fetchGroups();
   }
 
   public openCreateDialog(): void {
@@ -92,7 +104,7 @@ export class AdminGroupsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((createdGroup: GroupEntity | undefined) => {
       if (createdGroup) {
-        this.dataSource.data = [...this.dataSource.data, createdGroup];
+        this.loadGroups();
       }
     });
   }
@@ -105,7 +117,7 @@ export class AdminGroupsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updatedGroup: GroupEntity | undefined) => {
       if (updatedGroup) {
-        this.dataSource.data = this.dataSource.data.map((g) => (g.id === updatedGroup.id ? updatedGroup : g));
+        this.loadGroups();
       }
     });
   }
@@ -124,8 +136,8 @@ export class AdminGroupsComponent implements OnInit {
 
     this.groupsService.deleteGroup(group.id).subscribe({
       next: () => {
-        this.dataSource.data = this.dataSource.data.filter((g) => g.id !== group.id);
         this.deletingGroupId.set(null);
+        this.loadGroups();
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set('Ошибка при удалении группы. Попробуйте снова.');
@@ -136,21 +148,86 @@ export class AdminGroupsComponent implements OnInit {
   }
 
   public applyFilter(value: string): void {
-    this.searchValue.set(value);
-    this.dataSource.filter = value.trim().toLowerCase();
+    this.searchValue.set(value.trim());
+    this.currentPage.set(1);
+    this.fetchGroups();
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
-    this.dataSource.filter = '';
+    this.currentPage.set(1);
+    this.fetchGroups();
+  }
+
+  public resetFilters(): void {
+    this.searchValue.set('');
+    this.currentPage.set(1);
+    this.sortField = null;
+    this.sortOrder = 'asc';
+
+    if (this._sort) {
+      this._sort.active = '';
+      this._sort.direction = '';
+    }
+
+    this.fetchGroups();
   }
 
   public get totalGroups(): number {
-    return this.dataSource.data.length;
+    return this.totalGroupsCount;
   }
 
   public get filteredGroupsCount(): number {
-    return this.dataSource.filteredData.length;
+    return this.totalGroupsCount;
+  }
+
+  private fetchGroups(): void {
+    const showBlockingLoader = this.dataSource.data.length === 0;
+    if (showBlockingLoader) {
+      this.isLoading.set(true);
+    }
+
+    this.errorMessage.set('');
+
+    this.groupsService
+      .getGroupsPage({
+        page: this.currentPage(),
+        limit: this.pageSize,
+        sortBy: this.sortField ?? undefined,
+        order: this.sortOrder,
+        filters: this.buildSearchFilters(this.searchValue()),
+      })
+      .subscribe({
+        next: ({ items, total }) => {
+          this.allGroups = items;
+          this.totalGroupsCount = total;
+          this.dataSource.data = items;
+
+          if (showBlockingLoader) {
+            this.isLoading.set(false);
+          }
+        },
+        error: (err: unknown) => {
+          this.errorMessage.set('Ошибка при загрузке групп.');
+          if (showBlockingLoader) {
+            this.isLoading.set(false);
+          }
+          console.error(err);
+        },
+      });
+  }
+
+  private buildSearchFilters(rawSearch: string): Record<string, string | number> {
+    const search = rawSearch.trim();
+    if (!search) {
+      return {};
+    }
+
+    if (/^\d+$/.test(search)) {
+      return { id: Number(search) };
+    }
+
+    return { name: `*${search}` };
   }
 }
 
