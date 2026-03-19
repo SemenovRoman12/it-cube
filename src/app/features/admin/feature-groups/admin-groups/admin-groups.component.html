@@ -31,6 +31,11 @@
         <mat-icon>refresh</mat-icon>
         Обновить
       </button>
+
+      <button mat-stroked-button (click)="resetFilters()" [disabled]="isLoading()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Сбросить фильтры
+      </button>
     </div>
   </div>
 
@@ -56,7 +61,7 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <table mat-table [dataSource]="dataSource" matSort class="groups-table">
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)" class="groups-table">
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по ID">#</th>
             <td mat-cell *matCellDef="let group">
@@ -120,6 +125,28 @@
             </td>
           </tr>
         </table>
+
+        <div class="table-footer">
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="loadMoreGroups()"
+            [disabled]="!hasMoreGroups || isLoading()"
+          >
+            <mat-icon>expand_more</mat-icon>
+            Загрузить ещё {{ pageSize }}
+          </button>
+
+          <mat-paginator
+            [length]="totalGroups"
+            [pageIndex]="currentPage() - 1"
+            [pageSize]="pageSize"
+            [hidePageSize]="true"
+            [showFirstLastButtons]="true"
+            (page)="onPageChange($event)"
+          />
+        </div>
       </mat-card-content>
     </mat-card>
   }
