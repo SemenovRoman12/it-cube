@@ -17,9 +17,10 @@
       }
 
       @case ('teacher') {
-      <button class="side-nav-item" mat-list-item type="button" (click)="closeSidenavOnTouch()">
+      <button routerLink="/teacher/groups" class="side-nav-item" mat-list-item type="button"
+        (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>co_present</mat-icon>
-        <span matListItemTitle>Teacher section</span>
+        <span matListItemTitle>Журнал</span>
       </button>
       }
 

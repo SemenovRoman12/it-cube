@@ -1,0 +1,17 @@
+<section class="teacher-groups-list">
+  <h2 class="teacher-groups-list__title">Мои группы</h2>
+
+  @if (isLoading()) {
+  <p class="teacher-groups-list__state">Загрузка...</p>
+  } @else if (error(); as errorText) {
+  <p class="teacher-groups-list__state teacher-groups-list__state--error">{{ errorText }}</p>
+  } @else if (!groups().length) {
+  <p class="teacher-groups-list__state">Нет доступных групп.</p>
+  } @else {
+  <div class="teacher-groups-list__grid">
+    @for (group of groups(); track group.id) {
+    <teacher-group-card [group]="group" (openRequested)="onOpenGroup($event)" />
+    }
+  </div>
+  }
+</section>

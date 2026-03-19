@@ -44,7 +44,16 @@ export const routes: Routes = [
         path: 'teacher',
         canActivate: [teacherGuard],
         loadComponent: () => import('./pages/teacher/teacher.component').then(m => m.TeacherComponent),
-        children: []
+        children: [
+          {
+            path: 'groups',
+            loadComponent: () => import('./features/teacher/feature-journal-groups/teacher-groups-list/teacher-groups-list.component').then(m => m.TeacherGroupsListComponent),
+          },
+          {
+            path: 'journal/groups/:groupId',
+            loadComponent: () => import('./features/teacher/feature-journal-lessons/teacher-lessons-list/teacher-lessons-list.component').then(m => m.TeacherLessonsListComponent),
+          },
+        ]
       },
       {
         path: 'student',

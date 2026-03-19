@@ -11,5 +11,5 @@ import { ActivatedRoute } from '@angular/router';
 export class TeacherLessonsListComponent {
   private readonly route = inject(ActivatedRoute);
 
-  public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId') ?? 0);
+  public readonly groupId = this.route.snapshot.paramMap.get('groupId') ?? 0;
 }

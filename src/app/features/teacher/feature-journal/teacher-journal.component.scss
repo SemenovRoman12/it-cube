@@ -1,0 +1,98 @@
+.teacher-journal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teacher-journal__toolbar-card,
+.teacher-journal__grid-card,
+.teacher-journal__error-card {
+  border-radius: 12px;
+}
+
+.teacher-journal__toolbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.teacher-journal__lesson-form {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: 180px minmax(220px, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.teacher-journal__topic-field {
+  width: 100%;
+}
+
+.teacher-journal__actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.teacher-journal__loading {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.teacher-journal__empty {
+  padding: 1rem;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.teacher-journal__table-wrapper {
+  overflow: auto;
+}
+
+.teacher-journal__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    min-width: 260px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    vertical-align: top;
+    padding: 0.5rem;
+  }
+}
+
+.teacher-journal__sticky-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--mat-sys-surface, #fff);
+  min-width: 220px !important;
+}
+
+.teacher-journal__lesson-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.teacher-journal__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.teacher-journal__cell-field {
+  width: 100%;
+}
+
+.teacher-journal__cell--dirty {
+  background: rgba(255, 193, 7, 0.14);
+}
+
+@media (max-width: 992px) {
+  .teacher-journal__lesson-form {
+    grid-template-columns: 1fr;
+  }
+}
+
