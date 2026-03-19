@@ -41,6 +41,7 @@ export class AdminGroupsComponent implements OnInit {
   public readonly pageSize = 10;
 
   private _sort!: MatSort;
+  private loadedExtraPages = 0;
   private allGroups: GroupEntity[] = [];
   private totalGroupsCount = 0;
   private sortField: string | null = null;
@@ -69,9 +70,10 @@ export class AdminGroupsComponent implements OnInit {
   public loadGroups(resetToFirstPage = false): void {
     if (resetToFirstPage) {
       this.currentPage.set(1);
+      this.loadedExtraPages = 0;
     }
 
-    this.fetchGroups();
+    this.fetchGroups(false);
   }
 
   public onPageChange(event: PageEvent): void {
@@ -81,7 +83,8 @@ export class AdminGroupsComponent implements OnInit {
     }
 
     this.currentPage.set(page);
-    this.fetchGroups();
+    this.loadedExtraPages = 0;
+    this.fetchGroups(false);
   }
 
   public onSortChange(sort: Sort): void {
@@ -94,7 +97,8 @@ export class AdminGroupsComponent implements OnInit {
     }
 
     this.currentPage.set(1);
-    this.fetchGroups();
+    this.loadedExtraPages = 0;
+    this.fetchGroups(false);
   }
 
   public openCreateDialog(): void {
@@ -150,18 +154,21 @@ export class AdminGroupsComponent implements OnInit {
   public applyFilter(value: string): void {
     this.searchValue.set(value.trim());
     this.currentPage.set(1);
-    this.fetchGroups();
+    this.loadedExtraPages = 0;
+    this.fetchGroups(false);
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
     this.currentPage.set(1);
-    this.fetchGroups();
+    this.loadedExtraPages = 0;
+    this.fetchGroups(false);
   }
 
   public resetFilters(): void {
     this.searchValue.set('');
     this.currentPage.set(1);
+    this.loadedExtraPages = 0;
     this.sortField = null;
     this.sortOrder = 'asc';
 
@@ -170,7 +177,7 @@ export class AdminGroupsComponent implements OnInit {
       this._sort.direction = '';
     }
 
-    this.fetchGroups();
+    this.fetchGroups(false);
   }
 
   public get totalGroups(): number {
@@ -181,17 +188,36 @@ export class AdminGroupsComponent implements OnInit {
     return this.totalGroupsCount;
   }
 
-  private fetchGroups(): void {
-    const showBlockingLoader = this.dataSource.data.length === 0;
+  public get hasMoreGroups(): boolean {
+    return this.currentPage() + this.loadedExtraPages < this.totalPages;
+  }
+
+  public get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalGroupsCount / this.pageSize));
+  }
+
+  public loadMoreGroups(): void {
+    if (!this.hasMoreGroups) {
+      return;
+    }
+
+    this.loadedExtraPages += 1;
+    this.fetchGroups(true);
+  }
+
+  private fetchGroups(append: boolean): void {
+    const showBlockingLoader = !append && this.dataSource.data.length === 0;
     if (showBlockingLoader) {
       this.isLoading.set(true);
     }
 
     this.errorMessage.set('');
 
+    const requestedPage = this.currentPage() + this.loadedExtraPages;
+
     this.groupsService
       .getGroupsPage({
-        page: this.currentPage(),
+        page: requestedPage,
         limit: this.pageSize,
         sortBy: this.sortField ?? undefined,
         order: this.sortOrder,
@@ -199,9 +225,9 @@ export class AdminGroupsComponent implements OnInit {
       })
       .subscribe({
         next: ({ items, total }) => {
-          this.allGroups = items;
+          this.allGroups = append ? [...this.allGroups, ...items] : items;
           this.totalGroupsCount = total;
-          this.dataSource.data = items;
+          this.dataSource.data = this.allGroups;
 
           if (showBlockingLoader) {
             this.isLoading.set(false);

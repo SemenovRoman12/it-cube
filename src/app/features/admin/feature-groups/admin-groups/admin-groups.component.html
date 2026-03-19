@@ -127,6 +127,17 @@
         </table>
 
         <div class="table-footer">
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="loadMoreGroups()"
+            [disabled]="!hasMoreGroups || isLoading()"
+          >
+            <mat-icon>expand_more</mat-icon>
+            Загрузить ещё {{ pageSize }}
+          </button>
+
           <mat-paginator
             [length]="totalGroups"
             [pageIndex]="currentPage() - 1"
