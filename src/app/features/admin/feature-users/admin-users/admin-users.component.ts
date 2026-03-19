@@ -91,11 +91,12 @@ export class AdminUsersComponent implements OnInit {
   set paginator(value: MatPaginator) {
     if (value) {
       this._paginator = value;
-      this.dataSource.paginator = value;
       this._paginator.pageSize = this.defaultPageSize;
       this._paginator.pageIndex = 0;
       this._paginator.hidePageSize = true;
       this._paginator.showFirstLastButtons = true;
+      this.dataSource.paginator = value;
+      this.refreshVisibleUsers();
     }
   }
 
@@ -290,6 +291,7 @@ export class AdminUsersComponent implements OnInit {
     this.dataSource.data = this.allUsers;
 
     if (this._paginator) {
+      this.dataSource.paginator = this._paginator;
       const maxPageIndex = Math.max(0, Math.ceil(this.dataSource.filteredData.length / this._paginator.pageSize) - 1);
       if (this._paginator.pageIndex > maxPageIndex) {
         this._paginator.pageIndex = maxPageIndex;
