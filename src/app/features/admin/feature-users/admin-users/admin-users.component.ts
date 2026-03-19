@@ -48,7 +48,7 @@ export class AdminUsersComponent implements OnInit {
   private loadedExtraPages = 0;
   private allUsers: UserEntity[] = [];
   private totalUsersCount = 0;
-  private sortField = 'id';
+  private sortField: string | null = null;
   private sortOrder: 'asc' | 'desc' = 'asc';
 
   @ViewChild(MatSort)
@@ -109,7 +109,7 @@ export class AdminUsersComponent implements OnInit {
 
   public onSortChange(sort: Sort): void {
     if (!sort.active || !sort.direction) {
-      this.sortField = 'id';
+      this.sortField = null;
       this.sortOrder = 'asc';
     } else {
       this.sortField = sort.active;
@@ -250,7 +250,11 @@ export class AdminUsersComponent implements OnInit {
   }
 
   private fetchUsers(append: boolean): void {
-    this.isLoading.set(true);
+    const showBlockingLoader = !append && this.dataSource.data.length === 0;
+    if (showBlockingLoader) {
+      this.isLoading.set(true);
+    }
+
     this.errorMessage.set('');
 
     const requestedPage = this.currentPage() + this.loadedExtraPages;
@@ -259,7 +263,7 @@ export class AdminUsersComponent implements OnInit {
       usersPage: this.usersService.getUsersPage({
         page: requestedPage,
         limit: this.pageSize,
-        sortBy: this.sortField,
+        sortBy: this.sortField ?? undefined,
         order: this.sortOrder,
         filters: this.buildSearchFilters(this.searchValue()),
       }),
@@ -275,11 +279,15 @@ export class AdminUsersComponent implements OnInit {
         this.totalUsersCount = usersPage.total;
         this.allUsers = append ? [...this.allUsers, ...usersPage.items] : usersPage.items;
         this.dataSource.data = this.allUsers;
-        this.isLoading.set(false);
+        if (showBlockingLoader) {
+          this.isLoading.set(false);
+        }
       },
       error: (err: unknown) => {
         this.errorMessage.set('Ошибка при загрузке пользователей.');
-        this.isLoading.set(false);
+        if (showBlockingLoader) {
+          this.isLoading.set(false);
+        }
         console.error(err);
       },
     });
