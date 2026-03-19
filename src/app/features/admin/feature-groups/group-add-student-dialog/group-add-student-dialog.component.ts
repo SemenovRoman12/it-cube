@@ -53,7 +53,7 @@ export class GroupAddStudentDialogComponent {
   public loadedUsersCount = 0;
 
   private currentPage = 1;
-  private readonly pageSize = 5;
+  private readonly pageSize = 7;
   private totalPages = 1;
 
   constructor(@Inject(MAT_DIALOG_DATA) public readonly data: DialogData) {}
@@ -94,6 +94,22 @@ export class GroupAddStudentDialogComponent {
 
     this.currentPage += 1;
     this.fetchUsers(true);
+  }
+
+  public onListScroll(event: Event): void {
+    if (this.showOnlySelected || this.isUsersLoading || this.isLoadingMore || !this.hasMoreUsers) {
+      return;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const distanceToBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    if (distanceToBottom <= 120) {
+      this.loadMoreUsers();
+    }
   }
 
   public toggleUserSelection(userId: number): void {

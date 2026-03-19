@@ -26,7 +26,7 @@
     </mat-checkbox>
   </div>
 
-  <div class="students-list" role="list">
+  <div class="students-list" role="list" (scroll)="onListScroll($event)">
     @if (isUsersLoading) {
       <div class="empty-state">
         <mat-spinner diameter="28" />
