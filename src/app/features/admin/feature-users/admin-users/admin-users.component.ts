@@ -42,7 +42,7 @@ export class AdminUsersComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
 
-  public readonly pageSize = 20;
+  public readonly pageSize = 10;
 
   private _sort!: MatSort;
   private loadedExtraPages = 0;
