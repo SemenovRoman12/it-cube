@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { GroupEntity } from '../../../../core/models/group.model';
@@ -31,6 +32,7 @@ import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dia
     MatCardModule,
     MatTooltipModule,
     MatSortModule,
+    MatPaginatorModule,
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
@@ -39,8 +41,11 @@ export class AdminUsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
+  private readonly defaultPageSize = 20;
 
   private _sort!: MatSort;
+  private _paginator!: MatPaginator;
+  private allUsers: UserEntity[] = [];
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
@@ -82,6 +87,18 @@ export class AdminUsersComponent implements OnInit {
     }
   }
 
+  @ViewChild(MatPaginator)
+  set paginator(value: MatPaginator) {
+    if (value) {
+      this._paginator = value;
+      this.dataSource.paginator = value;
+      this._paginator.pageSize = this.defaultPageSize;
+      this._paginator.pageIndex = 0;
+      this._paginator.hidePageSize = true;
+      this._paginator.showFirstLastButtons = true;
+    }
+  }
+
   public dataSource = new MatTableDataSource<UserEntity>([]);
   public isLoading = signal(false);
   public errorMessage = signal('');
@@ -110,7 +127,15 @@ export class AdminUsersComponent implements OnInit {
         });
 
         this.groupNames.set(names);
-        this.dataSource.data = users;
+        this.allUsers = users;
+        this.refreshVisibleUsers();
+
+        if (this._paginator) {
+          this._paginator.pageSize = this.defaultPageSize;
+          this._paginator.firstPage();
+          this.dataSource.paginator = this._paginator;
+        }
+
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -124,11 +149,19 @@ export class AdminUsersComponent implements OnInit {
   public applyFilter(value: string): void {
     this.searchValue.set(value);
     this.dataSource.filter = value.trim().toLowerCase();
+
+    if (this._paginator) {
+      this._paginator.firstPage();
+    }
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
     this.dataSource.filter = '';
+
+    if (this._paginator) {
+      this._paginator.firstPage();
+    }
   }
 
   public openEditDialog(user: UserEntity): void {
@@ -139,7 +172,8 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
       if (updatedUser) {
-        this.dataSource.data = this.dataSource.data.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        this.allUsers = this.allUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        this.refreshVisibleUsers();
       }
     });
   }
@@ -152,7 +186,8 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((createdUser: UserEntity | undefined) => {
       if (createdUser) {
-        this.dataSource.data = [...this.dataSource.data, createdUser];
+        this.allUsers = [...this.allUsers, createdUser];
+        this.refreshVisibleUsers();
       }
     });
   }
@@ -191,11 +226,34 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get totalUsers(): number {
-    return this.dataSource.data.length;
+    return this.allUsers.length;
   }
 
   public get filteredUsers(): number {
     return this.dataSource.filteredData.length;
+  }
+
+  public get hasMoreUsers(): boolean {
+    if (!this._paginator) {
+      return false;
+    }
+
+    const visibleUntil = (this._paginator.pageIndex + 1) * this._paginator.pageSize;
+    return visibleUntil < this.dataSource.filteredData.length;
+  }
+
+  public loadMoreUsers(): void {
+    if (!this.hasMoreUsers || !this._paginator) {
+      return;
+    }
+
+    const currentFirstItemIndex = this._paginator.pageIndex * this._paginator.pageSize;
+    const maxPageSize = Math.max(this.defaultPageSize, this.dataSource.filteredData.length);
+    const nextPageSize = Math.min(this._paginator.pageSize + this.defaultPageSize, maxPageSize);
+
+    this._paginator.pageSize = nextPageSize;
+    this._paginator.pageIndex = Math.floor(currentFirstItemIndex / nextPageSize);
+    this.dataSource.paginator = this._paginator;
   }
 
   public getGroupName(groupId: number | null): string {
@@ -216,7 +274,8 @@ export class AdminUsersComponent implements OnInit {
 
     this.usersService.deleteUser(user.id).subscribe({
       next: () => {
-        this.dataSource.data = this.dataSource.data.filter((u) => u.id !== user.id);
+        this.allUsers = this.allUsers.filter((u) => u.id !== user.id);
+        this.refreshVisibleUsers();
         this.deletingUserId.set(null);
       },
       error: (err: HttpErrorResponse) => {
@@ -225,6 +284,17 @@ export class AdminUsersComponent implements OnInit {
         console.error(err);
       },
     });
+  }
+
+  private refreshVisibleUsers(): void {
+    this.dataSource.data = this.allUsers;
+
+    if (this._paginator) {
+      const maxPageIndex = Math.max(0, Math.ceil(this.dataSource.filteredData.length / this._paginator.pageSize) - 1);
+      if (this._paginator.pageIndex > maxPageIndex) {
+        this._paginator.pageIndex = maxPageIndex;
+      }
+    }
   }
 }
 

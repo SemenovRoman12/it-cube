@@ -170,6 +170,21 @@
             </td>
           </tr>
         </table>
+
+        <div class="table-footer">
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="loadMoreUsers()"
+            [disabled]="!hasMoreUsers || isLoading()"
+          >
+            <mat-icon>expand_more</mat-icon>
+            Загрузить ещё 20
+          </button>
+
+          <mat-paginator [showFirstLastButtons]="true" />
+        </div>
       </mat-card-content>
     </mat-card>
   }

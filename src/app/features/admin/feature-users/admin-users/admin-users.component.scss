@@ -114,8 +114,22 @@ mat-card-content {
   overflow-x: auto;
 }
 
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  flex-wrap: wrap;
+}
+
 .users-table {
   width: 100%;
+}
+
+mat-paginator {
+  margin-left: auto;
 }
 
 ::ng-deep .users-table .mat-sort-header-arrow {
