@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,9 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { UserEntity } from '../../../../core/models/user.model';
 import { GroupsService } from '../../services/groups.service';
@@ -31,6 +32,7 @@ import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dia
     MatCardModule,
     MatTooltipModule,
     MatSortModule,
+    MatPaginatorModule,
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
@@ -40,13 +42,19 @@ export class AdminUsersComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
 
+  public readonly pageSize = 10;
+
   private _sort!: MatSort;
+  private loadedExtraPages = 0;
+  private allUsers: UserEntity[] = [];
+  private totalUsersCount = 0;
+  private sortField: string | null = null;
+  private sortOrder: 'asc' | 'desc' = 'asc';
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
     if (value) {
       this._sort = value;
-      this.dataSource.sort = value;
       this.dataSource.filterPredicate = (item, filter) => {
         const search = [
           String(item.id),
@@ -61,24 +69,6 @@ export class AdminUsersComponent implements OnInit {
 
         return search.includes(filter);
       };
-      this.dataSource.sortingDataAccessor = (item, property) => {
-        switch (property) {
-          case 'id':
-            return item.id;
-          case 'full_name':
-            return item.full_name.toLowerCase();
-          case 'email':
-            return item.email.toLowerCase();
-          case 'role':
-            return item.role;
-          case 'group_id':
-            return this.getGroupName(item.group_id).toLowerCase();
-          case 'created_at':
-            return new Date(item.created_at).getTime();
-          default:
-            return '';
-        }
-      };
     }
   }
 
@@ -88,47 +78,76 @@ export class AdminUsersComponent implements OnInit {
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
   public groupNames = signal<Record<number, string>>({});
+  public currentPage = signal(1);
 
   public displayedColumns = ['id', 'full_name', 'email', 'role', 'group_id', 'created_at', 'actions'];
 
   public ngOnInit(): void {
-    this.loadUsers();
+    this.loadUsers(true);
   }
 
-  public loadUsers(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+  public loadUsers(resetToFirstPage = false): void {
+    if (resetToFirstPage) {
+      this.currentPage.set(1);
+      this.loadedExtraPages = 0;
+    }
 
-    forkJoin({
-      users: this.usersService.getUsers(),
-      groups: this.groupsService.getGroups(),
-    }).subscribe({
-      next: ({ users, groups }) => {
-        const names: Record<number, string> = {};
-        groups.forEach((group: GroupEntity) => {
-          names[group.id] = group.name;
-        });
+    this.fetchUsers(false);
+  }
 
-        this.groupNames.set(names);
-        this.dataSource.data = users;
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        this.errorMessage.set('Ошибка при загрузке пользователей.');
-        this.isLoading.set(false);
-        console.error(err);
-      },
-    });
+  public onPageChange(event: PageEvent): void {
+    const page = event.pageIndex + 1;
+
+    if (page === this.currentPage()) {
+      return;
+    }
+
+    this.currentPage.set(page);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
+  }
+
+  public onSortChange(sort: Sort): void {
+    if (!sort.active || !sort.direction) {
+      this.sortField = null;
+      this.sortOrder = 'asc';
+    } else {
+      this.sortField = sort.active;
+      this.sortOrder = sort.direction;
+    }
+
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
   }
 
   public applyFilter(value: string): void {
-    this.searchValue.set(value);
-    this.dataSource.filter = value.trim().toLowerCase();
+    this.searchValue.set(value.trim());
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
-    this.dataSource.filter = '';
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
+  }
+
+  public resetFilters(): void {
+    this.searchValue.set('');
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.sortField = null;
+    this.sortOrder = 'asc';
+
+    if (this._sort) {
+      this._sort.active = '';
+      this._sort.direction = '';
+    }
+
+    this.fetchUsers(false);
   }
 
   public openEditDialog(user: UserEntity): void {
@@ -139,7 +158,8 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
       if (updatedUser) {
-        this.dataSource.data = this.dataSource.data.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        this.allUsers = this.allUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        this.dataSource.data = this.allUsers;
       }
     });
   }
@@ -152,7 +172,7 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((createdUser: UserEntity | undefined) => {
       if (createdUser) {
-        this.dataSource.data = [...this.dataSource.data, createdUser];
+        this.loadUsers();
       }
     });
   }
@@ -191,11 +211,28 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get totalUsers(): number {
-    return this.dataSource.data.length;
+    return this.totalUsersCount;
   }
 
   public get filteredUsers(): number {
-    return this.dataSource.filteredData.length;
+    return this.totalUsersCount;
+  }
+
+  public get hasMoreUsers(): boolean {
+    return this.currentPage() + this.loadedExtraPages < this.totalPages;
+  }
+
+  public get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalUsersCount / this.pageSize));
+  }
+
+  public loadMoreUsers(): void {
+    if (!this.hasMoreUsers) {
+      return;
+    }
+
+    this.loadedExtraPages += 1;
+    this.fetchUsers(true);
   }
 
   public getGroupName(groupId: number | null): string {
@@ -216,8 +253,8 @@ export class AdminUsersComponent implements OnInit {
 
     this.usersService.deleteUser(user.id).subscribe({
       next: () => {
-        this.dataSource.data = this.dataSource.data.filter((u) => u.id !== user.id);
         this.deletingUserId.set(null);
+        this.loadUsers();
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set('Ошибка при удалении пользователя. Попробуйте снова.');
@@ -225,6 +262,73 @@ export class AdminUsersComponent implements OnInit {
         console.error(err);
       },
     });
+  }
+
+  private fetchUsers(append: boolean): void {
+    const showBlockingLoader = !append && this.dataSource.data.length === 0;
+    if (showBlockingLoader) {
+      this.isLoading.set(true);
+    }
+
+    this.errorMessage.set('');
+
+    const requestedPage = this.currentPage() + this.loadedExtraPages;
+
+    forkJoin({
+      usersPage: this.usersService.getUsersPage({
+        page: requestedPage,
+        limit: this.pageSize,
+        sortBy: this.sortField ?? undefined,
+        order: this.sortOrder,
+        filters: this.buildSearchFilters(this.searchValue()),
+      }),
+      groups: this.groupsService.getGroups(),
+    }).subscribe({
+      next: ({ usersPage, groups }) => {
+        const names: Record<number, string> = {};
+        groups.forEach((group: GroupEntity) => {
+          names[group.id] = group.name;
+        });
+
+        this.groupNames.set(names);
+        this.totalUsersCount = usersPage.total;
+        this.allUsers = append ? [...this.allUsers, ...usersPage.items] : usersPage.items;
+        this.dataSource.data = this.allUsers;
+        if (showBlockingLoader) {
+          this.isLoading.set(false);
+        }
+      },
+      error: (err: unknown) => {
+        this.errorMessage.set('Ошибка при загрузке пользователей.');
+        if (showBlockingLoader) {
+          this.isLoading.set(false);
+        }
+        console.error(err);
+      },
+    });
+  }
+
+  private buildSearchFilters(rawSearch: string): Record<string, string | number> {
+    const search = rawSearch.trim();
+    if (!search) {
+      return {};
+    }
+
+    const lower = search.toLowerCase();
+
+    if (lower.includes('@')) {
+      return { email: `*${search}` };
+    }
+
+    if (['admin', 'teacher', 'user'].includes(lower)) {
+      return { role: lower };
+    }
+
+    if (/^\d+$/.test(search)) {
+      return { group_id: Number(search) };
+    }
+
+    return { full_name: `*${search}` };
   }
 }
 
