@@ -122,13 +122,17 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public applyFilter(value: string): void {
-    this.searchValue.set(value);
-    this.dataSource.filter = value.trim().toLowerCase();
+    this.searchValue.set(value.trim());
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
-    this.dataSource.filter = '';
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
   }
 
   public openEditDialog(user: UserEntity): void {
@@ -141,7 +145,6 @@ export class AdminUsersComponent implements OnInit {
       if (updatedUser) {
         this.allUsers = this.allUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
         this.dataSource.data = this.allUsers;
-        this.dataSource.filter = this.searchValue().trim().toLowerCase();
       }
     });
   }
@@ -197,7 +200,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get filteredUsers(): number {
-    return this.dataSource.filteredData.length;
+    return this.totalUsersCount;
   }
 
   public get hasMoreUsers(): boolean {
@@ -258,6 +261,7 @@ export class AdminUsersComponent implements OnInit {
         limit: this.pageSize,
         sortBy: this.sortField,
         order: this.sortOrder,
+        filters: this.buildSearchFilters(this.searchValue()),
       }),
       groups: this.groupsService.getGroups(),
     }).subscribe({
@@ -271,7 +275,6 @@ export class AdminUsersComponent implements OnInit {
         this.totalUsersCount = usersPage.total;
         this.allUsers = append ? [...this.allUsers, ...usersPage.items] : usersPage.items;
         this.dataSource.data = this.allUsers;
-        this.dataSource.filter = this.searchValue().trim().toLowerCase();
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -280,6 +283,29 @@ export class AdminUsersComponent implements OnInit {
         console.error(err);
       },
     });
+  }
+
+  private buildSearchFilters(rawSearch: string): Record<string, string | number> {
+    const search = rawSearch.trim();
+    if (!search) {
+      return {};
+    }
+
+    const lower = search.toLowerCase();
+
+    if (lower.includes('@')) {
+      return { email: `*${search}` };
+    }
+
+    if (['admin', 'teacher', 'user'].includes(lower)) {
+      return { role: lower };
+    }
+
+    if (/^\d+$/.test(search)) {
+      return { group_id: Number(search) };
+    }
+
+    return { full_name: `*${search}` };
   }
 }
 

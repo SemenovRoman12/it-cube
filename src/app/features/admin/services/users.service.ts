@@ -32,6 +32,7 @@ export interface UsersPageQuery {
   limit: number;
   sortBy?: string;
   order?: 'asc' | 'desc';
+  filters?: Record<string, string | number>;
 }
 
 @Injectable({
@@ -52,6 +53,12 @@ export class UsersService {
     if (query.sortBy) {
       const prefix = query.order === 'desc' ? '-' : '';
       params = params.set('sortBy', `${prefix}${query.sortBy}`);
+    }
+
+    if (query.filters) {
+      Object.entries(query.filters).forEach(([key, value]) => {
+        params = params.set(key, String(value));
+      });
     }
 
     return this.http.get<MokkyPageResponse<UserEntity>>(`${this.apiUrl}/users`, { params }).pipe(
