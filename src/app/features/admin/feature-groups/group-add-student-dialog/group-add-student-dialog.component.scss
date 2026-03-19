@@ -92,6 +92,25 @@ h2[mat-dialog-title] {
   margin-bottom: 12px;
 }
 
+.load-more-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.load-more-info {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
 .error-alert {
   display: flex;
   align-items: center;

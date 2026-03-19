@@ -47,6 +47,16 @@ export class UsersService {
     return this.api.get<UserEntity[]>('users');
   }
 
+  public getUsersByFilters(filters: Record<string, string | number>): Observable<UserEntity[]> {
+    let params = new HttpParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      params = params.set(key, String(value));
+    });
+
+    return this.http.get<UserEntity[]>(`${this.apiUrl}/users`, { params });
+  }
+
   public getUsersPage(query: UsersPageQuery): Observable<UsersPageResult> {
     let params = new HttpParams().set('page', query.page).set('limit', query.limit);
 

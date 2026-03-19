@@ -40,7 +40,6 @@ export class AdminGroupDetailsComponent implements OnInit {
   public readonly errorMessage = signal('');
   public readonly group = signal<GroupEntity | null>(null);
   public readonly students = signal<UserEntity[]>([]);
-  public readonly availableStudents = signal<UserEntity[]>([]);
   public readonly removingStudentId = signal<number | null>(null);
 
   private groupId = 0;
@@ -56,12 +55,14 @@ export class AdminGroupDetailsComponent implements OnInit {
 
     forkJoin({
       group: this.groupsService.getGroupById(this.groupId),
-      users: this.usersService.getUsers(),
+      students: this.usersService.getUsersByFilters({
+        role: 'user',
+        group_id: this.groupId,
+      }),
     }).subscribe({
-      next: ({ group, users }) => {
+      next: ({ group, students }) => {
         this.group.set(group);
-        this.students.set(users.filter((u) => u.role === 'user' && u.group_id === this.groupId));
-        this.availableStudents.set(users.filter((u) => u.role === 'user' && (u.group_id == null || u.group_id === 0)));
+        this.students.set(students);
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -77,7 +78,6 @@ export class AdminGroupDetailsComponent implements OnInit {
       width: '460px',
       data: {
         groupId: this.groupId,
-        users: this.availableStudents(),
       },
     });
 
@@ -86,9 +86,7 @@ export class AdminGroupDetailsComponent implements OnInit {
         return;
       }
 
-      this.students.set([...this.students(), ...updatedUsers]);
-      const selectedIds = new Set(updatedUsers.map((user) => user.id));
-      this.availableStudents.set(this.availableStudents().filter((u) => !selectedIds.has(u.id)));
+      this.loadData();
     });
   }
 
@@ -101,9 +99,8 @@ export class AdminGroupDetailsComponent implements OnInit {
     this.removingStudentId.set(student.id);
 
     this.usersService.removeUserFromGroup(student.id).subscribe({
-      next: (updatedUser) => {
+      next: () => {
         this.students.set(this.students().filter((u) => u.id !== student.id));
-        this.availableStudents.set([...this.availableStudents(), updatedUser]);
         this.removingStudentId.set(null);
       },
       error: (err: HttpErrorResponse) => {

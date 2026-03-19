@@ -9,6 +9,7 @@
     <input
       matInput
       [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchChange($event)"
       [disabled]="isLoading"
       placeholder="Имя или email"
     />
@@ -20,16 +21,18 @@
   </mat-form-field>
 
   <div class="filters-row">
-    <mat-checkbox [(ngModel)]="showOnlyWithoutGroup" [disabled]="isLoading">
-      Только без группы
-    </mat-checkbox>
     <mat-checkbox [(ngModel)]="showOnlySelected" [disabled]="isLoading">
       Только выбранные
     </mat-checkbox>
   </div>
 
   <div class="students-list" role="list">
-    @if (filteredUsers.length) {
+    @if (isUsersLoading) {
+      <div class="empty-state">
+        <mat-spinner diameter="28" />
+        <span>Загрузка учеников...</span>
+      </div>
+    } @else if (filteredUsers.length) {
       @for (user of filteredUsers; track user.id) {
         <button
           type="button"
@@ -48,7 +51,7 @@
             <span class="name">{{ user.full_name }}</span>
             <span class="email">{{ user.email }}</span>
           </div>
-          @if (user.group_id !== null) {
+          @if (user.group_id !== null && user.group_id !== 0) {
             <span class="chip">В группе #{{ user.group_id }}</span>
           }
         </button>
@@ -56,10 +59,30 @@
     } @else {
       <div class="empty-state">
         <mat-icon>search_off</mat-icon>
-        <span>По вашему запросу ученики не найдены</span>
+        @if (!searchQuery && hasMoreUsers && !showOnlySelected) {
+          <span>В этой части списка нет свободных учеников. Нажмите «Загрузить ещё».</span>
+        } @else {
+          <span>По вашему запросу ученики не найдены</span>
+        }
       </div>
     }
   </div>
+
+  @if (!showOnlySelected) {
+    <div class="load-more-row">
+      <span class="load-more-info">Показано {{ users.length }} из {{ totalUsers }}</span>
+      @if (hasMoreUsers) {
+        <button mat-stroked-button (click)="loadMoreUsers()" [disabled]="isLoadingMore || isLoading || isUsersLoading">
+          @if (isLoadingMore) {
+            <mat-spinner diameter="18" />
+            Загружаем...
+          } @else {
+            Загрузить ещё
+          }
+        </button>
+      }
+    </div>
+  }
 
   <div class="list-hint">Можно выбрать сразу несколько учеников</div>
 

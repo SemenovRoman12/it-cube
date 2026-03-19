@@ -6,7 +6,7 @@
     </a>
 
     <div class="header-actions">
-      <button mat-flat-button color="primary" (click)="openAddStudentDialog()" [disabled]="!availableStudents().length || isLoading()">
+      <button mat-flat-button color="primary" (click)="openAddStudentDialog()" [disabled]="isLoading()">
         <mat-icon>person_add</mat-icon>
         Добавить ученика
       </button>
