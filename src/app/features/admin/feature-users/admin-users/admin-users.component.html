@@ -57,7 +57,7 @@
       </mat-card-header>
 
       <mat-card-content>
-        <table mat-table [dataSource]="dataSource" matSort class="users-table">
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)" class="users-table">
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по ID">
               #
@@ -183,7 +183,14 @@
             Загрузить ещё 20
           </button>
 
-          <mat-paginator [showFirstLastButtons]="true" />
+          <mat-paginator
+            [length]="totalUsers"
+            [pageIndex]="currentPage() - 1"
+            [pageSize]="pageSize"
+            [hidePageSize]="true"
+            [showFirstLastButtons]="true"
+            (page)="onPageChange($event)"
+          />
         </div>
       </mat-card-content>
     </mat-card>

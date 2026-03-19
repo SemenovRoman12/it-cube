@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,10 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { UserEntity } from '../../../../core/models/user.model';
 import { GroupsService } from '../../services/groups.service';
@@ -41,17 +41,20 @@ export class AdminUsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
-  private readonly defaultPageSize = 20;
+
+  public readonly pageSize = 20;
 
   private _sort!: MatSort;
-  private _paginator!: MatPaginator;
+  private loadedExtraPages = 0;
   private allUsers: UserEntity[] = [];
+  private totalUsersCount = 0;
+  private sortField = 'id';
+  private sortOrder: 'asc' | 'desc' = 'asc';
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
     if (value) {
       this._sort = value;
-      this.dataSource.sort = value;
       this.dataSource.filterPredicate = (item, filter) => {
         const search = [
           String(item.id),
@@ -66,37 +69,6 @@ export class AdminUsersComponent implements OnInit {
 
         return search.includes(filter);
       };
-      this.dataSource.sortingDataAccessor = (item, property) => {
-        switch (property) {
-          case 'id':
-            return item.id;
-          case 'full_name':
-            return item.full_name.toLowerCase();
-          case 'email':
-            return item.email.toLowerCase();
-          case 'role':
-            return item.role;
-          case 'group_id':
-            return this.getGroupName(item.group_id).toLowerCase();
-          case 'created_at':
-            return new Date(item.created_at).getTime();
-          default:
-            return '';
-        }
-      };
-    }
-  }
-
-  @ViewChild(MatPaginator)
-  set paginator(value: MatPaginator) {
-    if (value) {
-      this._paginator = value;
-      this._paginator.pageSize = this.defaultPageSize;
-      this._paginator.pageIndex = 0;
-      this._paginator.hidePageSize = true;
-      this._paginator.showFirstLastButtons = true;
-      this.dataSource.paginator = value;
-      this.refreshVisibleUsers();
     }
   }
 
@@ -106,63 +78,57 @@ export class AdminUsersComponent implements OnInit {
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
   public groupNames = signal<Record<number, string>>({});
+  public currentPage = signal(1);
 
   public displayedColumns = ['id', 'full_name', 'email', 'role', 'group_id', 'created_at', 'actions'];
 
   public ngOnInit(): void {
-    this.loadUsers();
+    this.loadUsers(true);
   }
 
-  public loadUsers(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+  public loadUsers(resetToFirstPage = false): void {
+    if (resetToFirstPage) {
+      this.currentPage.set(1);
+      this.loadedExtraPages = 0;
+    }
 
-    forkJoin({
-      users: this.usersService.getUsers(),
-      groups: this.groupsService.getGroups(),
-    }).subscribe({
-      next: ({ users, groups }) => {
-        const names: Record<number, string> = {};
-        groups.forEach((group: GroupEntity) => {
-          names[group.id] = group.name;
-        });
+    this.fetchUsers(false);
+  }
 
-        this.groupNames.set(names);
-        this.allUsers = users;
-        this.refreshVisibleUsers();
+  public onPageChange(event: PageEvent): void {
+    const page = event.pageIndex + 1;
 
-        if (this._paginator) {
-          this._paginator.pageSize = this.defaultPageSize;
-          this._paginator.firstPage();
-          this.dataSource.paginator = this._paginator;
-        }
+    if (page === this.currentPage()) {
+      return;
+    }
 
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        this.errorMessage.set('Ошибка при загрузке пользователей.');
-        this.isLoading.set(false);
-        console.error(err);
-      },
-    });
+    this.currentPage.set(page);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
+  }
+
+  public onSortChange(sort: Sort): void {
+    if (!sort.active || !sort.direction) {
+      this.sortField = 'id';
+      this.sortOrder = 'asc';
+    } else {
+      this.sortField = sort.active;
+      this.sortOrder = sort.direction;
+    }
+
+    this.currentPage.set(1);
+    this.loadedExtraPages = 0;
+    this.fetchUsers(false);
   }
 
   public applyFilter(value: string): void {
     this.searchValue.set(value);
     this.dataSource.filter = value.trim().toLowerCase();
-
-    if (this._paginator) {
-      this._paginator.firstPage();
-    }
   }
 
   public clearSearch(): void {
     this.searchValue.set('');
     this.dataSource.filter = '';
-
-    if (this._paginator) {
-      this._paginator.firstPage();
-    }
   }
 
   public openEditDialog(user: UserEntity): void {
@@ -174,7 +140,8 @@ export class AdminUsersComponent implements OnInit {
     dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
       if (updatedUser) {
         this.allUsers = this.allUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
-        this.refreshVisibleUsers();
+        this.dataSource.data = this.allUsers;
+        this.dataSource.filter = this.searchValue().trim().toLowerCase();
       }
     });
   }
@@ -187,8 +154,7 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((createdUser: UserEntity | undefined) => {
       if (createdUser) {
-        this.allUsers = [...this.allUsers, createdUser];
-        this.refreshVisibleUsers();
+        this.loadUsers();
       }
     });
   }
@@ -227,7 +193,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get totalUsers(): number {
-    return this.allUsers.length;
+    return this.totalUsersCount;
   }
 
   public get filteredUsers(): number {
@@ -235,26 +201,20 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get hasMoreUsers(): boolean {
-    if (!this._paginator) {
-      return false;
-    }
+    return this.currentPage() + this.loadedExtraPages < this.totalPages;
+  }
 
-    const visibleUntil = (this._paginator.pageIndex + 1) * this._paginator.pageSize;
-    return visibleUntil < this.dataSource.filteredData.length;
+  public get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalUsersCount / this.pageSize));
   }
 
   public loadMoreUsers(): void {
-    if (!this.hasMoreUsers || !this._paginator) {
+    if (!this.hasMoreUsers) {
       return;
     }
 
-    const currentFirstItemIndex = this._paginator.pageIndex * this._paginator.pageSize;
-    const maxPageSize = Math.max(this.defaultPageSize, this.dataSource.filteredData.length);
-    const nextPageSize = Math.min(this._paginator.pageSize + this.defaultPageSize, maxPageSize);
-
-    this._paginator.pageSize = nextPageSize;
-    this._paginator.pageIndex = Math.floor(currentFirstItemIndex / nextPageSize);
-    this.dataSource.paginator = this._paginator;
+    this.loadedExtraPages += 1;
+    this.fetchUsers(true);
   }
 
   public getGroupName(groupId: number | null): string {
@@ -275,9 +235,8 @@ export class AdminUsersComponent implements OnInit {
 
     this.usersService.deleteUser(user.id).subscribe({
       next: () => {
-        this.allUsers = this.allUsers.filter((u) => u.id !== user.id);
-        this.refreshVisibleUsers();
         this.deletingUserId.set(null);
+        this.loadUsers();
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set('Ошибка при удалении пользователя. Попробуйте снова.');
@@ -287,16 +246,40 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  private refreshVisibleUsers(): void {
-    this.dataSource.data = this.allUsers;
+  private fetchUsers(append: boolean): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
-    if (this._paginator) {
-      this.dataSource.paginator = this._paginator;
-      const maxPageIndex = Math.max(0, Math.ceil(this.dataSource.filteredData.length / this._paginator.pageSize) - 1);
-      if (this._paginator.pageIndex > maxPageIndex) {
-        this._paginator.pageIndex = maxPageIndex;
-      }
-    }
+    const requestedPage = this.currentPage() + this.loadedExtraPages;
+
+    forkJoin({
+      usersPage: this.usersService.getUsersPage({
+        page: requestedPage,
+        limit: this.pageSize,
+        sortBy: this.sortField,
+        order: this.sortOrder,
+      }),
+      groups: this.groupsService.getGroups(),
+    }).subscribe({
+      next: ({ usersPage, groups }) => {
+        const names: Record<number, string> = {};
+        groups.forEach((group: GroupEntity) => {
+          names[group.id] = group.name;
+        });
+
+        this.groupNames.set(names);
+        this.totalUsersCount = usersPage.total;
+        this.allUsers = append ? [...this.allUsers, ...usersPage.items] : usersPage.items;
+        this.dataSource.data = this.allUsers;
+        this.dataSource.filter = this.searchValue().trim().toLowerCase();
+        this.isLoading.set(false);
+      },
+      error: (err: unknown) => {
+        this.errorMessage.set('Ошибка при загрузке пользователей.');
+        this.isLoading.set(false);
+        console.error(err);
+      },
+    });
   }
 }
 
