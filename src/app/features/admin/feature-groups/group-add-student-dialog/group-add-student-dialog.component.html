@@ -60,7 +60,7 @@
       <div class="empty-state">
         <mat-icon>search_off</mat-icon>
         @if (!searchQuery && hasMoreUsers && !showOnlySelected) {
-          <span>В этой части списка нет свободных учеников. Нажмите «Загрузить ещё».</span>
+          <span>В этой части списка нет свободных учеников. Прокрутите список ниже для подгрузки.</span>
         } @else {
           <span>По вашему запросу ученики не найдены</span>
         }
@@ -71,16 +71,6 @@
   @if (!showOnlySelected) {
     <div class="load-more-row">
       <span class="load-more-info">Показано свободных учеников: {{ loadedUsersCount }}</span>
-      @if (hasMoreUsers) {
-        <button mat-stroked-button (click)="loadMoreUsers()" [disabled]="isLoadingMore || isLoading || isUsersLoading">
-          @if (isLoadingMore) {
-            <mat-spinner diameter="18" />
-            Загружаем...
-          } @else {
-            Загрузить ещё
-          }
-        </button>
-      }
     </div>
   }
 
