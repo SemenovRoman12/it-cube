@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, effect, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,6 +12,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { GroupEntity } from '../../../../core/models/group.model';
+import { ListStateFacade } from '../../shared/list-state';
 import { GroupsService } from '../../services/groups.service';
 import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
 import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
@@ -38,14 +39,20 @@ export class AdminGroupsComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
 
-  public readonly pageSize = 10;
+  private readonly listState = new ListStateFacade<GroupEntity, Record<string, string | number>>(
+    {
+      loadPage: (query) => this.groupsService.getGroupsPage(query),
+    },
+    {
+      pageSize: 10,
+      createFilters: (rawSearch) => this.buildSearchFilters(rawSearch),
+      loadingErrorMessage: 'Ошибка при загрузке групп.',
+    }
+  );
 
   private _sort!: MatSort;
-  private loadedExtraPages = 0;
-  private allGroups: GroupEntity[] = [];
-  private totalGroupsCount = 0;
-  private sortField: string | null = null;
-  private sortOrder: 'asc' | 'desc' = 'asc';
+
+  public readonly pageSize = this.listState.pageSize;
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
@@ -63,42 +70,31 @@ export class AdminGroupsComponent implements OnInit {
   public readonly dataSource = new MatTableDataSource<GroupEntity>([]);
   public readonly displayedColumns = ['id', 'name', 'actions'];
 
+  public constructor() {
+    this.isLoading = this.listState.isLoading;
+    this.errorMessage = this.listState.errorMessage;
+    this.searchValue = this.listState.searchValue;
+    this.currentPage = this.listState.currentPage;
+
+    effect(() => {
+      this.dataSource.data = this.listState.data();
+    });
+  }
+
   public ngOnInit(): void {
     this.loadGroups(true);
   }
 
   public loadGroups(resetToFirstPage = false): void {
-    if (resetToFirstPage) {
-      this.currentPage.set(1);
-      this.loadedExtraPages = 0;
-    }
-
-    this.fetchGroups(false);
+    this.listState.load(resetToFirstPage);
   }
 
   public onPageChange(event: PageEvent): void {
-    const page = event.pageIndex + 1;
-    if (page === this.currentPage()) {
-      return;
-    }
-
-    this.currentPage.set(page);
-    this.loadedExtraPages = 0;
-    this.fetchGroups(false);
+    this.listState.onPageChange(event.pageIndex + 1);
   }
 
   public onSortChange(sort: Sort): void {
-    if (!sort.active || !sort.direction) {
-      this.sortField = null;
-      this.sortOrder = 'asc';
-    } else {
-      this.sortField = sort.active;
-      this.sortOrder = sort.direction;
-    }
-
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchGroups(false);
+    this.listState.onSortChange(sort);
   }
 
   public openCreateDialog(): void {
@@ -152,95 +148,41 @@ export class AdminGroupsComponent implements OnInit {
   }
 
   public applyFilter(value: string): void {
-    this.searchValue.set(value.trim());
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchGroups(false);
+    this.listState.applyFilter(value);
   }
 
   public clearSearch(): void {
-    this.searchValue.set('');
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchGroups(false);
+    this.listState.clearSearch();
   }
 
   public resetFilters(): void {
-    this.searchValue.set('');
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.sortField = null;
-    this.sortOrder = 'asc';
+    this.listState.resetFilters();
 
     if (this._sort) {
-      this._sort.active = '';
-      this._sort.direction = '';
+      const uiSort = this.listState.getUiSort();
+      this._sort.active = uiSort.active;
+      this._sort.direction = uiSort.direction;
     }
-
-    this.fetchGroups(false);
   }
 
   public get totalGroups(): number {
-    return this.totalGroupsCount;
+    return this.listState.total;
   }
 
   public get filteredGroupsCount(): number {
-    return this.totalGroupsCount;
+    return this.listState.total;
   }
 
   public get hasMoreGroups(): boolean {
-    return this.currentPage() + this.loadedExtraPages < this.totalPages;
+    return this.listState.hasMore;
   }
 
   public get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalGroupsCount / this.pageSize));
+    return this.listState.totalPages;
   }
 
   public loadMoreGroups(): void {
-    if (!this.hasMoreGroups) {
-      return;
-    }
-
-    this.loadedExtraPages += 1;
-    this.fetchGroups(true);
-  }
-
-  private fetchGroups(append: boolean): void {
-    const showBlockingLoader = !append && this.dataSource.data.length === 0;
-    if (showBlockingLoader) {
-      this.isLoading.set(true);
-    }
-
-    this.errorMessage.set('');
-
-    const requestedPage = this.currentPage() + this.loadedExtraPages;
-
-    this.groupsService
-      .getGroupsPage({
-        page: requestedPage,
-        limit: this.pageSize,
-        sortBy: this.sortField ?? undefined,
-        order: this.sortOrder,
-        filters: this.buildSearchFilters(this.searchValue()),
-      })
-      .subscribe({
-        next: ({ items, total }) => {
-          this.allGroups = append ? [...this.allGroups, ...items] : items;
-          this.totalGroupsCount = total;
-          this.dataSource.data = this.allGroups;
-
-          if (showBlockingLoader) {
-            this.isLoading.set(false);
-          }
-        },
-        error: (err: unknown) => {
-          this.errorMessage.set('Ошибка при загрузке групп.');
-          if (showBlockingLoader) {
-            this.isLoading.set(false);
-          }
-          console.error(err);
-        },
-      });
+    this.listState.loadMore();
   }
 
   private buildSearchFilters(rawSearch: string): Record<string, string | number> {
