@@ -1,0 +1,128 @@
+<section class="teacher-journal">
+  <mat-card class="teacher-journal__toolbar-card">
+    <div class="teacher-journal__toolbar">
+      <mat-form-field appearance="outline">
+        <mat-label>Группа</mat-label>
+        <mat-select [value]="selectedGroupId()" (selectionChange)="onGroupChange($any($event.value))">
+          @for (group of groups(); track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Предмет</mat-label>
+        <mat-select [value]="selectedSubjectId()" (selectionChange)="onSubjectChange($any($event.value))">
+          @for (subject of subjects(); track subject.id) {
+          <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <form [formGroup]="lessonForm" class="teacher-journal__lesson-form" (ngSubmit)="onCreateLesson()">
+      <mat-form-field appearance="outline">
+        <mat-label>Дата урока</mat-label>
+        <input matInput type="date" formControlName="date" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="teacher-journal__topic-field">
+        <mat-label>Тема урока</mat-label>
+        <input matInput formControlName="topic" maxlength="120" />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="!canCreateLesson() || isSaving()">
+        <mat-icon>add</mat-icon>
+        Создать урок
+      </button>
+    </form>
+
+    <div class="teacher-journal__actions">
+      <button mat-flat-button color="primary" (click)="onSaveChanges()" [disabled]="!hasDirtyChanges() || isSaving()">
+        <mat-icon>save</mat-icon>
+        Сохранить изменения
+      </button>
+      <button mat-button type="button" (click)="onResetChanges()" [disabled]="!hasDirtyChanges() || isSaving()">
+        Сбросить
+      </button>
+    </div>
+  </mat-card>
+
+  @if (isLoading()) {
+  <div class="teacher-journal__loading">
+    <mat-spinner diameter="42" />
+  </div>
+  } @else {
+  @if (error(); as errorText) {
+  <mat-card class="teacher-journal__error-card">
+    {{ errorText }}
+  </mat-card>
+  }
+
+  <mat-card class="teacher-journal__grid-card">
+    @if (!grid().lessons.length) {
+    <div class="teacher-journal__empty">Для выбранного предмета пока нет уроков.</div>
+    } @else if (!grid().rows.length) {
+    <div class="teacher-journal__empty">В группе нет студентов.</div>
+    } @else {
+    <div class="teacher-journal__table-wrapper">
+      <table class="teacher-journal__table">
+        <thead>
+          <tr>
+            <th class="teacher-journal__sticky-column">Студент</th>
+            @for (lesson of grid().lessons; track lesson.id) {
+            <th>
+              <div class="teacher-journal__lesson-header">
+                <div>{{ lesson.date }}</div>
+                <small>{{ lesson.topic }}</small>
+              </div>
+            </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of grid().rows; track row.student.id) {
+          <tr>
+            <td class="teacher-journal__sticky-column">{{ row.student.full_name }}</td>
+            @for (cell of row.cells; track cell.lessonId + '-' + cell.studentId) {
+            <td [class.teacher-journal__cell--dirty]="cell.isDirty">
+              <div class="teacher-journal__cell">
+                <mat-form-field appearance="outline" class="teacher-journal__cell-field">
+                  <mat-label>Оценка</mat-label>
+                  <mat-select [value]="cell.mark" (selectionChange)="onMarkChange(cell.lessonId, cell.studentId, $any($event.value))">
+                    @for (mark of markOptions; track $index) {
+                    <mat-option [value]="mark">
+                      {{ mark ?? '—' }}
+                    </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="teacher-journal__cell-field">
+                  <mat-label>Посещаемость</mat-label>
+                  <mat-select [value]="cell.attendance"
+                    (selectionChange)="onAttendanceChange(cell.lessonId, cell.studentId, $any($event.value))">
+                    @for (attendance of attendanceOptions; track attendance) {
+                    <mat-option [value]="attendance">{{ getAttendanceLabel(attendance) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="teacher-journal__cell-field">
+                  <mat-label>Комментарий</mat-label>
+                  <input matInput [value]="cell.comment"
+                    (blur)="onCommentChange(cell.lessonId, cell.studentId, $any($event.target).value)" />
+                </mat-form-field>
+              </div>
+            </td>
+            }
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </mat-card>
+  }
+</section>
+

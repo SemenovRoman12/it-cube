@@ -1,0 +1,27 @@
+<section class="teacher-lessons-list">
+  @if (isLoading()) {
+  <p>Загрузка...</p>
+  } @else if (error(); as errorText) {
+  <mat-card class="teacher-lessons-list__error">{{ errorText }}</mat-card>
+  } @else {
+  <div class="teacher-lessons-list__filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Предмет</mat-label>
+      <mat-select [value]="selectedSubjectId()" (selectionChange)="onSubjectChange($any($event.value))">
+        @for (subject of subjects(); track subject.id) {
+        <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-card class="teacher-lessons-list__content">
+    @if (selectedSubjectName()) {
+    <h3>{{ selectedSubjectName() }}</h3>
+    } @else {
+    <p>Для выбранной группы нет доступных предметов.</p>
+    }
+  </mat-card>
+
+  }
+</section>

@@ -1,0 +1,20 @@
+.teacher-lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teacher-lessons-list__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.teacher-lessons-list__error {
+  border-radius: 12px;
+  color: #b3261e;
+}
+
+.teacher-lessons-list__content {
+  border-radius: 12px;
+}
