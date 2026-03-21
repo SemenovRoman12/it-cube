@@ -1,26 +1,27 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# Подробнее про .gitignore: https://docs.github.com/get-started/getting-started-with-git/ignoring-files
 
-# Compiled output
+# Результаты сборки
 /dist
 /tmp
 /out-tsc
 /bazel-out
 
-# Node
+# Зависимости и логи Node.js
 /node_modules
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
+# Настройки IDE и редакторов
 .idea/
 .project
 .classpath
 .c9/
+.ai/
 *.launch
 .settings/
 *.sublime-workspace
 
-# Visual Studio Code
+# Локальные файлы Visual Studio Code
 .vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -29,7 +30,7 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
-# Miscellaneous
+# Прочие временные/служебные файлы проекта
 /.angular/cache
 .sass-cache/
 /connect.lock
@@ -39,7 +40,7 @@ testem.log
 /typings
 __screenshots__/
 
-# System files
+# Системные файлы ОС
 .DS_Store
 Thumbs.db
 .kilocode

@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { UserEntity } from '../../../../core/models/user.model';
+import { ListStateFacade } from '../../shared/list-state';
 import { GroupsService } from '../../services/groups.service';
 import { UsersService } from '../../services/users.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
@@ -42,14 +43,38 @@ export class AdminUsersComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
 
-  public readonly pageSize = 10;
+  private readonly listState = new ListStateFacade<UserEntity, Record<string, string | number>>(
+    {
+      loadPage: (query) =>
+        forkJoin({
+          usersPage: this.usersService.getUsersPage(query),
+          groups: this.groupsService.getGroups(),
+        }).pipe(
+          map(({ usersPage, groups }) => {
+            const names: Record<number, string> = {};
+            groups.forEach((group: GroupEntity) => {
+              names[group.id] = group.name;
+            });
+
+            this.groupNames.set(names);
+
+            return {
+              items: usersPage.items,
+              total: usersPage.total,
+            };
+          })
+        ),
+    },
+    {
+      pageSize: 10,
+      createFilters: (rawSearch) => this.buildSearchFilters(rawSearch),
+      loadingErrorMessage: 'Ошибка при загрузке пользователей.',
+    }
+  );
 
   private _sort!: MatSort;
-  private loadedExtraPages = 0;
-  private allUsers: UserEntity[] = [];
-  private totalUsersCount = 0;
-  private sortField: string | null = null;
-  private sortOrder: 'asc' | 'desc' = 'asc';
+
+  public readonly pageSize = this.listState.pageSize;
 
   @ViewChild(MatSort)
   set sort(value: MatSort) {
@@ -82,72 +107,50 @@ export class AdminUsersComponent implements OnInit {
 
   public displayedColumns = ['id', 'full_name', 'email', 'role', 'group_id', 'created_at', 'actions'];
 
+  public constructor() {
+    this.isLoading = this.listState.isLoading;
+    this.errorMessage = this.listState.errorMessage;
+    this.searchValue = this.listState.searchValue;
+    this.currentPage = this.listState.currentPage;
+
+    effect(() => {
+      this.dataSource.data = this.listState.data();
+    });
+  }
+
   public ngOnInit(): void {
     this.loadUsers(true);
   }
 
   public loadUsers(resetToFirstPage = false): void {
-    if (resetToFirstPage) {
-      this.currentPage.set(1);
-      this.loadedExtraPages = 0;
-    }
-
-    this.fetchUsers(false);
+    this.listState.load(resetToFirstPage);
   }
 
   public onPageChange(event: PageEvent): void {
-    const page = event.pageIndex + 1;
-
-    if (page === this.currentPage()) {
-      return;
-    }
-
-    this.currentPage.set(page);
-    this.loadedExtraPages = 0;
-    this.fetchUsers(false);
+    this.listState.onPageChange(event.pageIndex + 1);
   }
 
   public onSortChange(sort: Sort): void {
-    if (!sort.active || !sort.direction) {
-      this.sortField = null;
-      this.sortOrder = 'asc';
-    } else {
-      this.sortField = sort.active;
-      this.sortOrder = sort.direction;
-    }
-
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchUsers(false);
+    this.listState.onSortChange(sort);
   }
 
   public applyFilter(value: string): void {
-    this.searchValue.set(value.trim());
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchUsers(false);
+    this.listState.applyFilter(value);
   }
 
   public clearSearch(): void {
-    this.searchValue.set('');
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.fetchUsers(false);
+    this.listState.clearSearch();
   }
 
   public resetFilters(): void {
-    this.searchValue.set('');
-    this.currentPage.set(1);
-    this.loadedExtraPages = 0;
-    this.sortField = null;
-    this.sortOrder = 'asc';
+    this.listState.resetFilters();
 
     if (this._sort) {
-      this._sort.active = '';
-      this._sort.direction = '';
+      const uiSort = this.listState.getUiSort();
+      this._sort.active = uiSort.active;
+      this._sort.direction = uiSort.direction;
     }
 
-    this.fetchUsers(false);
   }
 
   public openEditDialog(user: UserEntity): void {
@@ -158,8 +161,7 @@ export class AdminUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((updatedUser: UserEntity | undefined) => {
       if (updatedUser) {
-        this.allUsers = this.allUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
-        this.dataSource.data = this.allUsers;
+        this.loadUsers();
       }
     });
   }
@@ -211,28 +213,23 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public get totalUsers(): number {
-    return this.totalUsersCount;
+    return this.listState.total;
   }
 
   public get filteredUsers(): number {
-    return this.totalUsersCount;
+    return this.listState.total;
   }
 
   public get hasMoreUsers(): boolean {
-    return this.currentPage() + this.loadedExtraPages < this.totalPages;
+    return this.listState.hasMore;
   }
 
   public get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalUsersCount / this.pageSize));
+    return this.listState.totalPages;
   }
 
   public loadMoreUsers(): void {
-    if (!this.hasMoreUsers) {
-      return;
-    }
-
-    this.loadedExtraPages += 1;
-    this.fetchUsers(true);
+    this.listState.loadMore();
   }
 
   public getGroupName(groupId: number | null): string {
@@ -259,50 +256,6 @@ export class AdminUsersComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set('Ошибка при удалении пользователя. Попробуйте снова.');
         this.deletingUserId.set(null);
-        console.error(err);
-      },
-    });
-  }
-
-  private fetchUsers(append: boolean): void {
-    const showBlockingLoader = !append && this.dataSource.data.length === 0;
-    if (showBlockingLoader) {
-      this.isLoading.set(true);
-    }
-
-    this.errorMessage.set('');
-
-    const requestedPage = this.currentPage() + this.loadedExtraPages;
-
-    forkJoin({
-      usersPage: this.usersService.getUsersPage({
-        page: requestedPage,
-        limit: this.pageSize,
-        sortBy: this.sortField ?? undefined,
-        order: this.sortOrder,
-        filters: this.buildSearchFilters(this.searchValue()),
-      }),
-      groups: this.groupsService.getGroups(),
-    }).subscribe({
-      next: ({ usersPage, groups }) => {
-        const names: Record<number, string> = {};
-        groups.forEach((group: GroupEntity) => {
-          names[group.id] = group.name;
-        });
-
-        this.groupNames.set(names);
-        this.totalUsersCount = usersPage.total;
-        this.allUsers = append ? [...this.allUsers, ...usersPage.items] : usersPage.items;
-        this.dataSource.data = this.allUsers;
-        if (showBlockingLoader) {
-          this.isLoading.set(false);
-        }
-      },
-      error: (err: unknown) => {
-        this.errorMessage.set('Ошибка при загрузке пользователей.');
-        if (showBlockingLoader) {
-          this.isLoading.set(false);
-        }
         console.error(err);
       },
     });
