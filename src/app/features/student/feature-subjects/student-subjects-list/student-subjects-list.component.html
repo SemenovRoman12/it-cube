@@ -1,16 +1,44 @@
 <section class="student-subjects-list">
-  <h2 class="student-subjects-list__title">Мои предметы</h2>
+  <div class="student-subjects-list__header">
+    <h2 class="student-subjects-list__title">Мои предметы</h2>
+    <p class="student-subjects-list__subtitle">Выберите предмет, чтобы открыть список уроков</p>
+  </div>
 
   @if (isLoading()) {
-    <p class="student-subjects-list__state">Загрузка...</p>
+    <div class="student-subjects-list__loading">
+      <mat-spinner diameter="36" />
+      <p class="student-subjects-list__state">Загрузка...</p>
+    </div>
   } @else if (error(); as errorText) {
-    <p class="student-subjects-list__state student-subjects-list__state--error">{{ errorText }}</p>
+    <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">
+      <p class="student-subjects-list__state student-subjects-list__state--error">{{ errorText }}</p>
+    </mat-card>
   } @else if (!subjects().length) {
-    <p class="student-subjects-list__state">Для вашей группы пока нет назначенных предметов.</p>
+    <mat-card appearance="outlined" class="student-subjects-list__state-card">
+      <p class="student-subjects-list__state">Для вашей группы пока нет назначенных предметов.</p>
+    </mat-card>
   } @else {
-    <ul class="student-subjects-list__items">
+    <ul class="student-subjects-list__grid">
       @for (subject of subjects(); track subject.id) {
-        <li class="student-subjects-list__item">{{ subject.name }}</li>
+        <li class="student-subjects-list__grid-item">
+          <mat-card class="student-subjects-list__subject-card" appearance="outlined">
+            <mat-card-content class="student-subjects-list__subject-card-content">
+              <div class="student-subjects-list__subject-info">
+                <mat-icon>menu_book</mat-icon>
+                <span>{{ subject.name }}</span>
+              </div>
+              <a
+                class="student-subjects-list__open-link"
+                mat-flat-button
+                color="primary"
+                [routerLink]="['/student/subjects', subject.id]"
+                [queryParams]="{ name: subject.name }"
+              >
+                Открыть
+              </a>
+            </mat-card-content>
+          </mat-card>
+        </li>
       }
     </ul>
   }

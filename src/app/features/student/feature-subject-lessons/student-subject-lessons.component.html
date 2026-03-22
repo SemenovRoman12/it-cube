@@ -1,0 +1,53 @@
+<section class="student-subject-lessons">
+  <div class="student-subject-lessons__header-row">
+    <button mat-stroked-button type="button" routerLink="/student" class="student-subject-lessons__back">
+      <mat-icon>arrow_back</mat-icon>
+      К предметам
+    </button>
+  </div>
+
+  <mat-card appearance="outlined" class="student-subject-lessons__header-card">
+    <mat-card-content>
+      <h2 class="student-subject-lessons__title">{{ subjectName() }}</h2>
+      <p class="student-subject-lessons__subtitle">Список всех уроков по выбранному предмету</p>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading()) {
+    <div class="student-subject-lessons__loading">
+      <mat-spinner diameter="36" />
+      <p class="student-subject-lessons__state">Загрузка...</p>
+    </div>
+  } @else if (error(); as errorText) {
+    <mat-card appearance="outlined" class="student-subject-lessons__state-card student-subject-lessons__state-card--error">
+      <p class="student-subject-lessons__state student-subject-lessons__state--error">{{ errorText }}</p>
+    </mat-card>
+  } @else if (!lessons().length) {
+    <mat-card appearance="outlined" class="student-subject-lessons__state-card">
+      <p class="student-subject-lessons__state">Уроков по этому предмету пока нет.</p>
+    </mat-card>
+  } @else {
+    <mat-card appearance="outlined" class="student-subject-lessons__table-card">
+      <table mat-table [dataSource]="lessons()" class="student-subject-lessons__table">
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Дата</th>
+          <td mat-cell *matCellDef="let lesson">
+            <span class="student-subject-lessons__date">
+              <mat-icon class="student-subject-lessons__date-icon">event</mat-icon>
+              {{ lesson.date }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="topic">
+          <th mat-header-cell *matHeaderCellDef>Тема</th>
+          <td mat-cell *matCellDef="let lesson">{{ lesson.topic }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </mat-card>
+  }
+</section>
+
