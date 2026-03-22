@@ -58,8 +58,7 @@ export const routes: Routes = [
       {
         path: 'student',
         canActivate: [studentGuard],
-        loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent),
-        children: []
+        loadComponent: () => import('./features/student/feature-subjects/student-subjects-list/student-subjects-list.component').then(m => m.StudentSubjectsListComponent),
       },
     ]
   },

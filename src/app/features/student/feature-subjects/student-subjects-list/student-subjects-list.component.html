@@ -1,0 +1,18 @@
+<section class="student-subjects-list">
+  <h2 class="student-subjects-list__title">Мои предметы</h2>
+
+  @if (isLoading()) {
+    <p class="student-subjects-list__state">Загрузка...</p>
+  } @else if (error(); as errorText) {
+    <p class="student-subjects-list__state student-subjects-list__state--error">{{ errorText }}</p>
+  } @else if (!subjects().length) {
+    <p class="student-subjects-list__state">Для вашей группы пока нет назначенных предметов.</p>
+  } @else {
+    <ul class="student-subjects-list__items">
+      @for (subject of subjects(); track subject.id) {
+        <li class="student-subjects-list__item">{{ subject.name }}</li>
+      }
+    </ul>
+  }
+</section>
+
