@@ -71,7 +71,57 @@
           <mat-chip-set>
             <mat-chip>ID: {{ group()!.id }}</mat-chip>
             <mat-chip>Ученики: {{ studentCount() }}</mat-chip>
+            <mat-chip>Учителя: {{ uniqueTeacherCount() }}</mat-chip>
           </mat-chip-set>
+        </div>
+
+        <div class="teachers-summary" aria-label="Учителя группы">
+          <div class="teachers-summary__header">
+            <h3>Учителя группы</h3>
+            <button
+              mat-stroked-button
+              color="primary"
+              type="button"
+              (click)="openAddTeacherDialog()"
+              [disabled]="isLoading() || !group()"
+              aria-label="Добавить учителя в группу"
+            >
+              <mat-icon>person_add</mat-icon>
+              Добавить учителя
+            </button>
+          </div>
+
+          @if (hasTeacherAssignments()) {
+            <div class="teachers-list">
+              @for (entry of teacherEntries(); track entry.assignmentId) {
+                <article class="teacher-item">
+                  <div class="teacher-main">
+                    <h4>{{ entry.teacherLabel }}</h4>
+                    <p>{{ entry.teacherEmail }}</p>
+                  </div>
+
+                  <mat-chip class="teacher-subject-chip">{{ entry.subjectLabel }}</mat-chip>
+
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    matTooltip="Удалить назначение"
+                    [attr.aria-label]="'Удалить назначение ' + entry.teacherLabel + ' по предмету ' + entry.subjectLabel"
+                    (click)="removeTeacherAssignment(entry)"
+                    [disabled]="removingTeacherAssignmentId() === entry.assignmentId"
+                  >
+                    <mat-icon>person_remove</mat-icon>
+                  </button>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-teachers" role="status" aria-live="polite">
+              <mat-icon>supervisor_account</mat-icon>
+              <p>В этой группе пока нет назначенных учителей.</p>
+            </div>
+          }
         </div>
       </mat-card-content>
     </mat-card>

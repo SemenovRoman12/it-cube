@@ -8,6 +8,19 @@ import { GroupEntity } from '../../../core/models/group.model';
 
 export type GroupCreate = Omit<GroupEntity, 'id'>;
 export type GroupUpdate = Partial<Omit<GroupEntity, 'id'>>;
+export interface SubjectEntity {
+  id: number;
+  name: string;
+}
+
+export interface TeacherGroupSubjectEntity {
+  id: number;
+  teacher_id: number;
+  group_id: number;
+  subject_id: number;
+}
+
+export type TeacherGroupSubjectCreate = Omit<TeacherGroupSubjectEntity, 'id'>;
 
 export interface GroupsPageQuery {
   page: number;
@@ -77,6 +90,25 @@ export class GroupsService {
 
   public deleteGroup(id: number): Observable<GroupEntity> {
     return this.api.delete<GroupEntity>(`group/${id}`, {} as GroupEntity);
+  }
+
+  public getSubjects(): Observable<SubjectEntity[]> {
+    return this.api.get<SubjectEntity[]>('subjects');
+  }
+
+  public getTeacherAssignmentsByGroup(groupId: number): Observable<TeacherGroupSubjectEntity[]> {
+    return this.api.get<TeacherGroupSubjectEntity[]>(`teacher_group_subjects?group_id=${groupId}`);
+  }
+
+  public createTeacherAssignment(payload: TeacherGroupSubjectCreate): Observable<TeacherGroupSubjectEntity> {
+    return this.api.post<TeacherGroupSubjectCreate, TeacherGroupSubjectEntity>('teacher_group_subjects', payload);
+  }
+
+  public deleteTeacherAssignment(assignmentId: number): Observable<TeacherGroupSubjectEntity> {
+    return this.api.delete<TeacherGroupSubjectEntity>(
+      `teacher_group_subjects/${assignmentId}`,
+      {} as TeacherGroupSubjectEntity,
+    );
   }
 }
 
