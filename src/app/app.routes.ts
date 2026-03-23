@@ -56,10 +56,14 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'student/subjects/:subjectId',
+        canActivate: [studentGuard],
+        loadComponent: () => import('./features/student/feature-subject-lessons/student-subject-lessons.component').then(m => m.StudentSubjectLessonsComponent),
+      },
+      {
         path: 'student',
         canActivate: [studentGuard],
-        loadComponent: () => import('./pages/student/student.component').then(m => m.StudentComponent),
-        children: []
+        loadComponent: () => import('./features/student/feature-subjects/student-subjects-list/student-subjects-list.component').then(m => m.StudentSubjectsListComponent),
       },
     ]
   },
