@@ -29,6 +29,7 @@ import { SubjectEntity } from '../../models/subject.model';
 import { TeacherAssignmentsService } from '../../services/teacher-assignments.service';
 import { TeacherJournalApiService } from '../../services/teacher-journal-api.service';
 import { TeacherGroupSubjectEntity } from '../../models/teacher-group-subject.model';
+import { JournalExportService } from '../services/journal-export.service';
 
 @Component({
   selector: 'teacher-lessons-list',
@@ -53,6 +54,7 @@ export class TeacherLessonsListComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly assignmentsService = inject(TeacherAssignmentsService);
   private readonly journalApi = inject(TeacherJournalApiService);
+  private readonly journalExportService = inject(JournalExportService);
 
   private readonly allAssignments = signal<TeacherGroupSubjectEntity[]>([]);
   private readonly allSubjects = signal<SubjectEntity[]>([]);
@@ -177,7 +179,20 @@ export class TeacherLessonsListComponent implements OnInit {
   }
 
   public onExportClick(): void {
-    // Заглушка для будущей выгрузки в Excel.
+    const subjectName = this.selectedSubjectName();
+    if (!subjectName) {
+      return;
+    }
+
+    const quarterLabel = this.quarterOptions.find((item) => item.id === this.selectedQuarter())?.label ?? 'Четверть';
+    const fileName = `journal_${subjectName}_${quarterLabel}`;
+
+    this.journalExportService.exportToExcel({
+      fileName,
+      quarterLabel,
+      subjectName,
+      grid: this.journalGrid(),
+    });
   }
 
   public onSaveChanges(): void {
