@@ -1,0 +1,218 @@
+{
+  "layout": {
+    "header": {
+      "toggleNavigation": "Toggle navigation menu",
+      "toggleDarkMode": "Toggle dark mode"
+    },
+    "sidenav": {
+      "adminGroups": "Groups",
+      "adminUsers": "Users",
+      "teacherJournal": "Journal",
+      "studentSection": "Student section",
+      "noNavigationForRole": "No navigation for this role",
+      "logout": "Logout"
+    },
+    "footer": {
+      "copyright": "© 2026 IT-Cube"
+    }
+  },
+  "student": {
+    "placeholder": "Student section is under development"
+  },
+  "common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "create": "Create",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "export": "Export",
+      "loadMore": "Load more {{count}}",
+      "retry": "Try again",
+      "clear": "Clear",
+      "resetFilters": "Reset filters",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "open": "Open"
+    },
+    "states": {
+      "loading": "Loading...",
+      "none": "—",
+      "absentShort": "A"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "fullName": "Full name",
+      "role": "Role",
+      "group": "Group",
+      "comment": "Comment",
+      "mark": "Mark",
+      "subject": "Subject",
+      "quarter": "Quarter",
+      "createdAt": "Created"
+    },
+    "validation": {
+      "required": "This field is required",
+      "minLength3": "Minimum 3 characters",
+      "minLength2": "Minimum 2 characters",
+      "minLength6": "Minimum 6 characters",
+      "emailInvalid": "Enter a valid email",
+      "roleRequired": "Select a role",
+      "passwordRequired": "Password is required"
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "teacher": "Teacher",
+    "user": "Student"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "emailPlaceholder": "Enter email",
+      "emailRequired": "Enter email",
+      "passwordRequired": "Enter password",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "submit": "Sign in",
+      "invalidCredentials": "Invalid username or password"
+    }
+  },
+  "admin": {
+    "home": {
+      "title": "Admin panel",
+      "subtitle": "Choose a section to open new functionality.",
+      "users": "User management",
+      "groups": "Groups"
+    },
+    "groups": {
+      "title": "Group management",
+      "searchPlaceholder": "Search by title or ID...",
+      "addGroup": "Add group",
+      "loading": "Loading groups...",
+      "total": "Total",
+      "found": "Found",
+      "sortById": "Sort by ID",
+      "sortByName": "Sort by name",
+      "nameColumn": "Group name",
+      "openTooltip": "Open group",
+      "editTooltip": "Edit",
+      "deleteTooltip": "Delete",
+      "emptyByQuery": "Nothing found for query «{{query}}»",
+      "empty": "No groups yet",
+      "loadError": "Failed to load groups.",
+      "deleteError": "Failed to delete group. Try again.",
+      "confirmDelete": "Delete group {{name}}?"
+    },
+    "groupDetails": {
+      "back": "Back to groups",
+      "addStudent": "Add student",
+      "loading": "Loading group...",
+      "studentsInGroup": "Students in group: {{count}}",
+      "empty": "No students in this group yet",
+      "loadError": "Failed to load group.",
+      "removeError": "Failed to remove student from group.",
+      "confirmRemoveStudent": "Remove student {{email}} from group?"
+    },
+    "groupDialogs": {
+      "createTitle": "Create group",
+      "editTitle": "Edit group",
+      "groupName": "Group name",
+      "groupNamePlaceholder": "For example, 9A",
+      "createLoading": "Creating...",
+      "saveLoading": "Saving...",
+      "createError": "Failed to create group. Try again.",
+      "saveError": "Failed to save. Try again.",
+      "addStudentsTitle": "Add students to group",
+      "studentSearch": "Student search",
+      "studentSearchPlaceholder": "Name or email",
+      "selectedOnly": "Selected only",
+      "studentsLoading": "Loading students...",
+      "inGroup": "In group #{{id}}",
+      "noFreeStudentsPage": "No free students in this list segment. Scroll lower to load more.",
+      "notFound": "No students found for your query",
+      "loadedFreeStudents": "Free students shown: {{count}}",
+      "multiSelectHint": "You can select multiple students",
+      "addLoading": "Adding...",
+      "addSelected": "Add selected ({{count}})",
+      "addError": "Failed to add students to group.",
+      "loadStudentsError": "Failed to load students."
+    },
+    "users": {
+      "title": "User management",
+      "searchPlaceholder": "Search by name, email, role, group...",
+      "addUser": "Add user",
+      "loading": "Loading users...",
+      "total": "Total",
+      "found": "Found",
+      "sortById": "Sort by ID",
+      "sortByEmail": "Sort by email",
+      "sortByFullName": "Sort by full name",
+      "sortByRole": "Sort by role",
+      "sortByGroup": "Sort by group",
+      "sortByCreatedAt": "Sort by created date",
+      "emailLogin": "Email / Login",
+      "emptyByQuery": "Nothing found for query «{{query}}»",
+      "empty": "No users found",
+      "withoutGroup": "No group",
+      "groupById": "Group #{{id}}",
+      "loadError": "Failed to load users.",
+      "deleteError": "Failed to delete user. Try again.",
+      "confirmDelete": "Delete user {{email}}?",
+      "loadGroupsError": "Failed to load groups list.",
+      "createError": "Failed to create user. Try again.",
+      "saveError": "Failed to save. Try again.",
+      "dialogs": {
+        "createTitle": "Create user",
+        "editTitle": "Edit user",
+        "fullNamePlaceholder": "John Michael Smith",
+        "fullNameEditPlaceholder": "Enter full name",
+        "emailEditPlaceholder": "Enter email",
+        "passwordPlaceholder": "Minimum 6 characters",
+        "newPassword": "New password",
+        "keepPasswordEmpty": "Leave empty to keep unchanged",
+        "keepPasswordHint": "Leave empty to keep current password",
+        "groupOptional": "Group (optional)",
+        "selectGroupHint": "Select group by name",
+        "createLoading": "Creating...",
+        "saveLoading": "Saving..."
+      }
+    }
+  },
+  "teacher": {
+    "groups": {
+      "title": "My groups",
+      "loading": "Loading...",
+      "empty": "No groups available.",
+      "loadError": "Failed to load teacher groups."
+    },
+    "journal": {
+      "title": "Journal",
+      "saveChangesError": "Failed to save journal changes.",
+      "teacherResolveError": "Failed to resolve teacher.",
+      "noGroups": "No groups available.",
+      "accessDenied": "Access denied.",
+      "pageLoadError": "Page data loading error.",
+      "dataLoadError": "Journal data loading error.",
+      "save": "Save",
+      "reset": "Reset",
+      "export": "Export",
+      "editCellTitle": "Edit mark",
+      "setAbsent": "Set A (absent)",
+      "autoLesson": "Lesson",
+      "autoLessonByDate": "Lesson {{day}}.{{month}}",
+      "studentColumn": "Student",
+      "averageColumn": "Average mark",
+      "subjectMeta": "Subject",
+      "quarterMeta": "Quarter",
+      "sheetName": "Journal",
+      "quarterFallback": "Quarter",
+      "quarter": {
+        "q1": "Quarter 1",
+        "q2": "Quarter 2"
+      },
+      "exportFileName": "journal_{{subject}}_{{quarter}}"
+    }
+  }
+}
