@@ -17,7 +17,7 @@ h2[mat-dialog-title] {
 }
 
 .students-list {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 10px;
   max-height: 360px;
   overflow: auto;
@@ -32,7 +32,7 @@ h2[mat-dialog-title] {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 65%, transparent);
   cursor: pointer;
   text-align: left;
 
@@ -41,11 +41,11 @@ h2[mat-dialog-title] {
   }
 
   &:hover {
-    background: #f9fafb;
+    background: var(--mat-sys-surface-container-low);
   }
 
   &.selected {
-    background: #eff6ff;
+    background: color-mix(in srgb, var(--mat-sys-primary-container) 75%, transparent);
   }
 }
 
@@ -55,12 +55,12 @@ h2[mat-dialog-title] {
   min-width: 0;
 
   .name {
-    color: #111827;
+    color: var(--mat-sys-on-surface);
     font-weight: 500;
   }
 
   .email {
-    color: #6b7280;
+    color: var(--mat-sys-on-surface-variant);
     font-size: 0.875rem;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -71,8 +71,8 @@ h2[mat-dialog-title] {
 .chip {
   margin-left: auto;
   font-size: 0.75rem;
-  color: #374151;
-  background: #f3f4f6;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-highest);
   border-radius: 999px;
   padding: 4px 8px;
 }
@@ -82,12 +82,12 @@ h2[mat-dialog-title] {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #6b7280;
+  color: var(--mat-sys-on-surface-variant);
   padding: 24px 16px;
 }
 
 .list-hint {
-  color: #6b7280;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.75rem;
   margin-bottom: 12px;
 }
@@ -107,7 +107,7 @@ h2[mat-dialog-title] {
 }
 
 .load-more-info {
-  color: #6b7280;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.8rem;
 }
 
@@ -115,9 +115,9 @@ h2[mat-dialog-title] {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+  background: var(--mat-sys-error-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-error) 35%, transparent);
+  color: var(--mat-sys-on-error-container);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.875rem;
