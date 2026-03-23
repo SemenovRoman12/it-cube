@@ -162,32 +162,15 @@
 
                   <div class="student-details">
                     <div class="student-detail-row">
-                      <span class="student-label">Фамилия:</span>
-                      <span>{{ getStudentNameParts(student).surname }}</span>
+                      <mat-chip>E-mail: {{ student.email }}</mat-chip>
                     </div>
                     <div class="student-detail-row">
-                      <span class="student-label">Имя:</span>
-                      <span>{{ getStudentNameParts(student).name }}</span>
+                      <mat-chip>Дата регистрации: {{ formatCreatedAt(student.created_at) }}</mat-chip>
                     </div>
                     <div class="student-detail-row">
-                      <span class="student-label">Отчество:</span>
-                      <span>{{ getStudentNameParts(student).middleName }}</span>
-                    </div>
-                    <div class="student-detail-row">
-                      <span class="student-label">E-mail:</span>
-                      <span class="student-email">{{ student.email }}</span>
-                    </div>
-                    <div class="student-detail-row">
-                      <span class="student-label">Дата регистрации:</span>
-                      <span>{{ formatCreatedAt(student.created_at) }}</span>
+                      <mat-chip>ID: {{ student.id }}</mat-chip>
                     </div>
                   </div>
-
-                  <mat-chip-set class="student-meta" aria-label="Дополнительные данные ученика">
-                    <mat-chip>ID: {{ student.id }}</mat-chip>
-                    <mat-chip>Роль: {{ student.role }}</mat-chip>
-                    <mat-chip>group_id: {{ student.group_id ?? '—' }}</mat-chip>
-                  </mat-chip-set>
                 </div>
               </article>
             }
