@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Редактирование оценки</h2>
+
+<mat-dialog-content [formGroup]="form" class="journal-cell-dialog">
+  <mat-checkbox formControlName="isAbsent">Поставить Н (отсутствовал)</mat-checkbox>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Оценка</mat-label>
+    <mat-select formControlName="mark" [disabled]="form.controls.isAbsent.value">
+      <mat-option [value]="null">—</mat-option>
+      @for (mark of markOptions; track mark) {
+      <mat-option [value]="mark">{{ mark }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Комментарий</mat-label>
+    <textarea matInput rows="3" formControlName="comment"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">Отмена</button>
+  <button mat-flat-button color="primary" type="button" (click)="onSave()">Сохранить</button>
+</mat-dialog-actions>

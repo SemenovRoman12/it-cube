@@ -4,6 +4,12 @@
   gap: 1rem;
 }
 
+.teacher-lessons-list__loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
 .teacher-lessons-list__filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -17,4 +23,26 @@
 
 .teacher-lessons-list__content {
   border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teacher-lessons-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.teacher-lessons-list__header h3 {
+  margin: 0;
+}
+
+.teacher-lessons-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }

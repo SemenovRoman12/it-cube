@@ -1,0 +1,24 @@
+.journal-table__host {
+  width: 100%;
+  min-height: 420px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.journal-table__grid {
+  width: 100%;
+  height: 520px;
+}
+
+:host ::ng-deep .journal-table__lesson-cell {
+  text-align: center;
+  font-weight: 600;
+}
+
+:host ::ng-deep .journal-table__lesson-cell--dirty {
+  background: color-mix(in srgb, var(--sys-primary) 15%, white);
+}
+
+:host ::ng-deep .journal-table__lesson-cell--absent {
+  color: var(--sys-error);
+}

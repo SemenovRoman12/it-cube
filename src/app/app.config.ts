@@ -7,6 +7,7 @@ import {provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, withInterc
 import { Token } from '@angular/compiler';
 import { tokenInterceptor } from './core/auth/services/token-interceptor';
 
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
