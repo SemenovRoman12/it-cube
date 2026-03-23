@@ -1,6 +1,8 @@
 <section class="teacher-lessons-list">
   @if (isLoading()) {
-  <p>Загрузка...</p>
+  <div class="teacher-lessons-list__loading">
+    <mat-spinner diameter="42" />
+  </div>
   } @else if (error(); as errorText) {
   <mat-card class="teacher-lessons-list__error">{{ errorText }}</mat-card>
   } @else {
@@ -13,13 +15,41 @@
         }
       </mat-select>
     </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Четверть</mat-label>
+      <mat-select [value]="selectedQuarter()" (selectionChange)="onQuarterChange($any($event.value))">
+        @for (quarter of quarterOptions; track quarter.id) {
+        <mat-option [value]="quarter.id">{{ quarter.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
   </div>
 
   <mat-card class="teacher-lessons-list__content">
     @if (selectedSubjectName()) {
-    <h3>{{ selectedSubjectName() }}</h3>
-    } @else {
-    <p>Для выбранной группы нет доступных предметов.</p>
+    <div class="teacher-lessons-list__header">
+      <h3>{{ selectedSubjectName() }}</h3>
+      <div class="teacher-lessons-list__actions">
+        <button mat-flat-button color="primary" type="button" [disabled]="!hasDirtyChanges() || isSaving()"
+          (click)="onSaveChanges()">
+          <mat-icon>save</mat-icon>
+          Сохранить
+        </button>
+
+        <button mat-button type="button" [disabled]="!hasDirtyChanges() || isSaving()" (click)="onResetChanges()">
+          Сбросить
+        </button>
+
+        <button mat-stroked-button type="button" disabled (click)="onExportClick()">
+          <mat-icon>download</mat-icon>
+          Экспорт
+        </button>
+      </div>
+    </div>
+
+    <teacher-journal-table [lessons]="journalGrid().lessons" [rows]="journalGrid().rows"
+      (cellEdit)="onCellEdit($event)" />
     }
   </mat-card>
 

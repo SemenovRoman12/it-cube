@@ -24,6 +24,11 @@ export class TeacherJournalApiService {
     );
   }
 
+  /** Загружает все уроки по группе и предмету (без фильтра по преподавателю). */
+  public getLessonsByGroupAndSubject(groupId: number, subjectId: number): Observable<LessonEntity[]> {
+    return this.api.get<LessonEntity[]>(`lessons?group_id=${groupId}&subject_id=${subjectId}`);
+  }
+
   /** Создаёт новый урок. */
   public createLesson(payload: LessonCreate): Observable<LessonEntity> {
     return this.api.post<LessonCreate, LessonEntity>('lessons', payload);

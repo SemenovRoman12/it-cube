@@ -1,0 +1,4 @@
+<div class="journal-table__host ag-theme-quartz">
+  <ag-grid-angular class="journal-table__grid" [columnDefs]="columnDefs()" [rowData]="rowData()"
+    [suppressCellFocus]="true" [domLayout]="'normal'" (cellClicked)="onCellClicked($event)" />
+</div>

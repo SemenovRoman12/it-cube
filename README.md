@@ -57,3 +57,11 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Teacher journal notes
+
+- Journal UI is rendered in [`teacher-lessons-list.component.html`](src/app/features/teacher/feature-journal-lessons/teacher-lessons-list/teacher-lessons-list.component.html).
+- Quarter ranges are configured in [`journal-quarter.config.ts`](src/app/features/teacher/feature-journal-lessons/models/journal-quarter.config.ts) and can be changed directly on frontend.
+- Grid view is implemented with AG Grid in [`journal-table.component.ts`](src/app/features/teacher/feature-journal-lessons/journal-table/journal-table.component.ts).
+- Cell editing dialog is implemented in [`journal-cell-edit-dialog.component.ts`](src/app/features/teacher/feature-journal-lessons/journal-cell-edit-dialog/journal-cell-edit-dialog.component.ts).
+- Export button is present in UI as a placeholder; future export contract is defined in [`journal-export.service.ts`](src/app/features/teacher/feature-journal-lessons/services/journal-export.service.ts).

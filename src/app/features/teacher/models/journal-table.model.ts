@@ -4,6 +4,8 @@ import { UserEntity } from '../../../core/models/user.model';
 
 export interface JournalCellVm {
   lessonId: number;
+  lessonDate?: string;
+  realLessonId?: number | null;
   studentId: number;
   entryId: number | null;
   mark: MarkValue | null;
