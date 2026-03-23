@@ -21,9 +21,9 @@ mat-dialog-content {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+  background: var(--mat-sys-error-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-error) 35%, transparent);
+  color: var(--mat-sys-on-error-container);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.875rem;

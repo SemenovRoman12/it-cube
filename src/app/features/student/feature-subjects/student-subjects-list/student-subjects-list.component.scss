@@ -15,7 +15,7 @@
 }
 
 .student-subjects-list__subtitle {
-  color: rgb(95 99 104);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .student-subjects-list__loading {
@@ -33,7 +33,7 @@
 }
 
 .student-subjects-list__state--error {
-  color: #b3261e;
+  color: var(--mat-sys-error);
 }
 
 .student-subjects-list__grid {
