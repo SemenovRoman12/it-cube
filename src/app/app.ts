@@ -5,6 +5,7 @@ import { TokenService } from './core/auth/services/token.service';
 import { catchError, finalize, of } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { LanguageSwitchService } from './core/ui/services/language-switch.service';
+import { ThemeSwitchService } from './core/ui/services/theme-switch.service';
 
 @Component({
   selector: 'app-root',
@@ -18,11 +19,13 @@ export class App {
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
   private readonly languageSwitchService = inject(LanguageSwitchService);
+  private readonly themeSwitchService = inject(ThemeSwitchService);
 
   public readonly isAppLoading = signal(true);
 
   public ngOnInit(): void {
     this.languageSwitchService.init();
+    this.themeSwitchService.init();
 
     if (!this.tokenService.getToken()) {
       this.router.navigateByUrl('login');
