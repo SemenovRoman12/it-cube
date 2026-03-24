@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -15,6 +15,17 @@ import { AuthService } from '../../core/auth/services/auth.service';
 import { UserEntity } from '../../core/models/user.model';
 
 type UserProfileUpdate = Pick<UserEntity, 'full_name' | 'email'> & { password?: string };
+
+const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const password = control.get('password')?.value?.trim() ?? '';
+  const confirmPassword = control.get('confirmPassword')?.value?.trim() ?? '';
+
+  if (!password && !confirmPassword) {
+    return null;
+  }
+
+  return password === confirmPassword ? null : { passwordMismatch: true };
+};
 
 @Component({
   selector: 'app-profile',
@@ -50,7 +61,8 @@ export class ProfileComponent {
     full_name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.minLength(6)] }),
-  });
+    confirmPassword: new FormControl('', { nonNullable: true }),
+  }, { validators: [passwordMatchValidator] });
 
   constructor() {
     this.resetFormFromUser();
@@ -80,6 +92,12 @@ export class ProfileComponent {
     }
   }
 
+  public hasPasswordMismatch(): boolean {
+    const confirmTouched = this.form.controls.confirmPassword.touched;
+    const passwordTouched = this.form.controls.password.touched;
+    return this.form.hasError('passwordMismatch') && (confirmTouched || passwordTouched);
+  }
+
   private resetFormFromUser(): void {
     const user = this.authService.user();
 
@@ -91,6 +109,7 @@ export class ProfileComponent {
       full_name: user.full_name,
       email: user.email,
       password: '',
+      confirmPassword: '',
     });
   }
 
@@ -131,6 +150,7 @@ export class ProfileComponent {
           this.authService.setUser(updatedUser);
           this.editMode.set(false);
           this.form.controls.password.setValue('');
+          this.form.controls.confirmPassword.setValue('');
           this.successMessage.set('PROFILE.SUCCESS_SAVED');
           this.isSaving.set(false);
         },

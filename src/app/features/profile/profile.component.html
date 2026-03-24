@@ -85,7 +85,7 @@
           </mat-form-field>
         </div>
 
-        <mat-form-field appearance="outline" class="full-width password-field">
+        <mat-form-field appearance="outline" class="full-width password-field" [class.field-error]="hasPasswordMismatch()">
           <mat-label>{{ 'COMMON.FIELDS.NEW_PASSWORD' | translate }}</mat-label>
           <mat-icon matPrefix>lock</mat-icon>
           <input
@@ -99,6 +99,21 @@
           </button>
           @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
             <mat-error>{{ 'COMMON.VALIDATION.PASSWORD_MIN_6' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" [class.field-error]="hasPasswordMismatch()">
+          <mat-label>{{ 'COMMON.FIELDS.CONFIRM_PASSWORD' | translate }}</mat-label>
+          <mat-icon matPrefix>lock_reset</mat-icon>
+          <input
+            matInput
+            formControlName="confirmPassword"
+            [type]="hidePassword ? 'password' : 'text'"
+            [placeholder]="'COMMON.FIELDS.CONFIRM_PASSWORD' | translate"
+          />
+
+          @if (hasPasswordMismatch()) {
+            <mat-error>{{ 'COMMON.VALIDATION.PASSWORDS_MUST_MATCH' | translate }}</mat-error>
           }
         </mat-form-field>
 
@@ -121,7 +136,7 @@
             {{ 'COMMON.ACTIONS.CANCEL' | translate }}
           </button>
 
-          <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSaving() || form.invalid">
             @if (isSaving()) {
               <span class="button-content">
                 <mat-spinner diameter="18" />
