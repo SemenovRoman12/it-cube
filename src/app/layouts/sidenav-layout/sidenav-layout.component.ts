@@ -7,10 +7,12 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterLinkWithHref, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'sidenav-layout',
-  imports: [MatSidenavModule, MatListModule, MatIconModule, RouterLinkWithHref, RouterOutlet],
+  imports: [MatSidenavModule,
+    MatListModule, MatIconModule, RouterLinkWithHref, RouterOutlet, TranslateModule],
   templateUrl: './sidenav-layout.component.html',
   styleUrl: './sidenav-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

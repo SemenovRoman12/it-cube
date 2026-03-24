@@ -1,10 +1,10 @@
-<h2 mat-dialog-title>Редактирование оценки</h2>
+<h2 mat-dialog-title>{{ 'TEACHER.CELL_DIALOG.TITLE' | translate }}</h2>
 
 <mat-dialog-content [formGroup]="form" class="journal-cell-dialog">
-  <mat-checkbox formControlName="isAbsent">Поставить Н (отсутствовал)</mat-checkbox>
+  <mat-checkbox formControlName="isAbsent">{{ 'TEACHER.CELL_DIALOG.SET_ABSENT' | translate }}</mat-checkbox>
 
   <mat-form-field appearance="outline">
-    <mat-label>Оценка</mat-label>
+    <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
     <mat-select formControlName="mark" [disabled]="form.controls.isAbsent.value">
       <mat-option [value]="null">—</mat-option>
       @for (mark of markOptions; track mark) {
@@ -14,12 +14,13 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline">
-    <mat-label>Комментарий</mat-label>
+    <mat-label>{{ 'COMMON.FIELDS.COMMENT' | translate }}</mat-label>
     <textarea matInput rows="3" formControlName="comment"></textarea>
   </mat-form-field>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="onCancel()">Отмена</button>
-  <button mat-flat-button color="primary" type="button" (click)="onSave()">Сохранить</button>
+  <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.ACTIONS.CANCEL' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" (click)="onSave()">{{ 'COMMON.ACTIONS.SAVE' | translate
+    }}</button>
 </mat-dialog-actions>

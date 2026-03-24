@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { AttendanceStatus, MarkValue } from '../models/journal-entry.model';
 import { TeacherJournalService } from '../services/teacher-journal.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'teacher-journal-feature',
@@ -24,6 +25,7 @@ import { TeacherJournalService } from '../services/teacher-journal.service';
     MatSelectModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TranslateModule,
   ],
   templateUrl: './teacher-journal.component.html',
   styleUrl: './teacher-journal.component.scss',

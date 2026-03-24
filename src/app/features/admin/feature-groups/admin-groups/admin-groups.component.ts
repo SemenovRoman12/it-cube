@@ -16,7 +16,7 @@ import { ListStateFacade } from '../../shared/list-state';
 import { GroupsService } from '../../services/groups.service';
 import { GroupCreateDialogComponent } from '../group-create-dialog/group-create-dialog.component';
 import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog.component';
-
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-admin-container-groups',
   standalone: true,
@@ -30,6 +30,7 @@ import { GroupEditDialogComponent } from '../group-edit-dialog/group-edit-dialog
     MatTooltipModule,
     MatSortModule,
     MatPaginatorModule,
+    TranslateModule,
   ],
   templateUrl: './admin-groups.component.html',
   styleUrl: './admin-groups.component.scss',

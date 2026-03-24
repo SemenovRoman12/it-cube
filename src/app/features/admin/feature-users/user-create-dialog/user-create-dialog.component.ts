@@ -13,6 +13,7 @@ import { UserEntity } from '../../../../core/models/user.model';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { UserCreate, UsersService } from '../../services/users.service';
 import { GroupsService } from '../../services/groups.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 type CreateUserForm = {
   full_name: string;
@@ -35,6 +36,7 @@ type CreateUserForm = {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    TranslateModule,
   ],
   templateUrl: './user-create-dialog.component.html',
   styleUrl: './user-create-dialog.component.scss',

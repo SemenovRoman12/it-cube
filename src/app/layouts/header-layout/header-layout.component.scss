@@ -6,13 +6,22 @@
   align-items: center;
 }
 
-.dark-mode-btn {
-  color: var(--sys-inverse-surface);
+.toolbar-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
+.dark-mode-btn,
+.language-btn,
 .menu-btn {
   color: var(--sys-inverse-surface);
+}
+
+.language-btn {
+  min-width: 48px;
+  font-weight: 600;
 }
 
 .app-title {

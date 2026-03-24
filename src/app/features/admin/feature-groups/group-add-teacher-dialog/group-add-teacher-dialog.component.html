@@ -1,49 +1,49 @@
 <h2 mat-dialog-title>
   <mat-icon>person_add</mat-icon>
-  Добавить учителя в группу
+  {{ 'ADMIN.DIALOGS.GROUP_ADD_TEACHER.TITLE' | translate }}
 </h2>
 
 <mat-dialog-content>
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Учитель</mat-label>
+    <mat-label>{{ 'COMMON.ROLES.TEACHER' | translate }}</mat-label>
     <mat-select [(ngModel)]="selectedTeacherId" [disabled]="isLoading">
       @for (teacher of teachers; track trackById($index, teacher)) {
-        <mat-option [value]="teacher.id">{{ getTeacherLabel(teacher) }} — {{ teacher.email }}</mat-option>
+      <mat-option [value]="teacher.id">{{ getTeacherLabel(teacher) }} — {{ teacher.email }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Предмет</mat-label>
+    <mat-label>{{ 'COMMON.FIELDS.SUBJECT' | translate }}</mat-label>
     <mat-select [(ngModel)]="selectedSubjectId" [disabled]="isLoading">
       @for (subject of subjects; track trackById($index, subject)) {
-        <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+      <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   @if (errorMessage) {
-    <div class="error-alert">
-      <mat-icon>error_outline</mat-icon>
-      <span>{{ errorMessage }}</span>
-    </div>
+  <div class="error-alert">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
   }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Отмена</button>
+  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">{{ 'COMMON.ACTIONS.CANCEL' | translate
+    }}</button>
   <button mat-flat-button color="primary" type="button" (click)="onSubmit()" [disabled]="!canSubmit">
     @if (isLoading) {
-      <ng-container>
-        <mat-spinner diameter="18" />
-        Добавление...
-      </ng-container>
+    <ng-container>
+      <mat-spinner diameter="18" />
+      {{ 'COMMON.STATUS.ADDING' | translate }}
+    </ng-container>
     } @else {
-      <ng-container>
-        <mat-icon>check</mat-icon>
-        Добавить
-      </ng-container>
+    <ng-container>
+      <mat-icon>check</mat-icon>
+      {{ 'COMMON.ACTIONS.ADD' | translate }}
+    </ng-container>
     }
   </button>
 </mat-dialog-actions>
-

@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { GroupUpdate, GroupsService } from '../../services/groups.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 type EditGroupForm = {
   name: string;
@@ -27,6 +28,7 @@ type EditGroupForm = {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    TranslateModule,
   ],
   templateUrl: './group-edit-dialog.component.html',
   styleUrl: './group-edit-dialog.component.scss',

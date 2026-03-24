@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { GroupCreate, GroupsService } from '../../services/groups.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 type CreateGroupForm = {
   name: string;
@@ -27,6 +28,7 @@ type CreateGroupForm = {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    TranslateModule,
   ],
   templateUrl: './group-create-dialog.component.html',
   styleUrl: './group-create-dialog.component.scss',

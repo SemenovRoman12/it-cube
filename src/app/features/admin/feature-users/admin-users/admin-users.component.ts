@@ -19,6 +19,7 @@ import { GroupsService } from '../../services/groups.service';
 import { UsersService } from '../../services/users.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dialog.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-container-users',
@@ -34,6 +35,7 @@ import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dia
     MatTooltipModule,
     MatSortModule,
     MatPaginatorModule,
+    TranslateModule,
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',

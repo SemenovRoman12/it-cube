@@ -13,6 +13,7 @@ import { FormType } from '../../../models/form.type';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, of, Subscription, throwError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'login',
@@ -24,6 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TranslateModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -58,8 +60,12 @@ export class LoginComponent {
         takeUntilDestroyed(this.destroyRef),
         catchError((error: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.loginError.set('Неверное имя пользователя или пароль');
-          return throwError(() => error);
+          if (error.status === 401) {
+            this.loginError.set('COMMON.ERRORS.WRONG_CREDENTIALS');
+          } else {
+            this.loginError.set('COMMON.ERRORS.UNKNOWN');
+          }
+          return of(null);
         })
       ).subscribe((response) => {
         if (response && !(response instanceof HttpErrorResponse)) {

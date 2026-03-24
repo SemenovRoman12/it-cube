@@ -1,0 +1,268 @@
+{
+  "COMMON": {
+    "BRAND": {
+      "NAME": "IT-Cube"
+    },
+    "ACTIONS": {
+      "ADD": "Add",
+      "ADD_SELECTED": "Add selected ({{count}})",
+      "ADD_FIRST_STUDENT": "Add first student",
+      "CREATE": "Create",
+      "CREATE_LESSON": "Create lesson",
+      "SAVE": "Save",
+      "SAVE_CHANGES": "Save changes",
+      "CANCEL": "Cancel",
+      "REFRESH": "Refresh",
+      "RESET": "Reset",
+      "RESET_FILTERS": "Reset filters",
+      "DELETE": "Delete",
+      "EDIT": "Edit",
+      "OPEN": "Open",
+      "RETRY": "Try again",
+      "LOAD_MORE": "Load more {{count}}",
+      "EXPORT": "Export",
+      "LOGIN": "Sign in",
+      "LOGOUT": "Log out",
+      "CLEAR": "Clear",
+      "BACK": "Back"
+    },
+    "STATUS": {
+      "LOADING": "Loading...",
+      "LOADING_GROUPS": "Loading groups...",
+      "LOADING_GROUP": "Loading group...",
+      "LOADING_USERS": "Loading users...",
+      "LOADING_STUDENTS": "Loading students...",
+      "CREATING": "Creating...",
+      "SAVING": "Saving...",
+      "ADDING": "Adding..."
+    },
+    "FIELDS": {
+      "EMAIL": "Email",
+      "EMAIL_ALT": "E-mail",
+      "PASSWORD": "Password",
+      "NEW_PASSWORD": "New password",
+      "FULL_NAME": "Full name",
+      "ROLE": "Role",
+      "GROUP": "Group",
+      "GROUP_OPTIONAL": "Group (optional)",
+      "SUBJECT": "Subject",
+      "DATE": "Date",
+      "LESSON_DATE": "Lesson date",
+      "TOPIC": "Topic",
+      "LESSON_TOPIC": "Lesson topic",
+      "QUARTER": "Quarter",
+      "MARK": "Grade",
+      "ATTENDANCE": "Attendance",
+      "COMMENT": "Comment"
+    },
+    "TEXT": {
+      "TOTAL": "Total:",
+      "FOUND": "Found:",
+      "NOTHING_FOUND_BY_QUERY": "Nothing found for query “{{query}}”",
+      "WITHOUT_GROUP": "No group",
+      "ID": "ID",
+      "STUDENTS": "Students",
+      "TEACHERS": "Teachers",
+      "EMAIL_PREFIX": "E-mail",
+      "REGISTRATION_DATE": "Registration date",
+      "SORT_BY_ID": "Sort by ID",
+      "SORT_BY_NAME": "Sort by name",
+      "SORT_BY_EMAIL": "Sort by email",
+      "SORT_BY_FULL_NAME": "Sort by full name",
+      "SORT_BY_ROLE": "Sort by role",
+      "SORT_BY_GROUP": "Sort by group",
+      "SORT_BY_CREATED_AT": "Sort by created date",
+      "NO_NAVIGATION_FOR_ROLE": "No navigation for this role"
+    },
+    "ROLES": {
+      "USER": "User",
+      "TEACHER": "Teacher",
+      "ADMIN": "Administrator"
+    },
+    "VALIDATION": {
+      "REQUIRED": "This field is required",
+      "MIN_2": "Minimum 2 characters",
+      "MIN_3": "Minimum 3 characters",
+      "MIN_6": "Minimum 6 characters",
+      "EMAIL_REQUIRED": "Enter email",
+      "EMAIL_INVALID": "Enter a valid email",
+      "PASSWORD_REQUIRED": "Enter password",
+      "PASSWORD_MIN_6": "Password must be at least 6 characters",
+      "PASSWORD_REQUIRED_SHORT": "Password is required",
+      "ROLE_REQUIRED": "Select a role"
+    },
+    "ERRORS": {
+      "WRONG_CREDENTIALS": "Wrong email or password",
+      "UNKNOWN": "Something went wrong, try again later"
+    },
+    "PLACEHOLDERS": {
+      "SEARCH_GROUPS": "Search by name or ID...",
+      "SEARCH_USERS": "Search by name, email, role, group...",
+      "SEARCH_STUDENT": "Name or email",
+      "GROUP_EXAMPLE": "For example, 9A",
+      "FULL_NAME_EXAMPLE": "Ivanov Mikhail Alexandrovich",
+      "EMAIL": "Enter email",
+      "PASSWORD_MIN_6": "Minimum 6 characters",
+      "FULL_NAME": "Enter full name",
+      "LEAVE_EMPTY_TO_KEEP": "Leave empty to keep unchanged"
+    },
+    "HINTS": {
+      "CHOOSE_GROUP_BY_NAME": "Select group by name",
+      "LEAVE_EMPTY_PASSWORD": "Leave empty to keep current password"
+    },
+    "ACCESSIBILITY": {
+      "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
+      "TOGGLE_LANGUAGE": "Toggle language",
+      "TOGGLE_DARK_MODE": "Toggle dark mode"
+    }
+  },
+  "LAYOUT": {
+    "SIDENAV": {
+      "GROUPS": "Groups",
+      "USERS": "Users",
+      "TEACHER_JOURNAL": "Journal",
+      "MY_SUBJECTS": "My subjects"
+    }
+  },
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Sign in"
+    }
+  },
+  "ADMIN": {
+    "HOME": {
+      "TITLE": "Admin panel",
+      "SUBTITLE": "Choose a section to open new functionality.",
+      "USERS_MANAGEMENT": "User management",
+      "GROUPS": "Groups"
+    },
+    "USERS": {
+      "TITLE": "User management",
+      "TABLE": {
+        "EMAIL_LOGIN": "Email / Login",
+        "FULL_NAME": "Full name",
+        "ROLE": "Role",
+        "GROUP": "Group",
+        "CREATED": "Created"
+      },
+      "EMPTY": {
+        "LIST": "No users found"
+      }
+    },
+    "GROUPS": {
+      "TITLE": "Group management",
+      "TABLE": {
+        "NAME": "Group name"
+      },
+      "EMPTY": {
+        "LIST": "No groups yet"
+      }
+    },
+    "GROUP_DETAILS": {
+      "SECTION_LABEL": "Group details",
+      "ACTIONS": {
+        "BACK_TO_GROUPS": "Back to groups",
+        "ADD_STUDENT": "Add student",
+        "ADD_TEACHER": "Add teacher"
+      },
+      "ARIA": {
+        "BACK_TO_GROUPS": "Return to groups list",
+        "ADD_STUDENT": "Add student to group",
+        "REFRESH_GROUP": "Refresh group data",
+        "LOADING_GROUP": "Loading group data",
+        "RETRY_LOADING": "Retry loading",
+        "GROUP_META": "Group parameters",
+        "GROUP_TEACHERS": "Group teachers",
+        "STUDENTS_LIST": "Group students list",
+        "STUDENT_PREFIX": "Student",
+        "REMOVE_ASSIGNMENT_PREFIX": "Remove assignment",
+        "REMOVE_ASSIGNMENT_BY_SUBJECT": "for subject",
+        "REMOVE_STUDENT_PREFIX": "Remove student",
+        "REMOVE_STUDENT_FROM_GROUP": "from group"
+      },
+      "TOOLTIPS": {
+        "REMOVE_ASSIGNMENT": "Remove assignment",
+        "REMOVE_FROM_GROUP": "Remove from group"
+      },
+      "STATE": {
+        "NOT_FOUND": "Group not found.",
+        "NO_TEACHERS": "No teachers assigned to this group yet.",
+        "NO_STUDENTS": "No students in this group yet."
+      },
+      "SUMMARY": {
+        "SUBTITLE": "General information about the group",
+        "TEACHERS_TITLE": "Group teachers"
+      },
+      "STUDENTS": {
+        "TITLE": "Group members",
+        "SUBTITLE": "Detailed information for each student"
+      }
+    },
+    "DIALOGS": {
+      "GROUP_CREATE": {
+        "TITLE": "Create group"
+      },
+      "GROUP_EDIT": {
+        "TITLE": "Edit group"
+      },
+      "GROUP_ADD_STUDENT": {
+        "TITLE": "Add students to group",
+        "SEARCH_LABEL": "Student search",
+        "ONLY_SELECTED": "Selected only",
+        "IN_GROUP": "In group #{{id}}",
+        "EMPTY_CHUNK": "There are no free students in this list segment. Scroll down to load more.",
+        "EMPTY_BY_QUERY": "No students found for your query",
+        "FREE_STUDENTS_SHOWN": "Shown free students: {{count}}",
+        "MULTI_SELECT_HINT": "You can select multiple students at once"
+      },
+      "GROUP_ADD_TEACHER": {
+        "TITLE": "Add teacher to group"
+      },
+      "USER_CREATE": {
+        "TITLE": "Create user"
+      },
+      "USER_EDIT": {
+        "TITLE": "Edit user"
+      }
+    },
+    "TOOLTIPS": {
+      "OPEN_GROUP": "Open group",
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    }
+  },
+  "TEACHER": {
+    "GROUPS": {
+      "TITLE": "My groups",
+      "EMPTY": "No groups available."
+    },
+    "LESSONS": {
+      "ACTIONS": {
+        "RESET": "Reset"
+      }
+    },
+    "JOURNAL": {
+      "EMPTY_SUBJECT": "There are no lessons for the selected subject yet.",
+      "EMPTY_STUDENTS": "No students in this group.",
+      "TABLE": {
+        "STUDENT": "Student"
+      }
+    },
+    "CELL_DIALOG": {
+      "TITLE": "Edit grade",
+      "SET_ABSENT": "Set N (absent)"
+    }
+  },
+  "STUDENT": {
+    "SUBJECTS": {
+      "TITLE": "My subjects",
+      "SUBTITLE": "Choose a subject to open lesson list",
+      "EMPTY": "No subjects assigned to your group yet."
+    },
+    "LESSONS": {
+      "BACK_TO_SUBJECTS": "Back to subjects",
+      "SUBTITLE": "List of all lessons for selected subject",
+      "EMPTY": "No lessons for this subject yet."
+    }
+  }
+}
