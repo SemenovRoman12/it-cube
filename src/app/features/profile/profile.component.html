@@ -91,11 +91,11 @@
           <input
             matInput
             formControlName="password"
-            [type]="hidePassword ? 'password' : 'text'"
+            [type]="hideNewPassword ? 'password' : 'text'"
             [placeholder]="'COMMON.PLACEHOLDERS.LEAVE_EMPTY_TO_KEEP' | translate"
           />
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hideNewPassword = !hideNewPassword">
+            <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
             <mat-error>{{ 'COMMON.VALIDATION.PASSWORD_MIN_6' | translate }}</mat-error>
@@ -108,14 +108,21 @@
           <input
             matInput
             formControlName="confirmPassword"
-            [type]="hidePassword ? 'password' : 'text'"
+            [type]="hideConfirmPassword ? 'password' : 'text'"
             [placeholder]="'COMMON.FIELDS.CONFIRM_PASSWORD' | translate"
           />
+          <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
 
-          @if (hasPasswordMismatch()) {
-            <mat-error>{{ 'COMMON.VALIDATION.PASSWORDS_MUST_MATCH' | translate }}</mat-error>
-          }
         </mat-form-field>
+
+        @if (hasPasswordMismatch()) {
+          <div class="form-message error password-mismatch-message" role="status">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ 'COMMON.VALIDATION.PASSWORDS_MUST_MATCH' | translate }}</span>
+          </div>
+        }
 
         @if (errorMessage()) {
           <div class="form-message error" role="status">

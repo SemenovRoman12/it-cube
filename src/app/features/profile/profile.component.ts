@@ -55,7 +55,8 @@ export class ProfileComponent {
   public readonly editMode = signal(false);
   public readonly successMessage = signal('');
   public readonly errorMessage = signal('');
-  public hidePassword = true;
+  public hideNewPassword = true;
+  public hideConfirmPassword = true;
 
   public readonly form = new FormGroup({
     full_name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
@@ -95,7 +96,10 @@ export class ProfileComponent {
   public hasPasswordMismatch(): boolean {
     const confirmTouched = this.form.controls.confirmPassword.touched;
     const passwordTouched = this.form.controls.password.touched;
-    return this.form.hasError('passwordMismatch') && (confirmTouched || passwordTouched);
+    const confirmDirty = this.form.controls.confirmPassword.dirty;
+    const passwordDirty = this.form.controls.password.dirty;
+
+    return this.form.hasError('passwordMismatch') && (confirmTouched || passwordTouched || confirmDirty || passwordDirty);
   }
 
   private resetFormFromUser(): void {
