@@ -11,10 +11,11 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 import { UserEntity } from '../../../core/models/user.model';
 import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectsService } from '../services/student-subjects.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'student-subject-lessons',
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTableModule],
+  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTableModule, TranslateModule],
   templateUrl: './student-subject-lessons.component.html',
   styleUrl: './student-subject-lessons.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

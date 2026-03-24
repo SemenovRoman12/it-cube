@@ -8,10 +8,11 @@ import { TeacherAssignmentsService } from '../../services/teacher-assignments.se
 import { TeacherGroupCardComponent } from '../teacher-group-card/teacher-group-card.component';
 import { UserEntity } from '../../../../core/models/user.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'teacher-groups-list',
-  imports: [TeacherGroupCardComponent],
+  imports: [TeacherGroupCardComponent, TranslateModule],
   templateUrl: './teacher-groups-list.component.html',
   styleUrl: './teacher-groups-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

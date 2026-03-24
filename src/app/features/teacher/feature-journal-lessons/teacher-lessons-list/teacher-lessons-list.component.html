@@ -8,7 +8,7 @@
   } @else {
   <div class="teacher-lessons-list__filters">
     <mat-form-field appearance="outline">
-      <mat-label>Предмет</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.SUBJECT' | translate }}</mat-label>
       <mat-select [value]="selectedSubjectId()" (selectionChange)="onSubjectChange($any($event.value))">
         @for (subject of subjects(); track subject.id) {
         <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
@@ -17,7 +17,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Четверть</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.QUARTER' | translate }}</mat-label>
       <mat-select [value]="selectedQuarter()" (selectionChange)="onQuarterChange($any($event.value))">
         @for (quarter of quarterOptions; track quarter.id) {
         <mat-option [value]="quarter.id">{{ quarter.label }}</mat-option>
@@ -34,16 +34,16 @@
         <button mat-flat-button color="primary" type="button" [disabled]="!hasDirtyChanges() || isSaving()"
           (click)="onSaveChanges()">
           <mat-icon>save</mat-icon>
-          Сохранить
+          {{ 'COMMON.ACTIONS.SAVE' | translate }}
         </button>
 
         <button mat-button type="button" [disabled]="!hasDirtyChanges() || isSaving()" (click)="onResetChanges()">
-          Сбросить
+          {{ 'COMMON.ACTIONS.RESET' | translate }}
         </button>
 
         <button mat-stroked-button type="button" (click)="onExportClick()">
           <mat-icon>download</mat-icon>
-          Экспорт
+          {{ 'COMMON.ACTIONS.EXPORT' | translate }}
         </button>
       </div>
     </div>

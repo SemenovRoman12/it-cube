@@ -15,6 +15,7 @@ import {
   TeacherGroupSubjectCreate,
   TeacherGroupSubjectEntity,
 } from '../../services/groups.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 type DialogData = {
   groupId: number;
@@ -35,6 +36,7 @@ type DialogData = {
     MatFormFieldModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    TranslateModule,
   ],
   templateUrl: './group-add-teacher-dialog.component.html',
   styleUrl: './group-add-teacher-dialog.component.scss',

@@ -60,8 +60,12 @@ export class LoginComponent {
         takeUntilDestroyed(this.destroyRef),
         catchError((error: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.loginError.set('Неверное имя пользователя или пароль');
-          return throwError(() => error);
+          if (error.status === 401) {
+            this.loginError.set('COMMON.ERRORS.WRONG_CREDENTIALS');
+          } else {
+            this.loginError.set('COMMON.ERRORS.UNKNOWN');
+          }
+          return of(null);
         })
       ).subscribe((response) => {
         if (response && !(response instanceof HttpErrorResponse)) {

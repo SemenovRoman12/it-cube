@@ -36,7 +36,7 @@
         @if (loginError()) {
         <div class="error-message">
           <mat-icon>error</mat-icon>
-          <span>{{ loginError() }}</span>
+          <span>{{ loginError() | translate}}</span>
         </div>
         }
 

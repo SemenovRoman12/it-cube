@@ -30,6 +30,7 @@ import { TeacherAssignmentsService } from '../../services/teacher-assignments.se
 import { TeacherJournalApiService } from '../../services/teacher-journal-api.service';
 import { TeacherGroupSubjectEntity } from '../../models/teacher-group-subject.model';
 import { JournalExportService } from '../services/journal-export.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'teacher-lessons-list',
@@ -42,6 +43,7 @@ import { JournalExportService } from '../services/journal-export.service';
     MatIconModule,
     MatProgressSpinnerModule,
     JournalTableComponent,
+    TranslateModule,
   ],
   templateUrl: './teacher-lessons-list.component.html',
   styleUrl: './teacher-lessons-list.component.scss',

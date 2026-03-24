@@ -91,6 +91,10 @@
       "PASSWORD_REQUIRED_SHORT": "Password is required",
       "ROLE_REQUIRED": "Select a role"
     },
+    "ERRORS": {
+      "WRONG_CREDENTIALS": "Wrong email or password",
+      "UNKNOWN": "Something went wrong, try again later"
+    },
     "PLACEHOLDERS": {
       "SEARCH_GROUPS": "Search by name or ID...",
       "SEARCH_USERS": "Search by name, email, role, group...",

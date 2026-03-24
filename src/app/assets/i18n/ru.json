@@ -102,6 +102,10 @@
       "FULL_NAME": "Введите полное имя",
       "LEAVE_EMPTY_TO_KEEP": "Оставьте пустым, чтобы не менять"
     },
+    "ERRORS": {
+      "WRONG_CREDENTIALS": "Неверный email или пароль",
+      "UNKNOWN": "Произошла ошибка, попробуйте позже"
+    },
     "HINTS": {
       "CHOOSE_GROUP_BY_NAME": "Выберите группу по названию",
       "LEAVE_EMPTY_PASSWORD": "Оставьте пустым, чтобы не менять пароль"

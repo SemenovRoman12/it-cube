@@ -2,7 +2,7 @@
   <mat-card class="teacher-journal__toolbar-card">
     <div class="teacher-journal__toolbar">
       <mat-form-field appearance="outline">
-        <mat-label>Группа</mat-label>
+        <mat-label>{{ 'COMMON.FIELDS.GROUP' | translate }}</mat-label>
         <mat-select [value]="selectedGroupId()" (selectionChange)="onGroupChange($any($event.value))">
           @for (group of groups(); track group.id) {
           <mat-option [value]="group.id">{{ group.name }}</mat-option>
@@ -11,7 +11,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Предмет</mat-label>
+        <mat-label>{{ 'COMMON.FIELDS.SUBJECT' | translate }}</mat-label>
         <mat-select [value]="selectedSubjectId()" (selectionChange)="onSubjectChange($any($event.value))">
           @for (subject of subjects(); track subject.id) {
           <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
@@ -22,28 +22,28 @@
 
     <form [formGroup]="lessonForm" class="teacher-journal__lesson-form" (ngSubmit)="onCreateLesson()">
       <mat-form-field appearance="outline">
-        <mat-label>Дата урока</mat-label>
+        <mat-label>{{ 'COMMON.FIELDS.LESSON_DATE' | translate }}</mat-label>
         <input matInput type="date" formControlName="date" />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="teacher-journal__topic-field">
-        <mat-label>Тема урока</mat-label>
+        <mat-label>{{ 'COMMON.FIELDS.LESSON_TOPIC' | translate }}</mat-label>
         <input matInput formControlName="topic" maxlength="120" />
       </mat-form-field>
 
       <button mat-flat-button color="primary" type="submit" [disabled]="!canCreateLesson() || isSaving()">
         <mat-icon>add</mat-icon>
-        Создать урок
+        {{ 'COMMON.ACTIONS.CREATE_LESSON' | translate }}
       </button>
     </form>
 
     <div class="teacher-journal__actions">
       <button mat-flat-button color="primary" (click)="onSaveChanges()" [disabled]="!hasDirtyChanges() || isSaving()">
         <mat-icon>save</mat-icon>
-        Сохранить изменения
+        {{ 'COMMON.ACTIONS.SAVE_CHANGES' | translate }}
       </button>
       <button mat-button type="button" (click)="onResetChanges()" [disabled]="!hasDirtyChanges() || isSaving()">
-        Сбросить
+        {{ 'COMMON.ACTIONS.RESET' | translate }}
       </button>
     </div>
   </mat-card>
@@ -61,15 +61,15 @@
 
   <mat-card class="teacher-journal__grid-card">
     @if (!grid().lessons.length) {
-    <div class="teacher-journal__empty">Для выбранного предмета пока нет уроков.</div>
+    <div class="teacher-journal__empty">{{ 'TEACHER.JOURNAL.EMPTY_SUBJECT' | translate }}</div>
     } @else if (!grid().rows.length) {
-    <div class="teacher-journal__empty">В группе нет студентов.</div>
+    <div class="teacher-journal__empty">{{ 'TEACHER.JOURNAL.EMPTY_STUDENTS' | translate }}</div>
     } @else {
     <div class="teacher-journal__table-wrapper">
       <table class="teacher-journal__table">
         <thead>
           <tr>
-            <th class="teacher-journal__sticky-column">Студент</th>
+            <th class="teacher-journal__sticky-column">{{ 'TEACHER.JOURNAL.TABLE.STUDENT' | translate }}</th>
             @for (lesson of grid().lessons; track lesson.id) {
             <th>
               <div class="teacher-journal__lesson-header">
@@ -88,8 +88,9 @@
             <td [class.teacher-journal__cell--dirty]="cell.isDirty">
               <div class="teacher-journal__cell">
                 <mat-form-field appearance="outline" class="teacher-journal__cell-field">
-                  <mat-label>Оценка</mat-label>
-                  <mat-select [value]="cell.mark" (selectionChange)="onMarkChange(cell.lessonId, cell.studentId, $any($event.value))">
+                  <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
+                  <mat-select [value]="cell.mark"
+                    (selectionChange)="onMarkChange(cell.lessonId, cell.studentId, $any($event.value))">
                     @for (mark of markOptions; track $index) {
                     <mat-option [value]="mark">
                       {{ mark ?? '—' }}
@@ -99,7 +100,7 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="teacher-journal__cell-field">
-                  <mat-label>Посещаемость</mat-label>
+                  <mat-label>{{ 'COMMON.FIELDS.ATTENDANCE' | translate }}</mat-label>
                   <mat-select [value]="cell.attendance"
                     (selectionChange)="onAttendanceChange(cell.lessonId, cell.studentId, $any($event.value))">
                     @for (attendance of attendanceOptions; track attendance) {
@@ -109,7 +110,7 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="teacher-journal__cell-field">
-                  <mat-label>Комментарий</mat-label>
+                  <mat-label>{{ 'COMMON.FIELDS.COMMENT' | translate }}</mat-label>
                   <input matInput [value]="cell.comment"
                     (blur)="onCommentChange(cell.lessonId, cell.studentId, $any($event.target).value)" />
                 </mat-form-field>
@@ -125,4 +126,3 @@
   </mat-card>
   }
 </section>
-

@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AttendanceStatus, MarkValue } from '../../models/journal-entry.model';
 import { JournalCellVm } from '../../models/journal-table.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface JournalCellEditDialogData {
   cell: JournalCellVm;
@@ -31,6 +32,7 @@ export interface JournalCellEditDialogResult {
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './journal-cell-edit-dialog.component.html',
   styleUrl: './journal-cell-edit-dialog.component.scss',
