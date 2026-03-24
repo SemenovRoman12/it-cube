@@ -1,4 +1,6 @@
 <mat-toolbar class="header-toolbar px-3 px-md-4">
+
+
   <button mat-icon-button [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_NAVIGATION_MENU' | translate"
     (click)="onToggleSidenav()" class="menu-btn">
     <mat-icon>menu</mat-icon>
@@ -20,5 +22,10 @@
       <mat-icon>dark_mode</mat-icon>
       }
     </button>
+    <button mat-icon-button routerLink="/profile" class="profile-btn"
+      [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">
+      <mat-icon>account_circle</mat-icon>
+    </button>
   </div>
+
 </mat-toolbar>

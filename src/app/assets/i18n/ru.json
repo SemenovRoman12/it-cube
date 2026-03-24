@@ -41,6 +41,7 @@
       "EMAIL_ALT": "E-mail",
       "PASSWORD": "Пароль",
       "NEW_PASSWORD": "Новый пароль",
+      "CONFIRM_PASSWORD": "Подтвердите новый пароль",
       "FULL_NAME": "ФИО",
       "ROLE": "Роль",
       "GROUP": "Группа",
@@ -88,6 +89,7 @@
       "EMAIL_INVALID": "Введите корректный email",
       "PASSWORD_REQUIRED": "Введите пароль",
       "PASSWORD_MIN_6": "Пароль должен быть не менее 6 символов",
+      "PASSWORDS_MUST_MATCH": "Пароли должны совпадать",
       "PASSWORD_REQUIRED_SHORT": "Пароль обязателен",
       "ROLE_REQUIRED": "Выберите роль"
     },
@@ -113,7 +115,8 @@
     "ACCESSIBILITY": {
       "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
       "TOGGLE_LANGUAGE": "Toggle language",
-      "TOGGLE_DARK_MODE": "Toggle dark mode"
+      "TOGGLE_DARK_MODE": "Toggle dark mode",
+      "OPEN_PROFILE": "Открыть профиль"
     }
   },
   "LAYOUT": {
@@ -128,6 +131,12 @@
     "LOGIN": {
       "TITLE": "Вход в систему"
     }
+  },
+  "PROFILE": {
+    "TITLE": "Профиль",
+    "SUBTITLE": "Измените данные аккаунта",
+    "SUCCESS_SAVED": "Профиль успешно обновлён",
+    "ERROR_SAVE": "Не удалось сохранить профиль. Попробуйте снова."
   },
   "ADMIN": {
     "HOME": {

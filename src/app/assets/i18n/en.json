@@ -41,6 +41,7 @@
       "EMAIL_ALT": "E-mail",
       "PASSWORD": "Password",
       "NEW_PASSWORD": "New password",
+      "CONFIRM_PASSWORD": "Confirm new password",
       "FULL_NAME": "Full name",
       "ROLE": "Role",
       "GROUP": "Group",
@@ -88,6 +89,7 @@
       "EMAIL_INVALID": "Enter a valid email",
       "PASSWORD_REQUIRED": "Enter password",
       "PASSWORD_MIN_6": "Password must be at least 6 characters",
+      "PASSWORDS_MUST_MATCH": "Passwords must match",
       "PASSWORD_REQUIRED_SHORT": "Password is required",
       "ROLE_REQUIRED": "Select a role"
     },
@@ -113,7 +115,8 @@
     "ACCESSIBILITY": {
       "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
       "TOGGLE_LANGUAGE": "Toggle language",
-      "TOGGLE_DARK_MODE": "Toggle dark mode"
+      "TOGGLE_DARK_MODE": "Toggle dark mode",
+      "OPEN_PROFILE": "Open profile"
     }
   },
   "LAYOUT": {
@@ -128,6 +131,12 @@
     "LOGIN": {
       "TITLE": "Sign in"
     }
+  },
+  "PROFILE": {
+    "TITLE": "Profile",
+    "SUBTITLE": "Update your account details",
+    "SUCCESS_SAVED": "Profile has been updated",
+    "ERROR_SAVE": "Failed to save profile. Please try again."
   },
   "ADMIN": {
     "HOME": {
