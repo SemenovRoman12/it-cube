@@ -1,218 +1,264 @@
 {
+  "COMMON": {
+    "BRAND": {
+      "NAME": "IT-Cube"
+    },
+    "ACTIONS": {
+      "ADD": "Add",
+      "ADD_SELECTED": "Add selected ({{count}})",
+      "ADD_FIRST_STUDENT": "Add first student",
+      "CREATE": "Create",
+      "CREATE_LESSON": "Create lesson",
+      "SAVE": "Save",
+      "SAVE_CHANGES": "Save changes",
+      "CANCEL": "Cancel",
+      "REFRESH": "Refresh",
+      "RESET": "Reset",
+      "RESET_FILTERS": "Reset filters",
+      "DELETE": "Delete",
+      "EDIT": "Edit",
+      "OPEN": "Open",
+      "RETRY": "Try again",
+      "LOAD_MORE": "Load more {{count}}",
+      "EXPORT": "Export",
+      "LOGIN": "Sign in",
+      "LOGOUT": "Log out",
+      "CLEAR": "Clear",
+      "BACK": "Back"
+    },
+    "STATUS": {
+      "LOADING": "Loading...",
+      "LOADING_GROUPS": "Loading groups...",
+      "LOADING_GROUP": "Loading group...",
+      "LOADING_USERS": "Loading users...",
+      "LOADING_STUDENTS": "Loading students...",
+      "CREATING": "Creating...",
+      "SAVING": "Saving...",
+      "ADDING": "Adding..."
+    },
+    "FIELDS": {
+      "EMAIL": "Email",
+      "EMAIL_ALT": "E-mail",
+      "PASSWORD": "Password",
+      "NEW_PASSWORD": "New password",
+      "FULL_NAME": "Full name",
+      "ROLE": "Role",
+      "GROUP": "Group",
+      "GROUP_OPTIONAL": "Group (optional)",
+      "SUBJECT": "Subject",
+      "DATE": "Date",
+      "LESSON_DATE": "Lesson date",
+      "TOPIC": "Topic",
+      "LESSON_TOPIC": "Lesson topic",
+      "QUARTER": "Quarter",
+      "MARK": "Grade",
+      "ATTENDANCE": "Attendance",
+      "COMMENT": "Comment"
+    },
+    "TEXT": {
+      "TOTAL": "Total:",
+      "FOUND": "Found:",
+      "NOTHING_FOUND_BY_QUERY": "Nothing found for query “{{query}}”",
+      "WITHOUT_GROUP": "No group",
+      "ID": "ID",
+      "STUDENTS": "Students",
+      "TEACHERS": "Teachers",
+      "EMAIL_PREFIX": "E-mail",
+      "REGISTRATION_DATE": "Registration date",
+      "SORT_BY_ID": "Sort by ID",
+      "SORT_BY_NAME": "Sort by name",
+      "SORT_BY_EMAIL": "Sort by email",
+      "SORT_BY_FULL_NAME": "Sort by full name",
+      "SORT_BY_ROLE": "Sort by role",
+      "SORT_BY_GROUP": "Sort by group",
+      "SORT_BY_CREATED_AT": "Sort by created date",
+      "NO_NAVIGATION_FOR_ROLE": "No navigation for this role"
+    },
+    "ROLES": {
+      "USER": "User",
+      "TEACHER": "Teacher",
+      "ADMIN": "Administrator"
+    },
+    "VALIDATION": {
+      "REQUIRED": "This field is required",
+      "MIN_2": "Minimum 2 characters",
+      "MIN_3": "Minimum 3 characters",
+      "MIN_6": "Minimum 6 characters",
+      "EMAIL_REQUIRED": "Enter email",
+      "EMAIL_INVALID": "Enter a valid email",
+      "PASSWORD_REQUIRED": "Enter password",
+      "PASSWORD_MIN_6": "Password must be at least 6 characters",
+      "PASSWORD_REQUIRED_SHORT": "Password is required",
+      "ROLE_REQUIRED": "Select a role"
+    },
+    "PLACEHOLDERS": {
+      "SEARCH_GROUPS": "Search by name or ID...",
+      "SEARCH_USERS": "Search by name, email, role, group...",
+      "SEARCH_STUDENT": "Name or email",
+      "GROUP_EXAMPLE": "For example, 9A",
+      "FULL_NAME_EXAMPLE": "Ivanov Mikhail Alexandrovich",
+      "EMAIL": "Enter email",
+      "PASSWORD_MIN_6": "Minimum 6 characters",
+      "FULL_NAME": "Enter full name",
+      "LEAVE_EMPTY_TO_KEEP": "Leave empty to keep unchanged"
+    },
+    "HINTS": {
+      "CHOOSE_GROUP_BY_NAME": "Select group by name",
+      "LEAVE_EMPTY_PASSWORD": "Leave empty to keep current password"
+    },
+    "ACCESSIBILITY": {
+      "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
+      "TOGGLE_LANGUAGE": "Toggle language",
+      "TOGGLE_DARK_MODE": "Toggle dark mode"
+    }
+  },
   "LAYOUT": {
-    "header": {
-      "toggleNavigation": "Toggle navigation menu",
-      "toggleDarkMode": "Toggle dark mode"
-    },
     "SIDENAV": {
-      "adminGroups": "Groups",
-      "adminUsers": "Users",
+      "GROUPS": "Groups",
+      "USERS": "Users",
       "TEACHER_JOURNAL": "Journal",
-      "studentSection": "Student section",
-      "noNavigationForRole": "No navigation for this role",
-      "logout": "Logout"
-    },
-    "footer": {
-      "copyright": "© 2026 IT-Cube"
+      "MY_SUBJECTS": "My subjects"
     }
   },
-  "student": {
-    "placeholder": "Student section is under development"
-  },
-  "common": {
-    "actions": {
-      "save": "Save",
-      "cancel": "Cancel",
-      "create": "Create",
-      "refresh": "Refresh",
-      "reset": "Reset",
-      "export": "Export",
-      "loadMore": "Load more {{count}}",
-      "retry": "Try again",
-      "clear": "Clear",
-      "resetFilters": "Reset filters",
-      "add": "Add",
-      "edit": "Edit",
-      "delete": "Delete",
-      "open": "Open"
-    },
-    "states": {
-      "loading": "Loading...",
-      "none": "—",
-      "absentShort": "A"
-    },
-    "fields": {
-      "email": "Email",
-      "password": "Password",
-      "fullName": "Full name",
-      "role": "Role",
-      "group": "Group",
-      "comment": "Comment",
-      "mark": "Mark",
-      "subject": "Subject",
-      "quarter": "Quarter",
-      "createdAt": "Created"
-    },
-    "validation": {
-      "required": "This field is required",
-      "minLength3": "Minimum 3 characters",
-      "minLength2": "Minimum 2 characters",
-      "minLength6": "Minimum 6 characters",
-      "emailInvalid": "Enter a valid email",
-      "roleRequired": "Select a role",
-      "passwordRequired": "Password is required"
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Sign in"
     }
   },
-  "roles": {
-    "admin": "Administrator",
-    "teacher": "Teacher",
-    "user": "Student"
-  },
-  "auth": {
-    "login": {
-      "title": "Sign in",
-      "emailPlaceholder": "Enter email",
-      "emailRequired": "Enter email",
-      "passwordRequired": "Enter password",
-      "passwordMinLength": "Password must be at least 6 characters",
-      "submit": "Sign in",
-      "invalidCredentials": "Invalid username or password"
-    }
-  },
-  "admin": {
-    "home": {
-      "title": "Admin panel",
-      "subtitle": "Choose a section to open new functionality.",
-      "users": "User management",
-      "groups": "Groups"
+  "ADMIN": {
+    "HOME": {
+      "TITLE": "Admin panel",
+      "SUBTITLE": "Choose a section to open new functionality.",
+      "USERS_MANAGEMENT": "User management",
+      "GROUPS": "Groups"
     },
-    "groups": {
-      "title": "Group management",
-      "searchPlaceholder": "Search by title or ID...",
-      "addGroup": "Add group",
-      "loading": "Loading groups...",
-      "total": "Total",
-      "found": "Found",
-      "sortById": "Sort by ID",
-      "sortByName": "Sort by name",
-      "nameColumn": "Group name",
-      "openTooltip": "Open group",
-      "editTooltip": "Edit",
-      "deleteTooltip": "Delete",
-      "emptyByQuery": "Nothing found for query «{{query}}»",
-      "empty": "No groups yet",
-      "loadError": "Failed to load groups.",
-      "deleteError": "Failed to delete group. Try again.",
-      "confirmDelete": "Delete group {{name}}?"
-    },
-    "groupDetails": {
-      "back": "Back to groups",
-      "addStudent": "Add student",
-      "loading": "Loading group...",
-      "studentsInGroup": "Students in group: {{count}}",
-      "empty": "No students in this group yet",
-      "loadError": "Failed to load group.",
-      "removeError": "Failed to remove student from group.",
-      "confirmRemoveStudent": "Remove student {{email}} from group?"
-    },
-    "groupDialogs": {
-      "createTitle": "Create group",
-      "editTitle": "Edit group",
-      "groupName": "Group name",
-      "groupNamePlaceholder": "For example, 9A",
-      "createLoading": "Creating...",
-      "saveLoading": "Saving...",
-      "createError": "Failed to create group. Try again.",
-      "saveError": "Failed to save. Try again.",
-      "addStudentsTitle": "Add students to group",
-      "studentSearch": "Student search",
-      "studentSearchPlaceholder": "Name or email",
-      "selectedOnly": "Selected only",
-      "studentsLoading": "Loading students...",
-      "inGroup": "In group #{{id}}",
-      "noFreeStudentsPage": "No free students in this list segment. Scroll lower to load more.",
-      "notFound": "No students found for your query",
-      "loadedFreeStudents": "Free students shown: {{count}}",
-      "multiSelectHint": "You can select multiple students",
-      "addLoading": "Adding...",
-      "addSelected": "Add selected ({{count}})",
-      "addError": "Failed to add students to group.",
-      "loadStudentsError": "Failed to load students."
-    },
-    "users": {
-      "title": "User management",
-      "searchPlaceholder": "Search by name, email, role, group...",
-      "addUser": "Add user",
-      "loading": "Loading users...",
-      "total": "Total",
-      "found": "Found",
-      "sortById": "Sort by ID",
-      "sortByEmail": "Sort by email",
-      "sortByFullName": "Sort by full name",
-      "sortByRole": "Sort by role",
-      "sortByGroup": "Sort by group",
-      "sortByCreatedAt": "Sort by created date",
-      "emailLogin": "Email / Login",
-      "emptyByQuery": "Nothing found for query «{{query}}»",
-      "empty": "No users found",
-      "withoutGroup": "No group",
-      "groupById": "Group #{{id}}",
-      "loadError": "Failed to load users.",
-      "deleteError": "Failed to delete user. Try again.",
-      "confirmDelete": "Delete user {{email}}?",
-      "loadGroupsError": "Failed to load groups list.",
-      "createError": "Failed to create user. Try again.",
-      "saveError": "Failed to save. Try again.",
-      "dialogs": {
-        "createTitle": "Create user",
-        "editTitle": "Edit user",
-        "fullNamePlaceholder": "John Michael Smith",
-        "fullNameEditPlaceholder": "Enter full name",
-        "emailEditPlaceholder": "Enter email",
-        "passwordPlaceholder": "Minimum 6 characters",
-        "newPassword": "New password",
-        "keepPasswordEmpty": "Leave empty to keep unchanged",
-        "keepPasswordHint": "Leave empty to keep current password",
-        "groupOptional": "Group (optional)",
-        "selectGroupHint": "Select group by name",
-        "createLoading": "Creating...",
-        "saveLoading": "Saving..."
-      }
-    }
-  },
-  "teacher": {
-    "groups": {
-      "title": "My groups",
-      "loading": "Loading...",
-      "empty": "No groups available.",
-      "loadError": "Failed to load teacher groups."
-    },
-    "journal": {
-      "title": "Journal",
-      "saveChangesError": "Failed to save journal changes.",
-      "teacherResolveError": "Failed to resolve teacher.",
-      "noGroups": "No groups available.",
-      "accessDenied": "Access denied.",
-      "pageLoadError": "Page data loading error.",
-      "dataLoadError": "Journal data loading error.",
-      "save": "Save",
-      "reset": "Reset",
-      "export": "Export",
-      "editCellTitle": "Edit mark",
-      "setAbsent": "Set A (absent)",
-      "autoLesson": "Lesson",
-      "autoLessonByDate": "Lesson {{day}}.{{month}}",
-      "studentColumn": "Student",
-      "averageColumn": "Average mark",
-      "subjectMeta": "Subject",
-      "quarterMeta": "Quarter",
-      "sheetName": "Journal",
-      "quarterFallback": "Quarter",
-      "quarter": {
-        "q1": "Quarter 1",
-        "q2": "Quarter 2"
+    "USERS": {
+      "TITLE": "User management",
+      "TABLE": {
+        "EMAIL_LOGIN": "Email / Login",
+        "FULL_NAME": "Full name",
+        "ROLE": "Role",
+        "GROUP": "Group",
+        "CREATED": "Created"
       },
-      "exportFileName": "journal_{{subject}}_{{quarter}}"
+      "EMPTY": {
+        "LIST": "No users found"
+      }
+    },
+    "GROUPS": {
+      "TITLE": "Group management",
+      "TABLE": {
+        "NAME": "Group name"
+      },
+      "EMPTY": {
+        "LIST": "No groups yet"
+      }
+    },
+    "GROUP_DETAILS": {
+      "SECTION_LABEL": "Group details",
+      "ACTIONS": {
+        "BACK_TO_GROUPS": "Back to groups",
+        "ADD_STUDENT": "Add student",
+        "ADD_TEACHER": "Add teacher"
+      },
+      "ARIA": {
+        "BACK_TO_GROUPS": "Return to groups list",
+        "ADD_STUDENT": "Add student to group",
+        "REFRESH_GROUP": "Refresh group data",
+        "LOADING_GROUP": "Loading group data",
+        "RETRY_LOADING": "Retry loading",
+        "GROUP_META": "Group parameters",
+        "GROUP_TEACHERS": "Group teachers",
+        "STUDENTS_LIST": "Group students list",
+        "STUDENT_PREFIX": "Student",
+        "REMOVE_ASSIGNMENT_PREFIX": "Remove assignment",
+        "REMOVE_ASSIGNMENT_BY_SUBJECT": "for subject",
+        "REMOVE_STUDENT_PREFIX": "Remove student",
+        "REMOVE_STUDENT_FROM_GROUP": "from group"
+      },
+      "TOOLTIPS": {
+        "REMOVE_ASSIGNMENT": "Remove assignment",
+        "REMOVE_FROM_GROUP": "Remove from group"
+      },
+      "STATE": {
+        "NOT_FOUND": "Group not found.",
+        "NO_TEACHERS": "No teachers assigned to this group yet.",
+        "NO_STUDENTS": "No students in this group yet."
+      },
+      "SUMMARY": {
+        "SUBTITLE": "General information about the group",
+        "TEACHERS_TITLE": "Group teachers"
+      },
+      "STUDENTS": {
+        "TITLE": "Group members",
+        "SUBTITLE": "Detailed information for each student"
+      }
+    },
+    "DIALOGS": {
+      "GROUP_CREATE": {
+        "TITLE": "Create group"
+      },
+      "GROUP_EDIT": {
+        "TITLE": "Edit group"
+      },
+      "GROUP_ADD_STUDENT": {
+        "TITLE": "Add students to group",
+        "SEARCH_LABEL": "Student search",
+        "ONLY_SELECTED": "Selected only",
+        "IN_GROUP": "In group #{{id}}",
+        "EMPTY_CHUNK": "There are no free students in this list segment. Scroll down to load more.",
+        "EMPTY_BY_QUERY": "No students found for your query",
+        "FREE_STUDENTS_SHOWN": "Shown free students: {{count}}",
+        "MULTI_SELECT_HINT": "You can select multiple students at once"
+      },
+      "GROUP_ADD_TEACHER": {
+        "TITLE": "Add teacher to group"
+      },
+      "USER_CREATE": {
+        "TITLE": "Create user"
+      },
+      "USER_EDIT": {
+        "TITLE": "Edit user"
+      }
+    },
+    "TOOLTIPS": {
+      "OPEN_GROUP": "Open group",
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    }
+  },
+  "TEACHER": {
+    "GROUPS": {
+      "TITLE": "My groups",
+      "EMPTY": "No groups available."
+    },
+    "LESSONS": {
+      "ACTIONS": {
+        "RESET": "Reset"
+      }
+    },
+    "JOURNAL": {
+      "EMPTY_SUBJECT": "There are no lessons for the selected subject yet.",
+      "EMPTY_STUDENTS": "No students in this group.",
+      "TABLE": {
+        "STUDENT": "Student"
+      }
+    },
+    "CELL_DIALOG": {
+      "TITLE": "Edit grade",
+      "SET_ABSENT": "Set N (absent)"
+    }
+  },
+  "STUDENT": {
+    "SUBJECTS": {
+      "TITLE": "My subjects",
+      "SUBTITLE": "Choose a subject to open lesson list",
+      "EMPTY": "No subjects assigned to your group yet."
+    },
+    "LESSONS": {
+      "BACK_TO_SUBJECTS": "Back to subjects",
+      "SUBTITLE": "List of all lessons for selected subject",
+      "EMPTY": "No lessons for this subject yet."
     }
   }
 }

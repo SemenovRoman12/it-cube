@@ -1,107 +1,98 @@
 <h2 mat-dialog-title>
   <mat-icon>person_add</mat-icon>
-  Создать пользователя
+  {{ 'ADMIN.DIALOGS.USER_CREATE.TITLE' | translate }}
 </h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" id="createUserForm">
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>ФИО</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</mat-label>
       <mat-icon matPrefix>badge</mat-icon>
-      <input matInput formControlName="full_name" type="text" placeholder="Иванов Михаил Александрович" />
+      <input matInput formControlName="full_name" type="text"
+        [placeholder]="'COMMON.PLACEHOLDERS.FULL_NAME_EXAMPLE' | translate" />
       @if (form.get('full_name')?.hasError('required') && form.get('full_name')?.touched) {
-        <mat-error>Поле обязательно для заполнения</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
       }
       @if (form.get('full_name')?.hasError('minlength') && form.get('full_name')?.touched) {
-        <mat-error>Минимум 3 символа</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Email</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.EMAIL' | translate }}</mat-label>
       <mat-icon matPrefix>person</mat-icon>
-      <input matInput formControlName="email" type="text" placeholder="example@example.com" />
+      <input matInput formControlName="email" type="text" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
       @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-        <mat-error>Поле обязательно для заполнения</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
       }
       @if (form.get('email')?.hasError('email') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-        <mat-error>Введите корректный email</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Пароль</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.PASSWORD' | translate }}</mat-label>
       <mat-icon matPrefix>lock</mat-icon>
-      <input
-        matInput
-        formControlName="password"
-        [type]="hidePassword ? 'password' : 'text'"
-        placeholder="Минимум 6 символов"
-      />
+      <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'"
+        [placeholder]="'COMMON.PLACEHOLDERS.PASSWORD_MIN_6' | translate" />
       <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
         <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
       @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-        <mat-error>Пароль обязателен</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.PASSWORD_REQUIRED_SHORT' | translate }}</mat-error>
       }
       @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-        <mat-error>Минимум 6 символов</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.MIN_6' | translate }}</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Группа (необязательно)</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.GROUP_OPTIONAL' | translate }}</mat-label>
       <mat-icon matPrefix>groups</mat-icon>
       <mat-select formControlName="group_id" [disabled]="isGroupsLoading">
-        <mat-option [value]="null">Без группы</mat-option>
+        <mat-option [value]="null">{{ 'COMMON.TEXT.WITHOUT_GROUP' | translate }}</mat-option>
         @for (group of groups; track group.id) {
-          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        <mat-option [value]="group.id">{{ group.name }}</mat-option>
         }
       </mat-select>
-      <mat-hint>Выберите группу по названию</mat-hint>
+      <mat-hint>{{ 'COMMON.HINTS.CHOOSE_GROUP_BY_NAME' | translate }}</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Роль</mat-label>
+      <mat-label>{{ 'COMMON.FIELDS.ROLE' | translate }}</mat-label>
       <mat-icon matPrefix>admin_panel_settings</mat-icon>
       <mat-select formControlName="role">
-        <mat-option value="user">Пользователь</mat-option>
-        <mat-option value="teacher">Учитель</mat-option>
-        <mat-option value="admin">Администратор</mat-option>
+        <mat-option value="user">{{ 'COMMON.ROLES.USER' | translate }}</mat-option>
+        <mat-option value="teacher">{{ 'COMMON.ROLES.TEACHER' | translate }}</mat-option>
+        <mat-option value="admin">{{ 'COMMON.ROLES.ADMIN' | translate }}</mat-option>
       </mat-select>
       @if (form.get('role')?.hasError('required') && form.get('role')?.touched) {
-        <mat-error>Выберите роль</mat-error>
+      <mat-error>{{ 'COMMON.VALIDATION.ROLE_REQUIRED' | translate }}</mat-error>
       }
     </mat-form-field>
 
     @if (errorMessage) {
-      <div class="error-alert">
-        <mat-icon>error_outline</mat-icon>
-        <span>{{ errorMessage }}</span>
-      </div>
+    <div class="error-alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
     }
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()" [disabled]="isLoading">Отмена</button>
-  <button
-    mat-flat-button
-    color="primary"
-    form="createUserForm"
-    type="submit"
-    [disabled]="isLoading"
-  >
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">{{ 'COMMON.ACTIONS.CANCEL' | translate }}</button>
+  <button mat-flat-button color="primary" form="createUserForm" type="submit" [disabled]="isLoading">
     @if (isLoading) {
-      <span class="button-content">
-        <mat-spinner diameter="18" />
-        Создание...
-      </span>
+    <span class="button-content">
+      <mat-spinner diameter="18" />
+      {{ 'COMMON.STATUS.CREATING' | translate }}
+    </span>
     } @else {
-      <span class="button-content">
-        <mat-icon>person_add</mat-icon>
-        Создать
-      </span>
+    <span class="button-content">
+      <mat-icon>person_add</mat-icon>
+      {{ 'COMMON.ACTIONS.CREATE' | translate }}
+    </span>
     }
   </button>
 </mat-dialog-actions>

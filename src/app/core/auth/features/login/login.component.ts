@@ -13,6 +13,7 @@ import { FormType } from '../../../models/form.type';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, of, Subscription, throwError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'login',
@@ -24,6 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TranslateModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

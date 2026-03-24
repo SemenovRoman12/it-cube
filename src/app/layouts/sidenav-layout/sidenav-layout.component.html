@@ -7,12 +7,12 @@
       <button routerLink="/admin/groups" class="side-nav-item" mat-list-item type="button"
         (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>groups</mat-icon>
-        <span matListItemTitle>Группы</span>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.GROUPS' | translate }}</span>
       </button>
       <button routerLink="/admin/users" class="side-nav-item" mat-list-item type="button"
         (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>person</mat-icon>
-        <span matListItemTitle>Пользователи</span>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.USERS' | translate }}</span>
       </button>
       }
 
@@ -20,25 +20,25 @@
       <button routerLink="/teacher/groups" class="side-nav-item" mat-list-item type="button"
         (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>co_present</mat-icon>
-        <span matListItemTitle>{{'LAYOUT.SIDENAV.TEACHER_JOURNAL' | translate}}</span>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.TEACHER_JOURNAL' | translate }}</span>
       </button>
       }
 
       @case ('user') {
       <button routerLink="/student" class="side-nav-item" mat-list-item type="button" (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>person</mat-icon>
-        <span matListItemTitle>Мои предметы</span>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.MY_SUBJECTS' | translate }}</span>
       </button>
       }
 
       @default {
-      <div class="empty-nav-item">No navigation for this role</div>
+      <div class="empty-nav-item">{{ 'COMMON.TEXT.NO_NAVIGATION_FOR_ROLE' | translate }}</div>
       }
       }
 
       <button class="side-nav-item" mat-list-item type="button" (click)="onLogout()">
         <mat-icon matListItemIcon>exit_to_app</mat-icon>
-        <span matListItemTitle>Выход</span>
+        <span matListItemTitle>{{ 'COMMON.ACTIONS.LOGOUT' | translate }}</span>
       </button>
     </mat-nav-list>
   </mat-sidenav>

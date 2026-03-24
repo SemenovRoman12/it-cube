@@ -1,16 +1,19 @@
 <mat-toolbar class="header-toolbar px-3 px-md-4">
-  <button mat-icon-button aria-label="Toggle navigation menu" (click)="onToggleSidenav()" class="menu-btn">
+  <button mat-icon-button [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_NAVIGATION_MENU' | translate"
+    (click)="onToggleSidenav()" class="menu-btn">
     <mat-icon>menu</mat-icon>
   </button>
 
   <a class="fw-semibold app-title title-link" routerLink="/">IT-Cube</a>
 
   <div class="toolbar-actions">
-    <button mat-button class="language-btn" (click)="onToggleLanguage()" aria-label="Toggle language">
+    <button mat-button class="language-btn" (click)="onToggleLanguage()"
+      [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_LANGUAGE' | translate">
       {{ currentLanguage().toUpperCase() }}
     </button>
 
-    <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn" aria-label="Toggle dark mode">
+    <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn"
+      [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_DARK_MODE' | translate">
       @if(darkMode()) {
       <mat-icon>light_mode</mat-icon>
       } @else {

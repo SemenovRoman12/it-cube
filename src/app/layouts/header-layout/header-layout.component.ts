@@ -4,10 +4,11 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { LanguageSwitchService } from '../../core/ui/services/language-switch.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'header-layout',
-  imports: [MatToolbarModule, MatButton, MatIconButton, MatIcon, RouterLink],
+  imports: [MatToolbarModule, MatButton, MatIconButton, MatIcon, RouterLink, TranslateModule],
   templateUrl: './header-layout.component.html',
   styleUrl: './header-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

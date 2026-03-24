@@ -2,7 +2,7 @@
   <div class="admin-header">
     <div class="admin-title-block">
       <mat-icon class="title-icon">manage_accounts</mat-icon>
-      <h1 class="admin-title">Управление пользователями</h1>
+      <h1 class="admin-title">{{ 'ADMIN.USERS.TITLE' | translate }}</h1>
     </div>
 
     <div class="header-actions">
@@ -11,12 +11,12 @@
         <input
           class="search-input"
           type="text"
-          placeholder="Поиск по имени, email, роли, группе..."
+          [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_USERS' | translate"
           [value]="searchValue()"
           (input)="applyFilter($any($event.target).value)"
         />
         @if (searchValue()) {
-          <button class="search-clear" (click)="clearSearch()" type="button" matTooltip="Очистить">
+          <button class="search-clear" (click)="clearSearch()" type="button" [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate">
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -24,17 +24,17 @@
 
       <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isLoading()">
         <mat-icon>person_add</mat-icon>
-        Добавить пользователя
+        {{ 'COMMON.ACTIONS.ADD' | translate }} {{ 'COMMON.ROLES.USER' | translate }}
       </button>
 
       <button mat-stroked-button (click)="loadUsers()" [disabled]="isLoading()">
         <mat-icon>refresh</mat-icon>
-        Обновить
+        {{ 'COMMON.ACTIONS.REFRESH' | translate }}
       </button>
 
       <button mat-stroked-button (click)="resetFilters()" [disabled]="isLoading()">
         <mat-icon>filter_alt_off</mat-icon>
-        Сбросить фильтры
+        {{ 'COMMON.ACTIONS.RESET_FILTERS' | translate }}
       </button>
     </div>
   </div>
@@ -42,21 +42,21 @@
   @if (isLoading()) {
     <div class="loading-state">
       <mat-spinner diameter="48" />
-      <p>Загрузка пользователей...</p>
+      <p>{{ 'COMMON.STATUS.LOADING_USERS' | translate }}</p>
     </div>
   } @else if (errorMessage()) {
     <div class="error-state">
       <mat-icon class="error-icon">error_outline</mat-icon>
       <p>{{ errorMessage() }}</p>
-      <button mat-flat-button color="primary" (click)="loadUsers()">Попробовать снова</button>
+      <button mat-flat-button color="primary" (click)="loadUsers()">{{ 'COMMON.ACTIONS.RETRY' | translate }}</button>
     </div>
   } @else {
     <mat-card>
       <mat-card-header>
         <mat-card-subtitle>
-          Всего: <strong>{{ totalUsers }}</strong>
+          {{ 'COMMON.TEXT.TOTAL' | translate }} <strong>{{ totalUsers }}</strong>
           @if (searchValue()) {
-            &nbsp;/ Найдено: <strong>{{ filteredUsers }}</strong>
+            &nbsp;/ {{ 'COMMON.TEXT.FOUND' | translate }} <strong>{{ filteredUsers }}</strong>
           }
         </mat-card-subtitle>
       </mat-card-header>
@@ -64,7 +64,7 @@
       <mat-card-content>
         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)" class="users-table">
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по ID">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header [sortActionDescription]="'COMMON.TEXT.SORT_BY_ID' | translate">
               #
             </th>
             <td mat-cell *matCellDef="let user">
@@ -73,8 +73,8 @@
           </ng-container>
 
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по email">
-              Email / Логин
+            <th mat-header-cell *matHeaderCellDef mat-sort-header [sortActionDescription]="'COMMON.TEXT.SORT_BY_EMAIL' | translate">
+              {{ 'ADMIN.USERS.TABLE.EMAIL_LOGIN' | translate }}
             </th>
             <td mat-cell *matCellDef="let user">
               <div class="user-info">
@@ -89,9 +89,9 @@
               mat-header-cell
               *matHeaderCellDef
               mat-sort-header
-              sortActionDescription="Сортировать по ФИО"
+              [sortActionDescription]="'COMMON.TEXT.SORT_BY_FULL_NAME' | translate"
             >
-              ФИО
+              {{ 'ADMIN.USERS.TABLE.FULL_NAME' | translate }}
             </th>
             <td mat-cell *matCellDef="let user">
               <span class="user-full-name">{{ user.full_name }}</span>
@@ -99,8 +99,8 @@
           </ng-container>
 
           <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Сортировать по роли">
-              Роль
+            <th mat-header-cell *matHeaderCellDef mat-sort-header [sortActionDescription]="'COMMON.TEXT.SORT_BY_ROLE' | translate">
+              {{ 'ADMIN.USERS.TABLE.ROLE' | translate }}
             </th>
             <td mat-cell *matCellDef="let user">
               <mat-chip [color]="getRoleColor(user.role)" highlighted>
@@ -114,9 +114,9 @@
               mat-header-cell
               *matHeaderCellDef
               mat-sort-header
-              sortActionDescription="Сортировать по группе"
+              [sortActionDescription]="'COMMON.TEXT.SORT_BY_GROUP' | translate"
             >
-              Группа
+              {{ 'ADMIN.USERS.TABLE.GROUP' | translate }}
             </th>
             <td mat-cell *matCellDef="let user">
               <span class="group-badge" [class.group-badge--none]="user.group_id == null">
@@ -130,9 +130,9 @@
               mat-header-cell
               *matHeaderCellDef
               mat-sort-header
-              sortActionDescription="Сортировать по дате создания"
+              [sortActionDescription]="'COMMON.TEXT.SORT_BY_CREATED_AT' | translate"
             >
-              Создан
+              {{ 'ADMIN.USERS.TABLE.CREATED' | translate }}
             </th>
             <td mat-cell *matCellDef="let user">
               <span class="created-at">{{ formatDate(user.created_at) }}</span>
@@ -146,7 +146,7 @@
                 mat-icon-button
                 color="primary"
                 (click)="openEditDialog(user)"
-                matTooltip="Редактировать"
+                [matTooltip]="'ADMIN.TOOLTIPS.EDIT' | translate"
               >
                 <mat-icon>edit</mat-icon>
               </button>
@@ -154,7 +154,7 @@
                 mat-icon-button
                 color="warn"
                 (click)="deleteUser(user)"
-                matTooltip="Удалить"
+                [matTooltip]="'ADMIN.TOOLTIPS.DELETE' | translate"
                 [disabled]="deletingUserId() === user.id"
               >
                 <mat-icon>delete</mat-icon>
@@ -168,9 +168,9 @@
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell empty-cell" [attr.colspan]="displayedColumns.length">
               @if (searchValue()) {
-                Ничего не найдено по запросу «{{ searchValue() }}»
+                {{ 'COMMON.TEXT.NOTHING_FOUND_BY_QUERY' | translate:{ query: searchValue() } }}
               } @else {
-                Пользователи не найдены
+                {{ 'ADMIN.USERS.EMPTY.LIST' | translate }}
               }
             </td>
           </tr>
@@ -185,7 +185,7 @@
             [disabled]="!hasMoreUsers || isLoading()"
           >
             <mat-icon>expand_more</mat-icon>
-            Загрузить ещё {{ pageSize }}
+            {{ 'COMMON.ACTIONS.LOAD_MORE' | translate:{ count: pageSize } }}
           </button>
 
           <mat-paginator

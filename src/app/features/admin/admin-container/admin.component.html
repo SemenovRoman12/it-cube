@@ -1,19 +1,19 @@
 @if (isAdminRoot()) {
-  <section class="admin-home">
-    <h1 class="admin-home__title">Панель администратора</h1>
-    <p class="admin-home__subtitle">Выберите раздел для перехода в новый функционал.</p>
+<section class="admin-home">
+  <h1 class="admin-home__title">{{ 'ADMIN.HOME.TITLE' | translate }}</h1>
+  <p class="admin-home__subtitle">{{ 'ADMIN.HOME.SUBTITLE' | translate }}</p>
 
-    <div class="admin-home__actions">
-      <a mat-flat-button color="primary" [routerLink]="['./users']">
-        <mat-icon>manage_accounts</mat-icon>
-        Управление пользователями
-      </a>
-      <a mat-flat-button color="accent" [routerLink]="['./groups']">
-        <mat-icon>groups</mat-icon>
-        Группы
-      </a>
-    </div>
-  </section>
+  <div class="admin-home__actions">
+    <a mat-flat-button color="primary" [routerLink]="['./users']">
+      <mat-icon>manage_accounts</mat-icon>
+      {{ 'ADMIN.HOME.USERS_MANAGEMENT' | translate }}
+    </a>
+    <a mat-flat-button color="accent" [routerLink]="['./groups']">
+      <mat-icon>groups</mat-icon>
+      {{ 'ADMIN.HOME.GROUPS' | translate }}
+    </a>
+  </div>
+</section>
 }
 
 <router-outlet />

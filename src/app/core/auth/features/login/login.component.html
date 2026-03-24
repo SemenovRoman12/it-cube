@@ -1,35 +1,35 @@
 <div class="login-container">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title>Вход в систему</mat-card-title>
+      <mat-card-title>{{ 'AUTH.LOGIN.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>E-mail</mat-label>
-          <input matInput formControlName="email" type="text" placeholder="Введите email" />
+          <mat-label>{{ 'COMMON.FIELDS.EMAIL_ALT' | translate }}</mat-label>
+          <input matInput formControlName="email" type="text" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
           <mat-icon matPrefix>person</mat-icon>
           @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
-          <mat-error class="error-message">Введите email</mat-error>
+          <mat-error class="error-message">{{ 'COMMON.VALIDATION.EMAIL_REQUIRED' | translate }}</mat-error>
           }
           @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
-          <mat-error class="error-message">Введите корректный email</mat-error>
+          <mat-error class="error-message">{{ 'COMMON.VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Пароль</mat-label>
+          <mat-label>{{ 'COMMON.FIELDS.PASSWORD' | translate }}</mat-label>
           <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
           <mat-icon matPrefix>lock</mat-icon>
           <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
-          <mat-error class="error-message">Введите пароль</mat-error>
+          <mat-error class="error-message">{{ 'COMMON.VALIDATION.PASSWORD_REQUIRED' | translate }}</mat-error>
           }
           @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
-          <mat-error class="error-message">Пароль должен быть не менее 6 символов</mat-error>
+          <mat-error class="error-message">{{ 'COMMON.VALIDATION.PASSWORD_MIN_6' | translate }}</mat-error>
           }
         </mat-form-field>
 
@@ -42,9 +42,9 @@
 
         <button mat-flat-button type="submit" class="submit-btn full-width" [disabled]="isLoading()">
           @if (isLoading()) {
-            <mat-spinner diameter="20" />
+          <mat-spinner diameter="20" />
           } @else {
-          Войти
+          {{ 'COMMON.ACTIONS.LOGIN' | translate }}
           }
         </button>
       </form>

@@ -1,218 +1,264 @@
 {
+  "COMMON": {
+    "BRAND": {
+      "NAME": "IT-Cube"
+    },
+    "ACTIONS": {
+      "ADD": "Добавить",
+      "ADD_SELECTED": "Добавить выбранных ({{count}})",
+      "ADD_FIRST_STUDENT": "Добавить первого ученика",
+      "CREATE": "Создать",
+      "CREATE_LESSON": "Создать урок",
+      "SAVE": "Сохранить",
+      "SAVE_CHANGES": "Сохранить изменения",
+      "CANCEL": "Отмена",
+      "REFRESH": "Обновить",
+      "RESET": "Сбросить",
+      "RESET_FILTERS": "Сбросить фильтры",
+      "DELETE": "Удалить",
+      "EDIT": "Редактировать",
+      "OPEN": "Открыть",
+      "RETRY": "Попробовать снова",
+      "LOAD_MORE": "Загрузить ещё {{count}}",
+      "EXPORT": "Экспорт",
+      "LOGIN": "Войти",
+      "LOGOUT": "Выход",
+      "CLEAR": "Очистить",
+      "BACK": "Назад"
+    },
+    "STATUS": {
+      "LOADING": "Загрузка...",
+      "LOADING_GROUPS": "Загрузка групп...",
+      "LOADING_GROUP": "Загрузка группы...",
+      "LOADING_USERS": "Загрузка пользователей...",
+      "LOADING_STUDENTS": "Загрузка учеников...",
+      "CREATING": "Создание...",
+      "SAVING": "Сохранение...",
+      "ADDING": "Добавление..."
+    },
+    "FIELDS": {
+      "EMAIL": "Email",
+      "EMAIL_ALT": "E-mail",
+      "PASSWORD": "Пароль",
+      "NEW_PASSWORD": "Новый пароль",
+      "FULL_NAME": "ФИО",
+      "ROLE": "Роль",
+      "GROUP": "Группа",
+      "GROUP_OPTIONAL": "Группа (необязательно)",
+      "SUBJECT": "Предмет",
+      "DATE": "Дата",
+      "LESSON_DATE": "Дата урока",
+      "TOPIC": "Тема",
+      "LESSON_TOPIC": "Тема урока",
+      "QUARTER": "Четверть",
+      "MARK": "Оценка",
+      "ATTENDANCE": "Посещаемость",
+      "COMMENT": "Комментарий"
+    },
+    "TEXT": {
+      "TOTAL": "Всего:",
+      "FOUND": "Найдено:",
+      "NOTHING_FOUND_BY_QUERY": "Ничего не найдено по запросу «{{query}}»",
+      "WITHOUT_GROUP": "Без группы",
+      "ID": "ID",
+      "STUDENTS": "Ученики",
+      "TEACHERS": "Учителя",
+      "EMAIL_PREFIX": "E-mail",
+      "REGISTRATION_DATE": "Дата регистрации",
+      "SORT_BY_ID": "Сортировать по ID",
+      "SORT_BY_NAME": "Сортировать по названию",
+      "SORT_BY_EMAIL": "Сортировать по email",
+      "SORT_BY_FULL_NAME": "Сортировать по ФИО",
+      "SORT_BY_ROLE": "Сортировать по роли",
+      "SORT_BY_GROUP": "Сортировать по группе",
+      "SORT_BY_CREATED_AT": "Сортировать по дате создания",
+      "NO_NAVIGATION_FOR_ROLE": "No navigation for this role"
+    },
+    "ROLES": {
+      "USER": "Пользователь",
+      "TEACHER": "Учитель",
+      "ADMIN": "Администратор"
+    },
+    "VALIDATION": {
+      "REQUIRED": "Поле обязательно для заполнения",
+      "MIN_2": "Минимум 2 символа",
+      "MIN_3": "Минимум 3 символа",
+      "MIN_6": "Минимум 6 символов",
+      "EMAIL_REQUIRED": "Введите email",
+      "EMAIL_INVALID": "Введите корректный email",
+      "PASSWORD_REQUIRED": "Введите пароль",
+      "PASSWORD_MIN_6": "Пароль должен быть не менее 6 символов",
+      "PASSWORD_REQUIRED_SHORT": "Пароль обязателен",
+      "ROLE_REQUIRED": "Выберите роль"
+    },
+    "PLACEHOLDERS": {
+      "SEARCH_GROUPS": "Поиск по названию или ID...",
+      "SEARCH_USERS": "Поиск по имени, email, роли, группе...",
+      "SEARCH_STUDENT": "Имя или email",
+      "GROUP_EXAMPLE": "Например, 9А",
+      "FULL_NAME_EXAMPLE": "Иванов Михаил Александрович",
+      "EMAIL": "Введите email",
+      "PASSWORD_MIN_6": "Минимум 6 символов",
+      "FULL_NAME": "Введите полное имя",
+      "LEAVE_EMPTY_TO_KEEP": "Оставьте пустым, чтобы не менять"
+    },
+    "HINTS": {
+      "CHOOSE_GROUP_BY_NAME": "Выберите группу по названию",
+      "LEAVE_EMPTY_PASSWORD": "Оставьте пустым, чтобы не менять пароль"
+    },
+    "ACCESSIBILITY": {
+      "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
+      "TOGGLE_LANGUAGE": "Toggle language",
+      "TOGGLE_DARK_MODE": "Toggle dark mode"
+    }
+  },
   "LAYOUT": {
-    "header": {
-      "toggleNavigation": "Переключить меню навигации",
-      "toggleDarkMode": "Переключить темную тему"
-    },
     "SIDENAV": {
-      "adminGroups": "Группы",
-      "adminUsers": "Пользователи",
+      "GROUPS": "Группы",
+      "USERS": "Пользователи",
       "TEACHER_JOURNAL": "Журнал",
-      "studentSection": "Раздел студента",
-      "noNavigationForRole": "Для этой роли нет навигации",
-      "logout": "Выход"
-    },
-    "footer": {
-      "copyright": "© 2026 IT-Cube"
+      "MY_SUBJECTS": "Мои предметы"
     }
   },
-  "student": {
-    "placeholder": "Раздел студента в разработке"
-  },
-  "common": {
-    "actions": {
-      "save": "Сохранить",
-      "cancel": "Отмена",
-      "create": "Создать",
-      "refresh": "Обновить",
-      "reset": "Сбросить",
-      "export": "Экспорт",
-      "loadMore": "Загрузить ещё {{count}}",
-      "retry": "Попробовать снова",
-      "clear": "Очистить",
-      "resetFilters": "Сбросить фильтры",
-      "add": "Добавить",
-      "edit": "Редактировать",
-      "delete": "Удалить",
-      "open": "Открыть"
-    },
-    "states": {
-      "loading": "Загрузка...",
-      "none": "—",
-      "absentShort": "Н"
-    },
-    "fields": {
-      "email": "Email",
-      "password": "Пароль",
-      "fullName": "ФИО",
-      "role": "Роль",
-      "group": "Группа",
-      "comment": "Комментарий",
-      "mark": "Оценка",
-      "subject": "Предмет",
-      "quarter": "Четверть",
-      "createdAt": "Создан"
-    },
-    "validation": {
-      "required": "Поле обязательно для заполнения",
-      "minLength3": "Минимум 3 символа",
-      "minLength2": "Минимум 2 символа",
-      "minLength6": "Минимум 6 символов",
-      "emailInvalid": "Введите корректный email",
-      "roleRequired": "Выберите роль",
-      "passwordRequired": "Пароль обязателен"
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Вход в систему"
     }
   },
-  "roles": {
-    "admin": "Администратор",
-    "teacher": "Учитель",
-    "user": "Пользователь"
-  },
-  "auth": {
-    "login": {
-      "title": "Вход в систему",
-      "emailPlaceholder": "Введите email",
-      "emailRequired": "Введите email",
-      "passwordRequired": "Введите пароль",
-      "passwordMinLength": "Пароль должен быть не менее 6 символов",
-      "submit": "Войти",
-      "invalidCredentials": "Неверное имя пользователя или пароль"
-    }
-  },
-  "admin": {
-    "home": {
-      "title": "Панель администратора",
-      "subtitle": "Выберите раздел для перехода в новый функционал.",
-      "users": "Управление пользователями",
-      "groups": "Группы"
+  "ADMIN": {
+    "HOME": {
+      "TITLE": "Панель администратора",
+      "SUBTITLE": "Выберите раздел для перехода в новый функционал.",
+      "USERS_MANAGEMENT": "Управление пользователями",
+      "GROUPS": "Группы"
     },
-    "groups": {
-      "title": "Управление группами",
-      "searchPlaceholder": "Поиск по названию или ID...",
-      "addGroup": "Добавить группу",
-      "loading": "Загрузка групп...",
-      "total": "Всего",
-      "found": "Найдено",
-      "sortById": "Сортировать по ID",
-      "sortByName": "Сортировать по названию",
-      "nameColumn": "Название группы",
-      "openTooltip": "Открыть группу",
-      "editTooltip": "Редактировать",
-      "deleteTooltip": "Удалить",
-      "emptyByQuery": "Ничего не найдено по запросу «{{query}}»",
-      "empty": "Группы пока не созданы",
-      "loadError": "Ошибка при загрузке групп.",
-      "deleteError": "Ошибка при удалении группы. Попробуйте снова.",
-      "confirmDelete": "Удалить группу {{name}}?"
-    },
-    "groupDetails": {
-      "back": "К группам",
-      "addStudent": "Добавить ученика",
-      "loading": "Загрузка группы...",
-      "studentsInGroup": "Ученики в группе: {{count}}",
-      "empty": "В этой группе пока нет учеников",
-      "loadError": "Ошибка при загрузке группы.",
-      "removeError": "Ошибка при удалении ученика из группы.",
-      "confirmRemoveStudent": "Удалить ученика {{email}} из группы?"
-    },
-    "groupDialogs": {
-      "createTitle": "Создать группу",
-      "editTitle": "Редактировать группу",
-      "groupName": "Название группы",
-      "groupNamePlaceholder": "Например, 9А",
-      "createLoading": "Создание...",
-      "saveLoading": "Сохранение...",
-      "createError": "Ошибка при создании группы. Попробуйте снова.",
-      "saveError": "Ошибка при сохранении. Попробуйте снова.",
-      "addStudentsTitle": "Добавить учеников в группу",
-      "studentSearch": "Поиск ученика",
-      "studentSearchPlaceholder": "Имя или email",
-      "selectedOnly": "Только выбранные",
-      "studentsLoading": "Загрузка учеников...",
-      "inGroup": "В группе #{{id}}",
-      "noFreeStudentsPage": "В этой части списка нет свободных учеников. Прокрутите список ниже для подгрузки.",
-      "notFound": "По вашему запросу ученики не найдены",
-      "loadedFreeStudents": "Показано свободных учеников: {{count}}",
-      "multiSelectHint": "Можно выбрать сразу несколько учеников",
-      "addLoading": "Добавление...",
-      "addSelected": "Добавить выбранных ({{count}})",
-      "addError": "Ошибка при добавлении учеников в группу.",
-      "loadStudentsError": "Ошибка при загрузке учеников."
-    },
-    "users": {
-      "title": "Управление пользователями",
-      "searchPlaceholder": "Поиск по имени, email, роли, группе...",
-      "addUser": "Добавить пользователя",
-      "loading": "Загрузка пользователей...",
-      "total": "Всего",
-      "found": "Найдено",
-      "sortById": "Сортировать по ID",
-      "sortByEmail": "Сортировать по email",
-      "sortByFullName": "Сортировать по ФИО",
-      "sortByRole": "Сортировать по роли",
-      "sortByGroup": "Сортировать по группе",
-      "sortByCreatedAt": "Сортировать по дате создания",
-      "emailLogin": "Email / Логин",
-      "emptyByQuery": "Ничего не найдено по запросу «{{query}}»",
-      "empty": "Пользователи не найдены",
-      "withoutGroup": "Без группы",
-      "groupById": "Группа #{{id}}",
-      "loadError": "Ошибка при загрузке пользователей.",
-      "deleteError": "Ошибка при удалении пользователя. Попробуйте снова.",
-      "confirmDelete": "Удалить пользователя {{email}}?",
-      "loadGroupsError": "Не удалось загрузить список групп.",
-      "createError": "Ошибка при создании пользователя. Попробуйте снова.",
-      "saveError": "Ошибка при сохранении. Попробуйте снова.",
-      "dialogs": {
-        "createTitle": "Создать пользователя",
-        "editTitle": "Редактировать пользователя",
-        "fullNamePlaceholder": "Иванов Михаил Александрович",
-        "fullNameEditPlaceholder": "Введите полное имя",
-        "emailEditPlaceholder": "Введите email",
-        "passwordPlaceholder": "Минимум 6 символов",
-        "newPassword": "Новый пароль",
-        "keepPasswordEmpty": "Оставьте пустым, чтобы не менять",
-        "keepPasswordHint": "Оставьте пустым, чтобы не менять пароль",
-        "groupOptional": "Группа (необязательно)",
-        "selectGroupHint": "Выберите группу по названию",
-        "createLoading": "Создание...",
-        "saveLoading": "Сохранение..."
-      }
-    }
-  },
-  "teacher": {
-    "groups": {
-      "title": "Мои группы",
-      "loading": "Загрузка...",
-      "empty": "Нет доступных групп.",
-      "loadError": "Ошибка загрузки групп учителя."
-    },
-    "journal": {
-      "title": "Журнал",
-      "saveChangesError": "Не удалось сохранить изменения журнала.",
-      "teacherResolveError": "Не удалось определить преподавателя.",
-      "noGroups": "Нет доступных групп.",
-      "accessDenied": "Доступ запрещен.",
-      "pageLoadError": "Ошибка загрузки данных страницы.",
-      "dataLoadError": "Ошибка загрузки данных журнала.",
-      "save": "Сохранить",
-      "reset": "Сбросить",
-      "export": "Экспорт",
-      "editCellTitle": "Редактирование оценки",
-      "setAbsent": "Поставить Н (отсутствовал)",
-      "autoLesson": "Урок",
-      "autoLessonByDate": "Урок {{day}}.{{month}}",
-      "studentColumn": "Студент",
-      "averageColumn": "Средний балл",
-      "subjectMeta": "Предмет",
-      "quarterMeta": "Четверть",
-      "sheetName": "Журнал",
-      "quarterFallback": "Четверть",
-      "quarter": {
-        "q1": "1 четверть",
-        "q2": "2 четверть"
+    "USERS": {
+      "TITLE": "Управление пользователями",
+      "TABLE": {
+        "EMAIL_LOGIN": "Email / Логин",
+        "FULL_NAME": "ФИО",
+        "ROLE": "Роль",
+        "GROUP": "Группа",
+        "CREATED": "Создан"
       },
-      "exportFileName": "journal_{{subject}}_{{quarter}}"
+      "EMPTY": {
+        "LIST": "Пользователи не найдены"
+      }
+    },
+    "GROUPS": {
+      "TITLE": "Управление группами",
+      "TABLE": {
+        "NAME": "Название группы"
+      },
+      "EMPTY": {
+        "LIST": "Группы пока не созданы"
+      }
+    },
+    "GROUP_DETAILS": {
+      "SECTION_LABEL": "Детали группы",
+      "ACTIONS": {
+        "BACK_TO_GROUPS": "К группам",
+        "ADD_STUDENT": "Добавить ученика",
+        "ADD_TEACHER": "Добавить учителя"
+      },
+      "ARIA": {
+        "BACK_TO_GROUPS": "Вернуться к списку групп",
+        "ADD_STUDENT": "Добавить ученика в группу",
+        "REFRESH_GROUP": "Обновить данные группы",
+        "LOADING_GROUP": "Загрузка данных группы",
+        "RETRY_LOADING": "Повторить загрузку",
+        "GROUP_META": "Параметры группы",
+        "GROUP_TEACHERS": "Учителя группы",
+        "STUDENTS_LIST": "Список учеников группы",
+        "STUDENT_PREFIX": "Ученик",
+        "REMOVE_ASSIGNMENT_PREFIX": "Удалить назначение",
+        "REMOVE_ASSIGNMENT_BY_SUBJECT": "по предмету",
+        "REMOVE_STUDENT_PREFIX": "Удалить ученика",
+        "REMOVE_STUDENT_FROM_GROUP": "из группы"
+      },
+      "TOOLTIPS": {
+        "REMOVE_ASSIGNMENT": "Удалить назначение",
+        "REMOVE_FROM_GROUP": "Удалить из группы"
+      },
+      "STATE": {
+        "NOT_FOUND": "Группа не найдена.",
+        "NO_TEACHERS": "В этой группе пока нет назначенных учителей.",
+        "NO_STUDENTS": "В этой группе пока нет учеников."
+      },
+      "SUMMARY": {
+        "SUBTITLE": "Основная информация о группе",
+        "TEACHERS_TITLE": "Учителя группы"
+      },
+      "STUDENTS": {
+        "TITLE": "Состав группы",
+        "SUBTITLE": "Подробная информация по каждому ученику"
+      }
+    },
+    "DIALOGS": {
+      "GROUP_CREATE": {
+        "TITLE": "Создать группу"
+      },
+      "GROUP_EDIT": {
+        "TITLE": "Редактировать группу"
+      },
+      "GROUP_ADD_STUDENT": {
+        "TITLE": "Добавить учеников в группу",
+        "SEARCH_LABEL": "Поиск ученика",
+        "ONLY_SELECTED": "Только выбранные",
+        "IN_GROUP": "В группе #{{id}}",
+        "EMPTY_CHUNK": "В этой части списка нет свободных учеников. Прокрутите список ниже для подгрузки.",
+        "EMPTY_BY_QUERY": "По вашему запросу ученики не найдены",
+        "FREE_STUDENTS_SHOWN": "Показано свободных учеников: {{count}}",
+        "MULTI_SELECT_HINT": "Можно выбрать сразу несколько учеников"
+      },
+      "GROUP_ADD_TEACHER": {
+        "TITLE": "Добавить учителя в группу"
+      },
+      "USER_CREATE": {
+        "TITLE": "Создать пользователя"
+      },
+      "USER_EDIT": {
+        "TITLE": "Редактировать пользователя"
+      }
+    },
+    "TOOLTIPS": {
+      "OPEN_GROUP": "Открыть группу",
+      "EDIT": "Редактировать",
+      "DELETE": "Удалить"
+    }
+  },
+  "TEACHER": {
+    "GROUPS": {
+      "TITLE": "Мои группы",
+      "EMPTY": "Нет доступных групп."
+    },
+    "LESSONS": {
+      "ACTIONS": {
+        "RESET": "Сбросить"
+      }
+    },
+    "JOURNAL": {
+      "EMPTY_SUBJECT": "Для выбранного предмета пока нет уроков.",
+      "EMPTY_STUDENTS": "В группе нет студентов.",
+      "TABLE": {
+        "STUDENT": "Студент"
+      }
+    },
+    "CELL_DIALOG": {
+      "TITLE": "Редактирование оценки",
+      "SET_ABSENT": "Поставить Н (отсутствовал)"
+    }
+  },
+  "STUDENT": {
+    "SUBJECTS": {
+      "TITLE": "Мои предметы",
+      "SUBTITLE": "Выберите предмет, чтобы открыть список уроков",
+      "EMPTY": "Для вашей группы пока нет назначенных предметов."
+    },
+    "LESSONS": {
+      "BACK_TO_SUBJECTS": "К предметам",
+      "SUBTITLE": "Список всех уроков по выбранному предмету",
+      "EMPTY": "Уроков по этому предмету пока нет."
     }
   }
 }

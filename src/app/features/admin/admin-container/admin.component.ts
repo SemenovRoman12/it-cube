@@ -4,10 +4,11 @@ import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'admin-container',
-  imports: [RouterLink, RouterOutlet, MatButtonModule, MatIconModule],
+  imports: [RouterLink, RouterOutlet, MatButtonModule, MatIconModule, TranslateModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
