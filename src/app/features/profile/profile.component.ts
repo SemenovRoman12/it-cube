@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +22,7 @@ type UserProfileUpdate = Pick<UserEntity, 'full_name' | 'email'> & { password?: 
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -36,8 +38,10 @@ export class ProfileComponent {
   private readonly api = inject(ApiService);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  public readonly currentUser = this.authService.user;
 
   public readonly isSaving = signal(false);
+  public readonly editMode = signal(false);
   public readonly successMessage = signal('');
   public readonly errorMessage = signal('');
   public hidePassword = true;
@@ -49,6 +53,34 @@ export class ProfileComponent {
   });
 
   constructor() {
+    this.resetFormFromUser();
+  }
+
+  public onStartEdit(): void {
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.resetFormFromUser();
+    this.editMode.set(true);
+  }
+
+  public onCancelEdit(): void {
+    this.editMode.set(false);
+    this.errorMessage.set('');
+    this.resetFormFromUser();
+  }
+
+  public getRoleTranslationKey(role: UserEntity['role']): string {
+    switch (role) {
+      case 'admin':
+        return 'COMMON.ROLES.ADMIN';
+      case 'teacher':
+        return 'COMMON.ROLES.TEACHER';
+      default:
+        return 'COMMON.ROLES.USER';
+    }
+  }
+
+  private resetFormFromUser(): void {
     const user = this.authService.user();
 
     if (!user) {
@@ -97,6 +129,7 @@ export class ProfileComponent {
       .subscribe({
         next: (updatedUser) => {
           this.authService.setUser(updatedUser);
+          this.editMode.set(false);
           this.form.controls.password.setValue('');
           this.successMessage.set('PROFILE.SUCCESS_SAVED');
           this.isSaving.set(false);

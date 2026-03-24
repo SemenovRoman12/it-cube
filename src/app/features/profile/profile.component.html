@@ -1,37 +1,91 @@
 <section class="profile-page">
-  <mat-card class="profile-card">
-    <mat-card-header>
-      <mat-card-title>{{ 'PROFILE.TITLE' | translate }}</mat-card-title>
-      <mat-card-subtitle>{{ 'PROFILE.SUBTITLE' | translate }}</mat-card-subtitle>
-    </mat-card-header>
+  <header class="profile-hero">
+    <h1 class="profile-title">{{ 'PROFILE.TITLE' | translate }}</h1>
+  </header>
 
-    <mat-card-content>
+  <mat-card class="profile-card mat-elevation-z2">
+    <mat-card-content class="profile-card-content">
+      <div class="profile-head">
+        <div class="profile-avatar" aria-hidden="true">
+          <mat-icon>account_circle</mat-icon>
+        </div>
+
+        <div class="profile-head-meta">
+          <h2 class="profile-head-name">{{ currentUser()?.full_name }}</h2>
+          <p class="profile-head-email">{{ currentUser()?.email }}</p>
+        </div>
+
+        @if (!editMode()) {
+          <button mat-stroked-button color="primary" type="button" class="head-edit-btn" (click)="onStartEdit()">
+            <span class="button-content">
+              <mat-icon>edit</mat-icon>
+              {{ 'COMMON.ACTIONS.EDIT' | translate }}
+            </span>
+          </button>
+        }
+      </div>
+
+      <mat-divider class="section-divider" />
+
+      @if (!editMode()) {
+      <div class="profile-view">
+        <div class="profile-row">
+          <div class="profile-label-group">
+            <mat-icon>badge</mat-icon>
+            <span class="profile-label">{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</span>
+          </div>
+          <span class="profile-value">{{ currentUser()?.full_name }}</span>
+        </div>
+
+        <mat-divider />
+
+        <div class="profile-row">
+          <div class="profile-label-group">
+            <mat-icon>mail</mat-icon>
+            <span class="profile-label">{{ 'COMMON.FIELDS.EMAIL' | translate }}</span>
+          </div>
+          <span class="profile-value">{{ currentUser()?.email }}</span>
+        </div>
+
+        <mat-divider />
+
+        <div class="profile-row">
+          <div class="profile-label-group">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span class="profile-label">{{ 'COMMON.FIELDS.ROLE' | translate }}</span>
+          </div>
+          <span class="profile-value">{{ getRoleTranslationKey(currentUser()?.role ?? 'user') | translate }}</span>
+        </div>
+      </div>
+      } @else {
       <form class="profile-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</mat-label>
-          <mat-icon matPrefix>badge</mat-icon>
-          <input matInput formControlName="full_name" [placeholder]="'COMMON.PLACEHOLDERS.FULL_NAME' | translate" />
-          @if (form.controls.full_name.hasError('required') && form.controls.full_name.touched) {
-            <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
-          }
-          @if (form.controls.full_name.hasError('minlength') && form.controls.full_name.touched) {
-            <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
-          }
-        </mat-form-field>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</mat-label>
+            <mat-icon matPrefix>badge</mat-icon>
+            <input matInput formControlName="full_name" [placeholder]="'COMMON.PLACEHOLDERS.FULL_NAME' | translate" />
+            @if (form.controls.full_name.hasError('required') && form.controls.full_name.touched) {
+              <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+            }
+            @if (form.controls.full_name.hasError('minlength') && form.controls.full_name.touched) {
+              <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
+            }
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.FIELDS.EMAIL' | translate }}</mat-label>
-          <mat-icon matPrefix>mail</mat-icon>
-          <input matInput formControlName="email" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
-          @if (form.controls.email.hasError('required') && form.controls.email.touched) {
-            <mat-error>{{ 'COMMON.VALIDATION.EMAIL_REQUIRED' | translate }}</mat-error>
-          }
-          @if (form.controls.email.hasError('email') && form.controls.email.touched) {
-            <mat-error>{{ 'COMMON.VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
-          }
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'COMMON.FIELDS.EMAIL' | translate }}</mat-label>
+            <mat-icon matPrefix>mail</mat-icon>
+            <input matInput formControlName="email" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
+            @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+              <mat-error>{{ 'COMMON.VALIDATION.EMAIL_REQUIRED' | translate }}</mat-error>
+            }
+            @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+              <mat-error>{{ 'COMMON.VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width password-field">
           <mat-label>{{ 'COMMON.FIELDS.NEW_PASSWORD' | translate }}</mat-label>
           <mat-icon matPrefix>lock</mat-icon>
           <input
@@ -62,20 +116,27 @@
           </div>
         }
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
-          @if (isSaving()) {
-            <span class="button-content">
-              <mat-spinner diameter="18" />
-              {{ 'COMMON.STATUS.SAVING' | translate }}
-            </span>
-          } @else {
-            <span class="button-content">
-              <mat-icon>save</mat-icon>
-              {{ 'COMMON.ACTIONS.SAVE_CHANGES' | translate }}
-            </span>
-          }
-        </button>
+        <div class="edit-actions">
+          <button mat-button type="button" (click)="onCancelEdit()" [disabled]="isSaving()">
+            {{ 'COMMON.ACTIONS.CANCEL' | translate }}
+          </button>
+
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="button-content">
+                <mat-spinner diameter="18" />
+                {{ 'COMMON.STATUS.SAVING' | translate }}
+              </span>
+            } @else {
+              <span class="button-content">
+                <mat-icon>save</mat-icon>
+                {{ 'COMMON.ACTIONS.SAVE_CHANGES' | translate }}
+              </span>
+            }
+          </button>
+        </div>
       </form>
+      }
     </mat-card-content>
   </mat-card>
 </section>
