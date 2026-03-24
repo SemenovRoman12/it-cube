@@ -1,25 +1,33 @@
-import { Component, ChangeDetectionStrategy, signal, effect, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, effect, output, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { LanguageSwitchService } from '../../core/ui/services/language-switch.service';
 
 @Component({
   selector: 'header-layout',
-  imports: [MatToolbarModule, MatIconButton, MatIcon, RouterLink],
+  imports: [MatToolbarModule, MatButton, MatIconButton, MatIcon, RouterLink],
   templateUrl: './header-layout.component.html',
   styleUrl: './header-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderLayoutComponent {
-  public readonly sidenavToggle = output<void>();
-  public darkMode = signal<boolean>(false);
+  private readonly languageSwitchService = inject(LanguageSwitchService);
 
-  public setDarkMode = effect(() => {
+  public readonly sidenavToggle = output<void>();
+  public readonly darkMode = signal<boolean>(false);
+  public readonly currentLanguage = this.languageSwitchService.currentLanguage;
+
+  public readonly setDarkMode = effect(() => {
     document.documentElement.classList.toggle('dark', this.darkMode());
   });
 
   public onToggleSidenav(): void {
     this.sidenavToggle.emit();
+  }
+
+  public onToggleLanguage(): void {
+    this.languageSwitchService.toggleLanguage();
   }
 }

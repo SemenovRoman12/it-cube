@@ -5,11 +5,17 @@
 
   <a class="fw-semibold app-title title-link" routerLink="/">IT-Cube</a>
 
-  <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn" aria-label="Toggle dark mode">
-    @if(darkMode()) {
-    <mat-icon>light_mode</mat-icon>
-    } @else {
-    <mat-icon>dark_mode</mat-icon>
-    }
-  </button>
+  <div class="toolbar-actions">
+    <button mat-button class="language-btn" (click)="onToggleLanguage()" aria-label="Toggle language">
+      {{ currentLanguage().toUpperCase() }}
+    </button>
+
+    <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn" aria-label="Toggle dark mode">
+      @if(darkMode()) {
+      <mat-icon>light_mode</mat-icon>
+      } @else {
+      <mat-icon>dark_mode</mat-icon>
+      }
+    </button>
+  </div>
 </mat-toolbar>

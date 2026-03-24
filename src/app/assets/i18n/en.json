@@ -1,13 +1,13 @@
 {
-  "layout": {
+  "LAYOUT": {
     "header": {
       "toggleNavigation": "Toggle navigation menu",
       "toggleDarkMode": "Toggle dark mode"
     },
-    "sidenav": {
+    "SIDENAV": {
       "adminGroups": "Groups",
       "adminUsers": "Users",
-      "teacherJournal": "Journal",
+      "TEACHER_JOURNAL": "Journal",
       "studentSection": "Student section",
       "noNavigationForRole": "No navigation for this role",
       "logout": "Logout"

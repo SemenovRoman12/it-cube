@@ -1,13 +1,13 @@
 {
-  "layout": {
+  "LAYOUT": {
     "header": {
       "toggleNavigation": "Переключить меню навигации",
       "toggleDarkMode": "Переключить темную тему"
     },
-    "sidenav": {
+    "SIDENAV": {
       "adminGroups": "Группы",
       "adminUsers": "Пользователи",
-      "teacherJournal": "Журнал",
+      "TEACHER_JOURNAL": "Журнал",
       "studentSection": "Раздел студента",
       "noNavigationForRole": "Для этой роли нет навигации",
       "logout": "Выход"
