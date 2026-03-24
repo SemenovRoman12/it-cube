@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 export type AppLanguage = 'ru' | 'en';
@@ -12,7 +12,7 @@ export class LanguageSwitchService {
 
   public readonly currentLanguage = signal<AppLanguage>(this.fallbackLanguage);
 
-  constructor(private readonly translateService: TranslateService) {}
+  private readonly translateService: TranslateService = inject(TranslateService);
 
   public init(): void {
     const storedLanguage = localStorage.getItem(this.storageKey);
