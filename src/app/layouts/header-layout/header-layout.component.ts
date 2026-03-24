@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, signal, effect, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, output, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { LanguageSwitchService } from '../../core/ui/services/language-switch.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ThemeSwitchService } from '../../core/ui/services/theme-switch.service';
 
 @Component({
   selector: 'header-layout',
@@ -15,14 +16,11 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class HeaderLayoutComponent {
   private readonly languageSwitchService = inject(LanguageSwitchService);
+  private readonly themeSwitchService = inject(ThemeSwitchService);
 
   public readonly sidenavToggle = output<void>();
-  public readonly darkMode = signal<boolean>(false);
   public readonly currentLanguage = this.languageSwitchService.currentLanguage;
-
-  public readonly setDarkMode = effect(() => {
-    document.documentElement.classList.toggle('dark', this.darkMode());
-  });
+  public readonly darkMode = this.themeSwitchService.currentTheme;
 
   public onToggleSidenav(): void {
     this.sidenavToggle.emit();
@@ -30,5 +28,9 @@ export class HeaderLayoutComponent {
 
   public onToggleLanguage(): void {
     this.languageSwitchService.toggleLanguage();
+  }
+
+  public onToggleTheme(): void {
+    this.themeSwitchService.toggleTheme();
   }
 }

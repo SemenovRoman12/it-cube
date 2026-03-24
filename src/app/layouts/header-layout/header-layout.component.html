@@ -12,9 +12,9 @@
       {{ currentLanguage().toUpperCase() }}
     </button>
 
-    <button mat-icon-button (click)="darkMode.set(!darkMode())" class="dark-mode-btn"
+    <button mat-icon-button (click)="onToggleTheme()" class="dark-mode-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_DARK_MODE' | translate">
-      @if(darkMode()) {
+      @if(darkMode() === 'light') {
       <mat-icon>light_mode</mat-icon>
       } @else {
       <mat-icon>dark_mode</mat-icon>
