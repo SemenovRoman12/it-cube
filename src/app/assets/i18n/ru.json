@@ -113,7 +113,8 @@
     "ACCESSIBILITY": {
       "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
       "TOGGLE_LANGUAGE": "Toggle language",
-      "TOGGLE_DARK_MODE": "Toggle dark mode"
+      "TOGGLE_DARK_MODE": "Toggle dark mode",
+      "OPEN_PROFILE": "Открыть профиль"
     }
   },
   "LAYOUT": {
@@ -128,6 +129,12 @@
     "LOGIN": {
       "TITLE": "Вход в систему"
     }
+  },
+  "PROFILE": {
+    "TITLE": "Профиль",
+    "SUBTITLE": "Измените данные аккаунта",
+    "SUCCESS_SAVED": "Профиль успешно обновлён",
+    "ERROR_SAVE": "Не удалось сохранить профиль. Попробуйте снова."
   },
   "ADMIN": {
     "HOME": {

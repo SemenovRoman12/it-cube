@@ -113,7 +113,8 @@
     "ACCESSIBILITY": {
       "TOGGLE_NAVIGATION_MENU": "Toggle navigation menu",
       "TOGGLE_LANGUAGE": "Toggle language",
-      "TOGGLE_DARK_MODE": "Toggle dark mode"
+      "TOGGLE_DARK_MODE": "Toggle dark mode",
+      "OPEN_PROFILE": "Open profile"
     }
   },
   "LAYOUT": {
@@ -128,6 +129,12 @@
     "LOGIN": {
       "TITLE": "Sign in"
     }
+  },
+  "PROFILE": {
+    "TITLE": "Profile",
+    "SUBTITLE": "Update your account details",
+    "SUCCESS_SAVED": "Profile has been updated",
+    "ERROR_SAVE": "Failed to save profile. Please try again."
   },
   "ADMIN": {
     "HOME": {

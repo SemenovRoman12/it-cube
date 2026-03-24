@@ -51,6 +51,10 @@ export class AuthService {
     )
   }
 
+  public setUser(user: UserEntity | null): void {
+    this._user.set(user);
+  }
+
   public logout(): void {
     this.tokenService.removeToken();
     this._user.set(null);

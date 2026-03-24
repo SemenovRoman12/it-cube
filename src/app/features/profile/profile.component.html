@@ -1,0 +1,81 @@
+<section class="profile-page">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'PROFILE.TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'PROFILE.SUBTITLE' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="profile-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <input matInput formControlName="full_name" [placeholder]="'COMMON.PLACEHOLDERS.FULL_NAME' | translate" />
+          @if (form.controls.full_name.hasError('required') && form.controls.full_name.touched) {
+            <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+          }
+          @if (form.controls.full_name.hasError('minlength') && form.controls.full_name.touched) {
+            <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'COMMON.FIELDS.EMAIL' | translate }}</mat-label>
+          <mat-icon matPrefix>mail</mat-icon>
+          <input matInput formControlName="email" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
+          @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+            <mat-error>{{ 'COMMON.VALIDATION.EMAIL_REQUIRED' | translate }}</mat-error>
+          }
+          @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+            <mat-error>{{ 'COMMON.VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'COMMON.FIELDS.NEW_PASSWORD' | translate }}</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePassword ? 'password' : 'text'"
+            [placeholder]="'COMMON.PLACEHOLDERS.LEAVE_EMPTY_TO_KEEP' | translate"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+            <mat-error>{{ 'COMMON.VALIDATION.PASSWORD_MIN_6' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage()) {
+          <div class="form-message error" role="status">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMessage() | translate }}</span>
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="form-message success" role="status">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ successMessage() | translate }}</span>
+          </div>
+        }
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="button-content">
+              <mat-spinner diameter="18" />
+              {{ 'COMMON.STATUS.SAVING' | translate }}
+            </span>
+          } @else {
+            <span class="button-content">
+              <mat-icon>save</mat-icon>
+              {{ 'COMMON.ACTIONS.SAVE_CHANGES' | translate }}
+            </span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</section>

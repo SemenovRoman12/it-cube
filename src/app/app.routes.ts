@@ -22,6 +22,10 @@ export const routes: Routes = [
         children: []
       },
       {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/admin-container/admin.component').then(m => m.AdminComponent),

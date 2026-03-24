@@ -15,8 +15,18 @@
 
 .dark-mode-btn,
 .language-btn,
-.menu-btn {
+.menu-btn,
+.profile-btn,
+.profile-link-btn {
   color: var(--sys-inverse-surface);
+}
+
+.profile-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  margin-right: 4px;
 }
 
 .language-btn {
