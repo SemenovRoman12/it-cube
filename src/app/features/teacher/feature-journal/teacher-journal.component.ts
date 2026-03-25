@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { AttendanceStatus, MarkValue } from '../models/journal-entry.model';
@@ -24,7 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatButtonModule,
     MatSelectModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     TranslateModule,
   ],
   templateUrl: './teacher-journal.component.html',

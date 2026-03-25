@@ -35,9 +35,11 @@
 }
 
 .teacher-journal__loading {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem;
+  display: block;
+}
+
+.teacher-journal__loading-bar {
+  width: 100%;
 }
 
 .teacher-journal__empty {

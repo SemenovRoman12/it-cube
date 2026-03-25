@@ -114,6 +114,12 @@
     font-size: 0.95rem;
   }
 
+  &.state--loading {
+    align-items: stretch;
+    gap: 0;
+    padding: 24px 0;
+  }
+
   &.state--error {
     color: var(--mat-sys-error);
 
@@ -123,6 +129,10 @@
       height: 3rem;
     }
   }
+}
+
+.state__loading-bar {
+  width: 100%;
 }
 
 mat-card {

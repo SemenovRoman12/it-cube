@@ -19,9 +19,11 @@
 }
 
 .student-subjects-list__loading {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: block;
+}
+
+.student-subjects-list__loading-bar {
+  width: 100%;
 }
 
 .student-subjects-list__state {

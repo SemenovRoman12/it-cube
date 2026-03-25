@@ -37,8 +37,7 @@
 
   @if (isLoading()) {
   <div class="state state--loading">
-    <mat-spinner diameter="44" />
-    <p>{{ 'COMMON.STATUS.LOADING_GROUPS' | translate }}</p>
+    <mat-progress-bar class="state__loading-bar" mode="indeterminate" />
   </div>
   } @else if (errorMessage()) {
   <div class="state state--error">

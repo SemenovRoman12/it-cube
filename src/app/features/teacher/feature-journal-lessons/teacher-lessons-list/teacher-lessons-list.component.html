@@ -1,7 +1,7 @@
 <section class="teacher-lessons-list">
   @if (isLoading()) {
   <div class="teacher-lessons-list__loading">
-    <mat-spinner diameter="42" />
+    <mat-progress-bar class="teacher-lessons-list__loading-bar" mode="indeterminate" />
   </div>
   } @else if (error(); as errorText) {
   <mat-card class="teacher-lessons-list__error">{{ errorText }}</mat-card>
