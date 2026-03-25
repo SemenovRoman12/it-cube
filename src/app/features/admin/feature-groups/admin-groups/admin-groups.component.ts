@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatTableModule,
     MatTooltipModule,
     MatSortModule,

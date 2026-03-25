@@ -6,8 +6,7 @@
 
   @if (isLoading()) {
   <div class="student-subjects-list__loading">
-    <mat-spinner diameter="36" />
-    <p class="student-subjects-list__state">{{ 'COMMON.STATUS.LOADING' | translate }}</p>
+    <mat-progress-bar class="student-subjects-list__loading-bar" mode="indeterminate" />
   </div>
   } @else if (error(); as errorText) {
   <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">

@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, from, of } from 'rxjs';
@@ -41,7 +41,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     JournalTableComponent,
     TranslateModule,
   ],

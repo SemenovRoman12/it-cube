@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { catchError, finalize, of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { UserEntity } from '../../../../core/models/user.model';
@@ -14,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'student-subjects-list',
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
+  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule],
   templateUrl: './student-subjects-list.component.html',
   styleUrl: './student-subjects-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -27,9 +27,11 @@
 }
 
 .student-subject-lessons__loading {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: block;
+}
+
+.student-subject-lessons__loading-bar {
+  width: 100%;
 }
 
 .student-subject-lessons__state-card {
