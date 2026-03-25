@@ -1,34 +1,19 @@
 <section class="group-details-page" aria-label="Детали группы" [attr.aria-busy]="isLoading()">
   <header class="group-details-toolbar">
-    <a
-      mat-stroked-button
-      [routerLink]="['/admin/groups']"
-      aria-label="Вернуться к списку групп"
-    >
+    <a mat-stroked-button [routerLink]="['/admin/groups']" aria-label="Вернуться к списку групп">
       <mat-icon>arrow_back</mat-icon>
       К группам
     </a>
 
     <div class="toolbar-actions">
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        (click)="openAddStudentDialog()"
-        [disabled]="isLoading() || !group()"
-        aria-label="Добавить ученика в группу"
-      >
+      <button mat-flat-button color="primary" type="button" (click)="openAddStudentDialog()"
+        [disabled]="isLoading() || !group()" aria-label="Добавить ученика в группу">
         <mat-icon>person_add</mat-icon>
         Добавить ученика
       </button>
 
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="loadData()"
-        [disabled]="isLoading()"
-        aria-label="Обновить данные группы"
-      >
+      <button mat-stroked-button type="button" (click)="loadData()" [disabled]="isLoading()"
+        aria-label="Обновить данные группы">
         <mat-icon>refresh</mat-icon>
         Обновить
       </button>
@@ -36,156 +21,137 @@
   </header>
 
   @if (isLoading()) {
-    <mat-card class="state-card" role="status" aria-live="polite" aria-label="Загрузка данных группы">
-      <mat-card-content class="state-content">
-        <mat-spinner diameter="44" />
-        <p>Загрузка группы...</p>
-      </mat-card-content>
-    </mat-card>
+  <mat-card class="state-card" role="status" aria-live="polite" aria-label="Загрузка данных группы">
+    <mat-card-content class="state-content state-content--loading">
+      <mat-progress-bar class="state-content__loading-bar" mode="indeterminate" />
+    </mat-card-content>
+  </mat-card>
   } @else if (errorMessage()) {
-    <mat-card class="state-card state-card--error" role="alert" aria-live="assertive">
-      <mat-card-content class="state-content">
-        <mat-icon>error_outline</mat-icon>
-        <p>{{ errorMessage() }}</p>
-        <button mat-flat-button color="primary" type="button" (click)="loadData()" aria-label="Повторить загрузку">
-          Попробовать снова
-        </button>
-      </mat-card-content>
-    </mat-card>
+  <mat-card class="state-card state-card--error" role="alert" aria-live="assertive">
+    <mat-card-content class="state-content">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="loadData()" aria-label="Повторить загрузку">
+        Попробовать снова
+      </button>
+    </mat-card-content>
+  </mat-card>
   } @else if (!group()) {
-    <mat-card class="state-card" role="status" aria-live="polite">
-      <mat-card-content class="state-content">
-        <mat-icon>folder_off</mat-icon>
-        <p>Группа не найдена.</p>
-      </mat-card-content>
-    </mat-card>
+  <mat-card class="state-card" role="status" aria-live="polite">
+    <mat-card-content class="state-content">
+      <mat-icon>folder_off</mat-icon>
+      <p>Группа не найдена.</p>
+    </mat-card-content>
+  </mat-card>
   } @else {
-    <mat-card class="summary-card">
-      <mat-card-header>
-        <mat-card-title>{{ groupName() }}</mat-card-title>
-        <mat-card-subtitle>Основная информация о группе</mat-card-subtitle>
-      </mat-card-header>
+  <mat-card class="summary-card">
+    <mat-card-header>
+      <mat-card-title>{{ groupName() }}</mat-card-title>
+      <mat-card-subtitle>Основная информация о группе</mat-card-subtitle>
+    </mat-card-header>
 
-      <mat-card-content>
-        <div class="meta-chips" aria-label="Параметры группы">
-          <mat-chip-set>
-            <mat-chip>ID: {{ group()!.id }}</mat-chip>
-            <mat-chip>Ученики: {{ studentCount() }}</mat-chip>
-            <mat-chip>Учителя: {{ uniqueTeacherCount() }}</mat-chip>
-          </mat-chip-set>
+    <mat-card-content>
+      <div class="meta-chips" aria-label="Параметры группы">
+        <mat-chip-set>
+          <mat-chip>ID: {{ group()!.id }}</mat-chip>
+          <mat-chip>Ученики: {{ studentCount() }}</mat-chip>
+          <mat-chip>Учителя: {{ uniqueTeacherCount() }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <div class="teachers-summary" aria-label="Учителя группы">
+        <div class="teachers-summary__header">
+          <h3>Учителя группы</h3>
+          <button mat-stroked-button color="primary" type="button" (click)="openAddTeacherDialog()"
+            [disabled]="isLoading() || !group()" aria-label="Добавить учителя в группу">
+            <mat-icon>person_add</mat-icon>
+            Добавить учителя
+          </button>
         </div>
 
-        <div class="teachers-summary" aria-label="Учителя группы">
-          <div class="teachers-summary__header">
-            <h3>Учителя группы</h3>
-            <button
-              mat-stroked-button
-              color="primary"
-              type="button"
-              (click)="openAddTeacherDialog()"
-              [disabled]="isLoading() || !group()"
-              aria-label="Добавить учителя в группу"
-            >
-              <mat-icon>person_add</mat-icon>
-              Добавить учителя
+        @if (hasTeacherAssignments()) {
+        <div class="teachers-list">
+          @for (entry of teacherEntries(); track entry.assignmentId) {
+          <article class="teacher-item">
+            <div class="teacher-main">
+              <h4>{{ entry.teacherLabel }}</h4>
+              <p>{{ entry.teacherEmail }}</p>
+            </div>
+
+            <mat-chip class="teacher-subject-chip">{{ entry.subjectLabel }}</mat-chip>
+
+            <button mat-icon-button color="warn" type="button" matTooltip="Удалить назначение"
+              [attr.aria-label]="'Удалить назначение ' + entry.teacherLabel + ' по предмету ' + entry.subjectLabel"
+              (click)="removeTeacherAssignment(entry)"
+              [disabled]="removingTeacherAssignmentId() === entry.assignmentId">
+              <mat-icon>person_remove</mat-icon>
             </button>
-          </div>
-
-          @if (hasTeacherAssignments()) {
-            <div class="teachers-list">
-              @for (entry of teacherEntries(); track entry.assignmentId) {
-                <article class="teacher-item">
-                  <div class="teacher-main">
-                    <h4>{{ entry.teacherLabel }}</h4>
-                    <p>{{ entry.teacherEmail }}</p>
-                  </div>
-
-                  <mat-chip class="teacher-subject-chip">{{ entry.subjectLabel }}</mat-chip>
-
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    type="button"
-                    matTooltip="Удалить назначение"
-                    [attr.aria-label]="'Удалить назначение ' + entry.teacherLabel + ' по предмету ' + entry.subjectLabel"
-                    (click)="removeTeacherAssignment(entry)"
-                    [disabled]="removingTeacherAssignmentId() === entry.assignmentId"
-                  >
-                    <mat-icon>person_remove</mat-icon>
-                  </button>
-                </article>
-              }
-            </div>
-          } @else {
-            <div class="empty-teachers" role="status" aria-live="polite">
-              <mat-icon>supervisor_account</mat-icon>
-              <p>В этой группе пока нет назначенных учителей.</p>
-            </div>
+          </article>
           }
         </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="students-card">
-      <mat-card-header>
-        <mat-card-title>Состав группы</mat-card-title>
-        <mat-card-subtitle>Подробная информация по каждому ученику</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-divider />
-
-      <mat-card-content>
-        @if (hasStudents()) {
-          <div class="students-grid" aria-label="Список учеников группы">
-            @for (student of students(); track student.id) {
-              <article class="student-item" [attr.aria-label]="'Ученик ' + getStudentDisplayName(student)">
-                <div class="student-avatar" aria-hidden="true">
-                  {{ getStudentInitials(student) }}
-                </div>
-
-                <div class="student-main">
-                  <div class="student-headline">
-                    <h3 class="student-name">{{ getStudentDisplayName(student) }}</h3>
-
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      type="button"
-                      matTooltip="Удалить из группы"
-                      [attr.aria-label]="'Удалить ученика ' + getStudentDisplayName(student) + ' из группы'"
-                      (click)="removeStudent(student)"
-                      [disabled]="removingStudentId() === student.id"
-                    >
-                      <mat-icon>person_remove</mat-icon>
-                    </button>
-                  </div>
-
-                  <div class="student-details">
-                    <div class="student-detail-row">
-                      <mat-chip>E-mail: {{ student.email }}</mat-chip>
-                    </div>
-                    <div class="student-detail-row">
-                      <mat-chip>Дата регистрации: {{ formatCreatedAt(student.created_at) }}</mat-chip>
-                    </div>
-                    <div class="student-detail-row">
-                      <mat-chip>ID: {{ student.id }}</mat-chip>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            }
-          </div>
         } @else {
-          <div class="empty-students" role="status" aria-live="polite">
-            <mat-icon>group_off</mat-icon>
-            <p>В этой группе пока нет учеников.</p>
-            <button mat-stroked-button color="primary" type="button" (click)="openAddStudentDialog()">
-              Добавить первого ученика
-            </button>
-          </div>
+        <div class="empty-teachers" role="status" aria-live="polite">
+          <mat-icon>supervisor_account</mat-icon>
+          <p>В этой группе пока нет назначенных учителей.</p>
+        </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="students-card">
+    <mat-card-header>
+      <mat-card-title>Состав группы</mat-card-title>
+      <mat-card-subtitle>Подробная информация по каждому ученику</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider />
+
+    <mat-card-content>
+      @if (hasStudents()) {
+      <div class="students-grid" aria-label="Список учеников группы">
+        @for (student of students(); track student.id) {
+        <article class="student-item" [attr.aria-label]="'Ученик ' + getStudentDisplayName(student)">
+          <div class="student-avatar" aria-hidden="true">
+            {{ getStudentInitials(student) }}
+          </div>
+
+          <div class="student-main">
+            <div class="student-headline">
+              <h3 class="student-name">{{ getStudentDisplayName(student) }}</h3>
+
+              <button mat-icon-button color="warn" type="button" matTooltip="Удалить из группы"
+                [attr.aria-label]="'Удалить ученика ' + getStudentDisplayName(student) + ' из группы'"
+                (click)="removeStudent(student)" [disabled]="removingStudentId() === student.id">
+                <mat-icon>person_remove</mat-icon>
+              </button>
+            </div>
+
+            <div class="student-details">
+              <div class="student-detail-row">
+                <mat-chip>E-mail: {{ student.email }}</mat-chip>
+              </div>
+              <div class="student-detail-row">
+                <mat-chip>Дата регистрации: {{ formatCreatedAt(student.created_at) }}</mat-chip>
+              </div>
+              <div class="student-detail-row">
+                <mat-chip>ID: {{ student.id }}</mat-chip>
+              </div>
+            </div>
+          </div>
+        </article>
+        }
+      </div>
+      } @else {
+      <div class="empty-students" role="status" aria-live="polite">
+        <mat-icon>group_off</mat-icon>
+        <p>В этой группе пока нет учеников.</p>
+        <button mat-stroked-button color="primary" type="button" (click)="openAddStudentDialog()">
+          Добавить первого ученика
+        </button>
+      </div>
+      }
+    </mat-card-content>
+  </mat-card>
   }
 </section>
-

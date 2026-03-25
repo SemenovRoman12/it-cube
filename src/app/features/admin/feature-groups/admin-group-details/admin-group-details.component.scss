@@ -39,6 +39,15 @@
   }
 }
 
+.state-content--loading {
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.state-content__loading-bar {
+  width: 100%;
+}
+
 .state-card--error {
   .state-content {
     color: var(--mat-sys-error);

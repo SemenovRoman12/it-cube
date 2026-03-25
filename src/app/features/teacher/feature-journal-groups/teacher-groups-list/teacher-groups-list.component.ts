@@ -9,10 +9,11 @@ import { TeacherGroupCardComponent } from '../teacher-group-card/teacher-group-c
 import { UserEntity } from '../../../../core/models/user.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'teacher-groups-list',
-  imports: [TeacherGroupCardComponent, TranslateModule],
+  imports: [TeacherGroupCardComponent, TranslateModule, MatProgressBarModule],
   templateUrl: './teacher-groups-list.component.html',
   styleUrl: './teacher-groups-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,9 +5,11 @@
 }
 
 .teacher-lessons-list__loading {
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
+  display: block;
+}
+
+.teacher-lessons-list__loading-bar {
+  width: 100%;
 }
 
 .teacher-lessons-list__filters {
