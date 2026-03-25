@@ -150,6 +150,15 @@
             <td mat-cell *matCellDef="let user" class="actions-cell">
               <button
                 mat-icon-button
+                color="accent"
+                (click)="resetUserAvatar(user)"
+                matTooltip="Сбросить аватар"
+                [disabled]="!hasUserAvatar(user) || resettingAvatarUserId() === user.id || deletingUserId() === user.id"
+              >
+                <mat-icon>hide_image</mat-icon>
+              </button>
+              <button
+                mat-icon-button
                 color="primary"
                 (click)="openEditDialog(user)"
                 [matTooltip]="'ADMIN.TOOLTIPS.EDIT' | translate"

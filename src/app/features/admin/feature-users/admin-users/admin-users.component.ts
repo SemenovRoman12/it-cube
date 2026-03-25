@@ -104,6 +104,7 @@ export class AdminUsersComponent implements OnInit {
   public errorMessage = signal('');
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
+  public resettingAvatarUserId = signal<number | null>(null);
   public groupNames = signal<Record<number, string>>({});
   public currentPage = signal(1);
 
@@ -275,11 +276,6 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public deleteUser(user: UserEntity): void {
-    const isConfirmed = window.confirm(`Удалить пользователя ${user.email}?`);
-    if (!isConfirmed) {
-      return;
-    }
-
     this.deletingUserId.set(user.id);
 
     this.usersService.deleteUser(user.id).subscribe({
@@ -290,6 +286,26 @@ export class AdminUsersComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set('Ошибка при удалении пользователя. Попробуйте снова.');
         this.deletingUserId.set(null);
+        console.error(err);
+      },
+    });
+  }
+
+  public resetUserAvatar(user: UserEntity): void {
+    if (!this.hasUserAvatar(user)) {
+      return;
+    }
+
+    this.resettingAvatarUserId.set(user.id);
+
+    this.usersService.updateUser(user.id, { avatar_url: null }).subscribe({
+      next: () => {
+        this.resettingAvatarUserId.set(null);
+        this.loadUsers();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage.set('Ошибка при сбросе аватара пользователя. Попробуйте снова.');
+        this.resettingAvatarUserId.set(null);
         console.error(err);
       },
     });
