@@ -1,7 +1,7 @@
 import { Component, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin, map } from 'rxjs';
+import { HttpErrorResponse, HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,15 @@ import { UsersService } from '../../services/users.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dialog.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../core/ui/components/confirm-dialog/confirm-dialog.component';
+import { API_URL } from '../../../../core/http/api-url.token';
+
+const DEFAULT_AVATAR_MOKKY_URL = 'http://mokky.dev/uploaded/dfnhxiq6j/image/upload/v1774430966/file_pacrzh.jpg';
+
+interface UploadEntity {
+  id: number;
+  url: string;
+}
 
 @Component({
   selector: 'app-admin-container-users',
@@ -41,6 +50,8 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './admin-users.component.scss',
 })
 export class AdminUsersComponent implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = inject(API_URL);
   private readonly usersService = inject(UsersService);
   private readonly groupsService = inject(GroupsService);
   private readonly dialog = inject(MatDialog);
@@ -104,6 +115,7 @@ export class AdminUsersComponent implements OnInit {
   public errorMessage = signal('');
   public searchValue = signal('');
   public deletingUserId = signal<number | null>(null);
+  public resettingAvatarUserId = signal<number | null>(null);
   public groupNames = signal<Record<number, string>>({});
   public currentPage = signal(1);
 
@@ -199,6 +211,38 @@ export class AdminUsersComponent implements OnInit {
     return colors[role] ?? 'primary';
   }
 
+  public hasUserAvatar(user: UserEntity): boolean {
+    return Boolean(user.avatar_url?.trim());
+  }
+
+  public getUserAvatarUrl(user: UserEntity): string {
+    return user.avatar_url?.trim() ?? '';
+  }
+
+  public getUserInitials(user: UserEntity): string {
+    const fullName = user.full_name?.trim();
+
+    if (!fullName) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+
+    const parts = fullName.split(/\s+/).filter(Boolean);
+    return parts
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  public onUserAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+
+    if (!image) {
+      return;
+    }
+
+    image.style.display = 'none';
+  }
+
   public formatDate(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
@@ -243,11 +287,52 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public deleteUser(user: UserEntity): void {
-    const isConfirmed = window.confirm(`Удалить пользователя ${user.email}?`);
-    if (!isConfirmed) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Удаление пользователя',
+        message: `Вы действительно хотите удалить пользователя ${user.email}?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performDeleteUser(user);
+    });
+  }
+
+  public resetUserAvatar(user: UserEntity): void {
+    if (!this.hasUserAvatar(user)) {
       return;
     }
 
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Сброс аватара',
+        message: `Сбросить аватар пользователя ${user.email}?`,
+        confirmText: 'Сбросить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performResetUserAvatar(user);
+    });
+  }
+
+  private performDeleteUser(user: UserEntity): void {
     this.deletingUserId.set(user.id);
 
     this.usersService.deleteUser(user.id).subscribe({
@@ -261,6 +346,50 @@ export class AdminUsersComponent implements OnInit {
         console.error(err);
       },
     });
+  }
+
+  private performResetUserAvatar(user: UserEntity): void {
+    const avatarUrl = user.avatar_url?.trim() ?? null;
+
+    this.resettingAvatarUserId.set(user.id);
+
+    this.resolveUploadIdByUrl(avatarUrl)
+      .pipe(
+        switchMap((uploadId) => this.deleteUploadIfExists(uploadId)),
+        switchMap(() => this.usersService.updateUser(user.id, { avatar_url: null })),
+      )
+      .subscribe({
+        next: () => {
+          this.resettingAvatarUserId.set(null);
+          this.loadUsers();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage.set('Ошибка при сбросе аватара пользователя. Попробуйте снова.');
+          this.resettingAvatarUserId.set(null);
+          console.error(err);
+        },
+      });
+  }
+
+  private resolveUploadIdByUrl(url: string | null): Observable<number | null> {
+    if (!url || url === DEFAULT_AVATAR_MOKKY_URL) {
+      return of(null);
+    }
+
+    const params = new HttpParams().set('url', url);
+
+    return this.http.get<UploadEntity[]>(`${this.apiUrl}/uploads`, { params }).pipe(
+      map((items) => items?.[0]?.id ?? null),
+      catchError(() => of(null)),
+    );
+  }
+
+  private deleteUploadIfExists(uploadId: number | null): Observable<unknown> {
+    if (!uploadId) {
+      return of(null);
+    }
+
+    return this.http.delete(`${this.apiUrl}/uploads/${uploadId}`).pipe(catchError(() => of(null)));
   }
 
   private buildSearchFilters(rawSearch: string): Record<string, string | number> {

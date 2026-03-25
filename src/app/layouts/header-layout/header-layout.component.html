@@ -24,7 +24,12 @@
     </button>
     <button mat-icon-button routerLink="/profile" class="profile-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">
-      <mat-icon>account_circle</mat-icon>
+      <img
+        class="profile-btn-avatar"
+        [src]="getHeaderAvatarUrl()"
+        [alt]="currentUser()?.full_name ?? 'avatar'"
+        (error)="onHeaderAvatarError($event)"
+      />
     </button>
   </div>
 
