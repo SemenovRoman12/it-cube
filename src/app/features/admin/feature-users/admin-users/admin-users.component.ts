@@ -20,6 +20,7 @@ import { UsersService } from '../../services/users.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { UserCreateDialogComponent } from '../user-create-dialog/user-create-dialog.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../core/ui/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-admin-container-users',
@@ -276,6 +277,52 @@ export class AdminUsersComponent implements OnInit {
   }
 
   public deleteUser(user: UserEntity): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Удаление пользователя',
+        message: `Вы действительно хотите удалить пользователя ${user.email}?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performDeleteUser(user);
+    });
+  }
+
+  public resetUserAvatar(user: UserEntity): void {
+    if (!this.hasUserAvatar(user)) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Сброс аватара',
+        message: `Сбросить аватар пользователя ${user.email}?`,
+        confirmText: 'Сбросить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performResetUserAvatar(user);
+    });
+  }
+
+  private performDeleteUser(user: UserEntity): void {
     this.deletingUserId.set(user.id);
 
     this.usersService.deleteUser(user.id).subscribe({
@@ -291,11 +338,7 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  public resetUserAvatar(user: UserEntity): void {
-    if (!this.hasUserAvatar(user)) {
-      return;
-    }
-
+  private performResetUserAvatar(user: UserEntity): void {
     this.resettingAvatarUserId.set(user.id);
 
     this.usersService.updateUser(user.id, { avatar_url: null }).subscribe({
