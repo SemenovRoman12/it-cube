@@ -140,7 +140,16 @@
             @for (student of students(); track student.id) {
               <article class="student-item" [attr.aria-label]="'Ученик ' + getStudentDisplayName(student)">
                 <div class="student-avatar" aria-hidden="true">
-                  {{ getStudentInitials(student) }}
+                  <span class="student-avatar-initials">{{ getStudentInitials(student) }}</span>
+
+                  @if (hasStudentAvatar(student)) {
+                    <img
+                      class="student-avatar-image"
+                      [src]="getStudentAvatarUrl(student)"
+                      [alt]="getStudentDisplayName(student)"
+                      (error)="onStudentAvatarError($event)"
+                    />
+                  }
                 </div>
 
                 <div class="student-main">

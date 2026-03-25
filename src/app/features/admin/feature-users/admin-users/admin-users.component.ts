@@ -199,6 +199,38 @@ export class AdminUsersComponent implements OnInit {
     return colors[role] ?? 'primary';
   }
 
+  public hasUserAvatar(user: UserEntity): boolean {
+    return Boolean(user.avatar_url?.trim());
+  }
+
+  public getUserAvatarUrl(user: UserEntity): string {
+    return user.avatar_url?.trim() ?? '';
+  }
+
+  public getUserInitials(user: UserEntity): string {
+    const fullName = user.full_name?.trim();
+
+    if (!fullName) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+
+    const parts = fullName.split(/\s+/).filter(Boolean);
+    return parts
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  public onUserAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+
+    if (!image) {
+      return;
+    }
+
+    image.style.display = 'none';
+  }
+
   public formatDate(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {

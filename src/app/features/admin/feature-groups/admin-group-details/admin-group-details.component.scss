@@ -142,15 +142,30 @@
 }
 
 .student-avatar {
+  position: relative;
   inline-size: 44px;
   block-size: 44px;
   border-radius: 50%;
+  overflow: hidden;
   display: grid;
   place-items: center;
+  background: color-mix(in srgb, var(--mat-sys-primary-container) 75%, transparent);
+}
+
+.student-avatar-initials {
   font-weight: 700;
   font-size: 0.875rem;
   color: var(--mat-sys-primary);
-  background: color-mix(in srgb, var(--mat-sys-primary-container) 75%, transparent);
+  line-height: 1;
+}
+
+.student-avatar-image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .student-main {
