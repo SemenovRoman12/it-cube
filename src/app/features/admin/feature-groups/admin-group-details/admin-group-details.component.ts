@@ -237,6 +237,24 @@ export class AdminGroupDetailsComponent implements OnInit {
     return fullName || student.email;
   }
 
+  public hasStudentAvatar(student: UserEntity): boolean {
+    return Boolean(student.avatar_url?.trim());
+  }
+
+  public getStudentAvatarUrl(student: UserEntity): string {
+    return student.avatar_url?.trim() ?? '';
+  }
+
+  public onStudentAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+
+    if (!image) {
+      return;
+    }
+
+    image.style.display = 'none';
+  }
+
   public getStudentInitials(student: UserEntity): string {
     const fullName = student.full_name?.trim();
     if (!fullName) {

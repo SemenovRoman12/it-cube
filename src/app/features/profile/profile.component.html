@@ -7,7 +7,37 @@
     <mat-card-content class="profile-card-content">
       <div class="profile-head">
         <div class="profile-avatar" aria-hidden="true">
-          <mat-icon>account_circle</mat-icon>
+          <img class="profile-avatar-image" [src]="getAvatarUrl()" [alt]="currentUser()?.full_name ?? 'avatar'" (error)="onAvatarImageError($event)" />
+
+          <button
+            mat-mini-fab
+            color="primary"
+            type="button"
+            class="avatar-change-btn"
+            [disabled]="isAvatarSaving()"
+            (click)="avatarInput.click()"
+          >
+            @if (isAvatarSaving()) {
+              <mat-spinner diameter="16" />
+            } @else {
+              <mat-icon>photo_camera</mat-icon>
+            }
+          </button>
+
+          @if (currentUser()?.avatar_url) {
+            <button
+              mat-mini-fab
+              color="warn"
+              type="button"
+              class="avatar-remove-btn"
+              [disabled]="isAvatarSaving()"
+              (click)="onRemoveAvatar()"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+
+          <input #avatarInput class="avatar-file-input" type="file" accept="image/*" (change)="onAvatarFileSelected($event)" />
         </div>
 
         <div class="profile-head-meta">

@@ -6,6 +6,9 @@ import { RouterLink } from '@angular/router';
 import { LanguageSwitchService } from '../../core/ui/services/language-switch.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeSwitchService } from '../../core/ui/services/theme-switch.service';
+import { AuthService } from '../../core/auth/services/auth.service';
+
+const DEFAULT_AVATAR_MOKKY_URL = 'http://mokky.dev/uploaded/dfnhxiq6j/image/upload/v1774430966/file_pacrzh.jpg';
 
 @Component({
   selector: 'header-layout',
@@ -17,10 +20,26 @@ import { ThemeSwitchService } from '../../core/ui/services/theme-switch.service'
 export class HeaderLayoutComponent {
   private readonly languageSwitchService = inject(LanguageSwitchService);
   private readonly themeSwitchService = inject(ThemeSwitchService);
+  private readonly authService = inject(AuthService);
 
   public readonly sidenavToggle = output<void>();
   public readonly currentLanguage = this.languageSwitchService.currentLanguage;
   public readonly darkMode = this.themeSwitchService.currentTheme;
+  public readonly currentUser = this.authService.user;
+
+  public getHeaderAvatarUrl(): string {
+    return this.currentUser()?.avatar_url?.trim() || DEFAULT_AVATAR_MOKKY_URL;
+  }
+
+  public onHeaderAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+
+    if (!image) {
+      return;
+    }
+
+    image.src = DEFAULT_AVATAR_MOKKY_URL;
+  }
 
   public onToggleSidenav(): void {
     this.sidenavToggle.emit();
