@@ -14,6 +14,11 @@
         <mat-icon matListItemIcon>person</mat-icon>
         <span matListItemTitle>{{ 'LAYOUT.SIDENAV.USERS' | translate }}</span>
       </button>
+      <button routerLink="/admin/subjects" class="side-nav-item" mat-list-item type="button"
+        (click)="closeSidenavOnTouch()">
+        <mat-icon matListItemIcon>menu_book</mat-icon>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.SUBJECTS' | translate }}</span>
+      </button>
       }
 
       @case ('teacher') {

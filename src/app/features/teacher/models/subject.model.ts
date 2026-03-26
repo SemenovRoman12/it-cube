@@ -1,5 +1,2 @@
-export interface SubjectEntity {
-  id: number;
-  name: string;
-}
+export type { SubjectEntity } from '../../../core/models/subject.model';
 

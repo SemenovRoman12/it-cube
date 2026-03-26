@@ -99,9 +99,11 @@
     },
     "PLACEHOLDERS": {
       "SEARCH_GROUPS": "Search by name or ID...",
+      "SEARCH_SUBJECTS": "Search by name or ID...",
       "SEARCH_USERS": "Search by name, email, role, group...",
       "SEARCH_STUDENT": "Name or email",
       "GROUP_EXAMPLE": "For example, 9A",
+      "SUBJECT_EXAMPLE": "For example, Math",
       "FULL_NAME_EXAMPLE": "Ivanov Mikhail Alexandrovich",
       "EMAIL": "Enter email",
       "PASSWORD_MIN_6": "Minimum 6 characters",
@@ -122,6 +124,7 @@
   "LAYOUT": {
     "SIDENAV": {
       "GROUPS": "Groups",
+      "SUBJECTS": "Subjects",
       "USERS": "Users",
       "TEACHER_JOURNAL": "Journal",
       "MY_SUBJECTS": "My subjects"
@@ -143,7 +146,8 @@
       "TITLE": "Admin panel",
       "SUBTITLE": "Choose a section to open new functionality.",
       "USERS_MANAGEMENT": "User management",
-      "GROUPS": "Groups"
+      "GROUPS": "Groups",
+      "SUBJECTS": "Subjects"
     },
     "USERS": {
       "TITLE": "User management",
@@ -165,6 +169,15 @@
       },
       "EMPTY": {
         "LIST": "No groups yet"
+      }
+    },
+    "SUBJECTS": {
+      "TITLE": "Subject management",
+      "TABLE": {
+        "NAME": "Subject name"
+      },
+      "EMPTY": {
+        "LIST": "No subjects yet"
       }
     },
     "GROUP_DETAILS": {
@@ -213,6 +226,12 @@
       },
       "GROUP_EDIT": {
         "TITLE": "Edit group"
+      },
+      "SUBJECT_CREATE": {
+        "TITLE": "Create subject"
+      },
+      "SUBJECT_EDIT": {
+        "TITLE": "Edit subject"
       },
       "GROUP_ADD_STUDENT": {
         "TITLE": "Add students to group",
