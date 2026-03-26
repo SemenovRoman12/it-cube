@@ -29,7 +29,14 @@ export class JournalExportService {
       return [
         row.student.full_name,
         ...row.cells.map((cell) => {
-          if (cell.attendance === 'absent' && cell.mark == null) {
+          const isAbsent = cell.attendance === 'absent';
+          const hasMark = cell.mark != null;
+
+          if (isAbsent && hasMark) {
+            return `Н/${cell.mark}`;
+          }
+
+          if (isAbsent) {
             return 'Н';
           }
 

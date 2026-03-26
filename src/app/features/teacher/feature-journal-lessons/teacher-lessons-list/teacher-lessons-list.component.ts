@@ -8,8 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin, from, of } from 'rxjs';
-import { catchError, concatMap, finalize, switchMap, tap, toArray } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { UserEntity } from '../../../../core/models/user.model';
 import { GroupsService } from '../../../admin/services/groups.service';
@@ -81,8 +81,6 @@ export class TeacherLessonsListComponent implements OnInit {
 
     return this.subjects().find((subject) => subject.id === subjectId)?.name ?? '';
   });
-
-  public readonly hasDirtyChanges = computed(() => this.dirty().size > 0);
 
   public readonly quarterDates = computed(() => {
     const academicStartYear = resolveAcademicStartYear(this.lessons().map((lesson) => lesson.date));
@@ -158,6 +156,10 @@ export class TeacherLessonsListComponent implements OnInit {
   }
 
   public onCellEdit(cell: JournalCellVm): void {
+    if (this.isSaving()) {
+      return;
+    }
+
     this.dialog
       .open<JournalCellEditDialogComponent, { cell: JournalCellVm }, JournalCellEditDialogResult>(
         JournalCellEditDialogComponent,
@@ -173,11 +175,8 @@ export class TeacherLessonsListComponent implements OnInit {
         }
 
         this.updateCellDraft(cell, result);
+        this.saveImmediately(cell);
       });
-  }
-
-  public onResetChanges(): void {
-    this.dirty.set(new Map());
   }
 
   public onExportClick(): void {
@@ -197,13 +196,14 @@ export class TeacherLessonsListComponent implements OnInit {
     });
   }
 
-  public onSaveChanges(): void {
+  private saveImmediately(cell: JournalCellVm): void {
     const teacherId = this.authService.user()?.id;
     const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
     const subjectId = this.selectedSubjectId();
-    const dirtyCells = [...this.dirty().values()];
+    const key = this.getCellKey(cell.lessonId, cell.studentId);
+    const draft = this.dirty().get(key);
 
-    if (!dirtyCells.length || teacherId == null || Number.isNaN(groupId) || subjectId == null) {
+    if (!draft || teacherId == null || Number.isNaN(groupId) || subjectId == null) {
       return;
     }
 
@@ -213,46 +213,54 @@ export class TeacherLessonsListComponent implements OnInit {
     const entryMap = this.buildEntryMap(this.entries());
     const createdLessonsByDate = new Map<string, LessonEntity>();
 
-    from(dirtyCells)
+    this.resolveLessonForCell(draft, teacherId, groupId, subjectId, createdLessonsByDate)
       .pipe(
-        concatMap((cell) =>
-          this.resolveLessonForCell(cell, teacherId, groupId, subjectId, createdLessonsByDate).pipe(
-            switchMap((lesson) => {
-              const existing = entryMap.get(this.getEntryKey(lesson.id, cell.studentId));
+        switchMap((lesson) => {
+          if (!lesson) {
+            throw new Error('Could not resolve lesson');
+          }
 
-              if (existing) {
-                const payload: JournalEntryUpdate = {
-                  mark: cell.mark,
-                  attendance: cell.attendance,
-                  comment: cell.comment,
-                };
-                return this.journalApi.updateJournalEntry(existing.id, payload);
-              }
+          const existing = entryMap.get(this.getEntryKey(lesson.id, draft.studentId));
 
-              const payload: JournalEntryCreate = {
-                lesson_id: lesson.id,
-                student_id: cell.studentId,
-                mark: cell.mark,
-                attendance: cell.attendance,
-                comment: cell.comment,
-              };
-              return this.journalApi.createJournalEntry(payload);
-            }),
-            tap((savedEntry) =>
-              entryMap.set(this.getEntryKey(savedEntry.lesson_id, savedEntry.student_id), savedEntry),
-            ),
-          ),
-        ),
-        toArray(),
+          if (existing) {
+            const payload: JournalEntryUpdate = {
+              mark: draft.mark,
+              attendance: draft.attendance,
+              comment: draft.comment,
+            };
+            return this.journalApi.updateJournalEntry(existing.id, payload);
+          }
+
+          const payload: JournalEntryCreate = {
+            lesson_id: lesson.id,
+            student_id: draft.studentId,
+            mark: draft.mark,
+            attendance: draft.attendance,
+            comment: draft.comment,
+          };
+          return this.journalApi.createJournalEntry(payload);
+        }),
+        finalize(() => this.isSaving.set(false)),
       )
-      .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
-        next: () => {
-          this.entries.set([...entryMap.values()]);
-          this.dirty.set(new Map());
+        next: (savedEntry) => {
+          const updatedEntries = [...this.entries()];
+          const existingIdx = updatedEntries.findIndex(
+            (e) => e.lesson_id === savedEntry.lesson_id && e.student_id === savedEntry.student_id,
+          );
+          if (existingIdx >= 0) {
+            updatedEntries[existingIdx] = savedEntry;
+          } else {
+            updatedEntries.push(savedEntry);
+          }
+          this.entries.set(updatedEntries);
+
+          const updatedDirty = new Map(this.dirty());
+          updatedDirty.delete(key);
+          this.dirty.set(updatedDirty);
         },
         error: () => {
-          this.error.set('Не удалось сохранить изменения журнала.');
+          this.error.set('Не удалось сохранить изменения.');
         },
       });
   }

@@ -31,15 +31,9 @@
     <div class="teacher-lessons-list__header">
       <h3>{{ selectedSubjectName() }}</h3>
       <div class="teacher-lessons-list__actions">
-        <button mat-flat-button color="primary" type="button" [disabled]="!hasDirtyChanges() || isSaving()"
-          (click)="onSaveChanges()">
-          <mat-icon>save</mat-icon>
-          {{ 'COMMON.ACTIONS.SAVE' | translate }}
-        </button>
-
-        <button mat-button type="button" [disabled]="!hasDirtyChanges() || isSaving()" (click)="onResetChanges()">
-          {{ 'COMMON.ACTIONS.RESET' | translate }}
-        </button>
+        @if (isSaving()) {
+        <mat-progress-bar class="teacher-lessons-list__saving-bar" mode="indeterminate" />
+        }
 
         <button mat-stroked-button type="button" (click)="onExportClick()">
           <mat-icon>download</mat-icon>
