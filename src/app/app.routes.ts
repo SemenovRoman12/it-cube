@@ -45,6 +45,10 @@ export const routes: Routes = [
             loadComponent: () => import('./features/admin/feature-groups/admin-groups/admin-groups.component').then(c => c.AdminGroupsComponent),
           },
           {
+            path: 'subjects',
+            loadComponent: () => import('./features/admin/feature-subjects/admin-subjects/admin-subjects.component').then(m => m.AdminSubjectsComponent),
+          },
+          {
             path: 'groups/:id',
             loadComponent: () => import('./features/admin/feature-groups/admin-group-details/admin-group-details.component').then(c => c.AdminGroupDetailsComponent),
           },

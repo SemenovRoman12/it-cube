@@ -100,9 +100,11 @@
     },
     "PLACEHOLDERS": {
       "SEARCH_GROUPS": "Поиск по названию или ID...",
+      "SEARCH_SUBJECTS": "Поиск по названию или ID...",
       "SEARCH_USERS": "Поиск по имени, email, роли, группе...",
       "SEARCH_STUDENT": "Имя или email",
       "GROUP_EXAMPLE": "Например, 9А",
+      "SUBJECT_EXAMPLE": "Например, Математика",
       "FULL_NAME_EXAMPLE": "Иванов Михаил Александрович",
       "EMAIL": "Введите email",
       "PASSWORD_MIN_6": "Минимум 6 символов",
@@ -127,6 +129,7 @@
   "LAYOUT": {
     "SIDENAV": {
       "GROUPS": "Группы",
+      "SUBJECTS": "Предметы",
       "USERS": "Пользователи",
       "TEACHER_JOURNAL": "Журнал",
       "MY_SUBJECTS": "Мои предметы"
@@ -148,7 +151,8 @@
       "TITLE": "Панель администратора",
       "SUBTITLE": "Выберите раздел для перехода в новый функционал.",
       "USERS_MANAGEMENT": "Управление пользователями",
-      "GROUPS": "Группы"
+      "GROUPS": "Группы",
+      "SUBJECTS": "Предметы"
     },
     "USERS": {
       "TITLE": "Управление пользователями",
@@ -170,6 +174,15 @@
       },
       "EMPTY": {
         "LIST": "Группы пока не созданы"
+      }
+    },
+    "SUBJECTS": {
+      "TITLE": "Управление предметами",
+      "TABLE": {
+        "NAME": "Название предмета"
+      },
+      "EMPTY": {
+        "LIST": "Предметы пока не созданы"
       }
     },
     "GROUP_DETAILS": {
@@ -218,6 +231,12 @@
       },
       "GROUP_EDIT": {
         "TITLE": "Редактировать группу"
+      },
+      "SUBJECT_CREATE": {
+        "TITLE": "Создать предмет"
+      },
+      "SUBJECT_EDIT": {
+        "TITLE": "Редактировать предмет"
       },
       "GROUP_ADD_STUDENT": {
         "TITLE": "Добавить учеников в группу",

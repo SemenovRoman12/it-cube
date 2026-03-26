@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>
+  <mat-icon>library_add</mat-icon>
+  {{ 'ADMIN.DIALOGS.SUBJECT_CREATE.TITLE' | translate }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="createSubjectForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'ADMIN.SUBJECTS.TABLE.NAME' | translate }}</mat-label>
+      <mat-icon matPrefix>menu_book</mat-icon>
+      <input matInput formControlName="name" type="text"
+        [placeholder]="'COMMON.PLACEHOLDERS.SUBJECT_EXAMPLE' | translate" />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+      <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+      }
+      @if (form.get('name')?.hasError('minlength') && form.get('name')?.touched) {
+      <mat-error>{{ 'COMMON.VALIDATION.MIN_2' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage) {
+    <div class="error-alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">{{ 'COMMON.ACTIONS.CANCEL' | translate }}</button>
+  <button mat-flat-button color="primary" form="createSubjectForm" type="submit" [disabled]="isLoading">
+    @if (isLoading) {
+    <ng-container>
+      <mat-spinner diameter="18" />
+      {{ 'COMMON.STATUS.CREATING' | translate }}
+    </ng-container>
+    } @else {
+    <ng-container>
+      <mat-icon>library_add</mat-icon>
+      {{ 'COMMON.ACTIONS.CREATE' | translate }}
+    </ng-container>
+    }
+  </button>
+</mat-dialog-actions>
+
