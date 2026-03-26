@@ -1,0 +1,8 @@
+<button mat-icon-button type="button" class="theme-toggle-btn" (click)="onToggleTheme($event)"
+  [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_DARK_MODE' | translate">
+  @if (currentTheme() === 'light') {
+  <mat-icon>light_mode</mat-icon>
+  } @else {
+  <mat-icon>dark_mode</mat-icon>
+  }
+</button>
