@@ -78,15 +78,10 @@
     border-left: 2px solid var(--sys-outline-variant);
   }
 
-  // ── Hide pinned scrollbars ────────────────────────────────
-  .ag-pinned-left-cols-container,
-  .ag-pinned-right-cols-container {
-    overflow: hidden !important;
-  }
-
+  // ── Hide pinned horizontal scrollbars (spacers only) ──────
   .ag-horizontal-left-spacer,
   .ag-horizontal-right-spacer {
-    overflow: hidden !important;
+    overflow-x: hidden !important;
     min-width: 0 !important;
     max-width: 0 !important;
     width: 0 !important;
