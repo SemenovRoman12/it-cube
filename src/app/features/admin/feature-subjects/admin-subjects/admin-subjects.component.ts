@@ -11,6 +11,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../../../../core/ui/components/confirm-dialog/confirm-dialog.component';
 import { SubjectEntity } from '../../../../core/models/subject.model';
 import { ListStateFacade } from '../../shared/list-state';
 import { SubjectsService } from '../../services/subjects.service';
@@ -123,11 +124,27 @@ export class AdminSubjectsComponent implements OnInit {
   }
 
   public deleteSubject(subject: SubjectEntity): void {
-    const isConfirmed = window.confirm(`Удалить предмет ${subject.name}?`);
-    if (!isConfirmed) {
-      return;
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Удаление предмета',
+        message: `Вы действительно хотите удалить предмет ${subject.name}?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    });
 
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performDeleteSubject(subject);
+    });
+  }
+
+  private performDeleteSubject(subject: SubjectEntity): void {
     this.deletingSubjectId.set(subject.id);
 
     this.subjectsService.deleteSubject(subject.id).subscribe({
