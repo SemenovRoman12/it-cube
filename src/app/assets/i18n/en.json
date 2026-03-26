@@ -89,6 +89,11 @@
       "EMAIL_INVALID": "Enter a valid email",
       "PASSWORD_REQUIRED": "Enter password",
       "PASSWORD_MIN_6": "Password must be at least 6 characters",
+      "PASSWORD_ONLY_LATIN": "Password must contain only Latin letters, numbers, and special characters",
+      "PASSWORD_UPPERCASE_REQUIRED": "Add at least one uppercase letter",
+      "PASSWORD_LOWERCASE_REQUIRED": "Add at least one lowercase letter",
+      "PASSWORD_DIGIT_REQUIRED": "Add at least one digit",
+      "PASSWORD_SPECIAL_REQUIRED": "Add at least one special character",
       "PASSWORDS_MUST_MATCH": "Passwords must match",
       "PASSWORD_REQUIRED_SHORT": "Password is required",
       "ROLE_REQUIRED": "Select a role"

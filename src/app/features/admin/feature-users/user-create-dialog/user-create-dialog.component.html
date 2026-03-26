@@ -5,7 +5,7 @@
 
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" id="createUserForm">
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
       <mat-label>{{ 'COMMON.FIELDS.FULL_NAME' | translate }}</mat-label>
       <mat-icon matPrefix>badge</mat-icon>
       <input matInput formControlName="full_name" type="text"
@@ -18,7 +18,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
       <mat-label>{{ 'COMMON.FIELDS.EMAIL' | translate }}</mat-label>
       <mat-icon matPrefix>person</mat-icon>
       <input matInput formControlName="email" type="text" [placeholder]="'COMMON.PLACEHOLDERS.EMAIL' | translate" />
@@ -30,7 +30,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
       <mat-label>{{ 'COMMON.FIELDS.PASSWORD' | translate }}</mat-label>
       <mat-icon matPrefix>lock</mat-icon>
       <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'"
@@ -38,15 +38,12 @@
       <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
         <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
-      @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-      <mat-error>{{ 'COMMON.VALIDATION.PASSWORD_REQUIRED_SHORT' | translate }}</mat-error>
-      }
-      @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-      <mat-error>{{ 'COMMON.VALIDATION.MIN_6' | translate }}</mat-error>
+      @if (getPasswordErrorKey(); as passwordErrorKey) {
+      <mat-error>{{ passwordErrorKey | translate }}</mat-error>
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
       <mat-label>{{ 'COMMON.FIELDS.GROUP_OPTIONAL' | translate }}</mat-label>
       <mat-icon matPrefix>groups</mat-icon>
       <mat-select formControlName="group_id" [disabled]="isGroupsLoading">
@@ -58,7 +55,7 @@
       <mat-hint>{{ 'COMMON.HINTS.CHOOSE_GROUP_BY_NAME' | translate }}</mat-hint>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
       <mat-label>{{ 'COMMON.FIELDS.ROLE' | translate }}</mat-label>
       <mat-icon matPrefix>admin_panel_settings</mat-icon>
       <mat-select formControlName="role">
