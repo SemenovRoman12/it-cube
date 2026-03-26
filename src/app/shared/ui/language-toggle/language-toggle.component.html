@@ -1,0 +1,10 @@
+<button
+  mat-button
+  type="button"
+  class="language-toggle-btn"
+  (click)="onToggleLanguage()"
+  [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_LANGUAGE' | translate"
+>
+  {{ currentLanguage().toUpperCase() }}
+</button>
+

@@ -14,6 +14,7 @@ import { GroupEntity } from '../../../../core/models/group.model';
 import { UserCreate, UsersService } from '../../services/users.service';
 import { GroupsService } from '../../services/groups.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { passwordValidator } from '../../../../core/auth/validators/password.validator';
 
 type CreateUserForm = {
   full_name: string;
@@ -55,7 +56,7 @@ export class UserCreateDialogComponent implements OnInit {
   public form = new FormGroup({
     full_name: new FormControl('', [Validators.required, Validators.minLength(3)]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    password: new FormControl('', [Validators.required, passwordValidator()]),
     role: new FormControl<'admin' | 'user' | 'teacher'>('user', [Validators.required]),
     group_id: new FormControl<number | null>(null),
   });
@@ -110,5 +111,43 @@ export class UserCreateDialogComponent implements OnInit {
 
   public onCancel(): void {
     this.dialogRef.close();
+  }
+
+  public getPasswordErrorKey(): string | null {
+    const passwordControl = this.form.get('password');
+
+    if (!passwordControl || !passwordControl.touched || !passwordControl.errors) {
+      return null;
+    }
+
+    if (passwordControl.hasError('required')) {
+      return 'COMMON.VALIDATION.PASSWORD_REQUIRED_SHORT';
+    }
+
+    if (passwordControl.hasError('minLength')) {
+      return 'COMMON.VALIDATION.PASSWORD_MIN_6';
+    }
+
+    if (passwordControl.hasError('invalidChars')) {
+      return 'COMMON.VALIDATION.PASSWORD_ONLY_LATIN';
+    }
+
+    if (passwordControl.hasError('noUppercase')) {
+      return 'COMMON.VALIDATION.PASSWORD_UPPERCASE_REQUIRED';
+    }
+
+    if (passwordControl.hasError('noLowercase')) {
+      return 'COMMON.VALIDATION.PASSWORD_LOWERCASE_REQUIRED';
+    }
+
+    if (passwordControl.hasError('noDigit')) {
+      return 'COMMON.VALIDATION.PASSWORD_DIGIT_REQUIRED';
+    }
+
+    if (passwordControl.hasError('noSpecialChar')) {
+      return 'COMMON.VALIDATION.PASSWORD_SPECIAL_REQUIRED';
+    }
+
+    return null;
   }
 }

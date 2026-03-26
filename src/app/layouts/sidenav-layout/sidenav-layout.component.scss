@@ -11,6 +11,14 @@
 .side-nav-item {
   border-radius: 0 !important;
   border: 0;
+  mat-icon {
+    color: var(--sys-on-surface-variant)
+  }
+  &:hover {
+    mat-icon {
+      color: var(--sys-primary);
+    }
+  }
 }
 
 .sidenav-content {

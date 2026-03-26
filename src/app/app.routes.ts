@@ -8,7 +8,13 @@ import { roleRedirectGuard } from './core/auth/guards/role-redirect-guard';
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./core/auth/features/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./layouts/unauth-layout/unauth-layout.component').then(m => m.UnauthLayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./core/auth/features/login/login.component').then(m => m.LoginComponent)
+      }
+    ]
   },
   {
     path: '',

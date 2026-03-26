@@ -89,6 +89,11 @@
       "EMAIL_INVALID": "Введите корректный email",
       "PASSWORD_REQUIRED": "Введите пароль",
       "PASSWORD_MIN_6": "Пароль должен быть не менее 6 символов",
+      "PASSWORD_ONLY_LATIN": "Пароль должен содержать только латинские буквы, цифры и спецсимволы",
+      "PASSWORD_UPPERCASE_REQUIRED": "Добавьте хотя бы одну заглавную букву",
+      "PASSWORD_LOWERCASE_REQUIRED": "Добавьте хотя бы одну строчную букву",
+      "PASSWORD_DIGIT_REQUIRED": "Добавьте хотя бы одну цифру",
+      "PASSWORD_SPECIAL_REQUIRED": "Добавьте хотя бы один специальный символ",
       "PASSWORDS_MUST_MATCH": "Пароли должны совпадать",
       "PASSWORD_REQUIRED_SHORT": "Пароль обязателен",
       "ROLE_REQUIRED": "Выберите роль"

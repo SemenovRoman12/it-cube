@@ -1,0 +1,29 @@
+.header-toolbar {
+  background: var(--sys-primary-container);
+  min-height: 64px;
+  color: var(--sys-inverse-surface);
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dark-mode-btn,
+.language-btn {
+  color: var(--sys-inverse-surface);
+}
+
+.app-title {
+  margin-left: 8px;
+}
+
+.title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
