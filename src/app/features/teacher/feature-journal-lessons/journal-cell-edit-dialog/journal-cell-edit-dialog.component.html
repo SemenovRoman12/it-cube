@@ -5,7 +5,7 @@
 
   <mat-form-field appearance="outline">
     <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
-    <mat-select formControlName="mark" [disabled]="form.controls.isAbsent.value">
+    <mat-select formControlName="mark">
       <mat-option [value]="null">—</mat-option>
       @for (mark of markOptions; track mark) {
       <mat-option [value]="mark">{{ mark }}</mat-option>

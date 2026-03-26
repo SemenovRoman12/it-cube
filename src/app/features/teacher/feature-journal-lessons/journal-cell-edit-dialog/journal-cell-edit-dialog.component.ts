@@ -53,11 +53,10 @@ export class JournalCellEditDialogComponent {
 
   public onSave(): void {
     const value = this.form.getRawValue();
-    const isAbsent = value.isAbsent;
 
     this.dialogRef.close({
-      mark: isAbsent ? null : value.mark,
-      attendance: isAbsent ? 'absent' : 'present',
+      mark: value.mark,
+      attendance: value.isAbsent ? 'absent' : 'present',
       comment: value.comment.trim(),
     });
   }

@@ -28,10 +28,12 @@ export class JournalTableComponent {
     const lessonColumns: ColDef[] = this.lessons().map((lesson) => ({
       headerName: this.formatHeaderDate(lesson.date),
       field: this.lessonField(lesson.id),
-      minWidth: 110,
-      width: 110,
+      width: 80,
+      minWidth: 80,
+      maxWidth: 80,
       resizable: false,
       sortable: false,
+      suppressSizeToFit: true,
       cellClass: (params) => this.getLessonCellClass(params.value as JournalCellVm | null),
       valueFormatter: (params) => this.formatLessonCell(params),
     }));
@@ -100,11 +102,18 @@ export class JournalTableComponent {
       return '—';
     }
 
-    if (cell.attendance === 'absent' && cell.mark == null) {
+    const isAbsent = cell.attendance === 'absent';
+    const hasMark = cell.mark != null;
+
+    if (isAbsent && hasMark) {
+      return `Н/${cell.mark}`;
+    }
+
+    if (isAbsent) {
       return 'Н';
     }
 
-    if (cell.mark != null) {
+    if (hasMark) {
       return String(cell.mark);
     }
 
