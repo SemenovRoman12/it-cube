@@ -1,8 +1,10 @@
+// ─── Host container ──────────────────────────────────────────
 .journal-table__host {
   width: 100%;
   min-height: 420px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  border: 1px solid var(--sys-outline-variant);
 }
 
 .journal-table__grid {
@@ -10,15 +12,179 @@
   height: 520px;
 }
 
-:host ::ng-deep .journal-table__lesson-cell {
-  text-align: center;
-  font-weight: 600;
-}
+// ─── AG-Grid theme overrides (quartz → Material 3) ──────────
+:host ::ng-deep .ag-theme-quartz {
+  // ── Palette tokens ────────────────────────────────────────
+  --ag-background-color: var(--sys-surface);
+  --ag-foreground-color: var(--sys-on-surface);
+  --ag-header-background-color: var(--sys-surface-container);
+  --ag-header-foreground-color: var(--sys-on-surface);
+  --ag-border-color: var(--sys-outline-variant);
+  --ag-secondary-border-color: var(--sys-outline-variant);
+  --ag-row-border-color: var(--sys-outline-variant);
+  --ag-odd-row-background-color: var(--sys-surface-container-lowest);
+  --ag-row-hover-color: color-mix(in srgb, var(--sys-primary) 8%, transparent);
+  --ag-selected-row-background-color: color-mix(in srgb, var(--sys-primary) 12%, transparent);
+  --ag-range-selection-background-color: color-mix(in srgb, var(--sys-primary) 14%, transparent);
+  --ag-alpine-active-color: var(--sys-primary);
+  --ag-checkbox-checked-color: var(--sys-primary);
+  --ag-input-focus-border-color: var(--sys-primary);
 
-:host ::ng-deep .journal-table__lesson-cell--dirty {
-  background: color-mix(in srgb, var(--sys-primary) 15%, white);
-}
+  // ── Typography ────────────────────────────────────────────
+  --ag-font-family: 'Roboto', sans-serif;
+  --ag-font-size: 14px;
+  --ag-header-font-size: 13px;
+  --ag-header-font-weight: 600;
 
-:host ::ng-deep .journal-table__lesson-cell--absent {
-  color: var(--sys-error);
+  // ── Spacing ───────────────────────────────────────────────
+  --ag-grid-size: 6px;
+  --ag-row-height: 44px;
+  --ag-header-height: 46px;
+  --ag-cell-horizontal-padding: 12px;
+
+  // ── Borders ───────────────────────────────────────────────
+  --ag-wrapper-border-radius: 12px;
+  --ag-border-radius: 0;
+  --ag-borders: solid 1px;
+  --ag-row-border-style: solid;
+  --ag-row-border-width: 1px;
+
+  // ── Header ────────────────────────────────────────────────
+  .ag-header {
+    border-bottom: 2px solid var(--sys-outline-variant);
+  }
+
+  .ag-header-cell {
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .ag-header-cell-label {
+    justify-content: center;
+  }
+
+  .ag-header-cell[col-id='studentName'] .ag-header-cell-label {
+    justify-content: flex-start;
+  }
+
+  // ── Pinned columns ───────────────────────────────────────
+  .ag-pinned-left-header,
+  .ag-pinned-left-cols-container {
+    border-right: 2px solid var(--sys-outline-variant);
+  }
+
+  .ag-pinned-right-header,
+  .ag-pinned-right-cols-container {
+    border-left: 2px solid var(--sys-outline-variant);
+  }
+
+  // ── Hide pinned scrollbars ────────────────────────────────
+  .ag-pinned-left-cols-container,
+  .ag-pinned-right-cols-container {
+    overflow: hidden !important;
+  }
+
+  .ag-horizontal-left-spacer,
+  .ag-horizontal-right-spacer {
+    overflow: hidden !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    width: 0 !important;
+  }
+
+  // ── Rows ──────────────────────────────────────────────────
+  .ag-row {
+    transition: background-color 0.15s ease;
+  }
+
+  .ag-row-even {
+    background-color: var(--sys-surface);
+  }
+
+  .ag-row-odd {
+    background-color: var(--sys-surface-container-lowest);
+  }
+
+  // ── Cells ─────────────────────────────────────────────────
+  .ag-cell {
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+  }
+
+  .ag-cell[col-id='studentName'] {
+    font-weight: 500;
+    color: var(--sys-on-surface);
+  }
+
+  .ag-cell[col-id='averageMark'] {
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--sys-primary);
+  }
+
+  // ── Lesson cells ──────────────────────────────────────────
+  .journal-table__lesson-cell {
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--sys-primary) 10%, transparent) !important;
+    }
+  }
+
+  .journal-table__lesson-cell--dirty {
+    background-color: color-mix(in srgb, var(--sys-primary) 14%, transparent);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--sys-primary);
+    }
+  }
+
+  .journal-table__lesson-cell--absent {
+    color: var(--sys-error);
+  }
+
+  // ── Scrollbar ─────────────────────────────────────────────
+  .ag-body-horizontal-scroll-viewport,
+  .ag-body-vertical-scroll-viewport {
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--sys-surface-container);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--sys-outline-variant);
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--sys-outline);
+      }
+    }
+  }
+
+  // ── No-data overlay ───────────────────────────────────────
+  .ag-overlay-no-rows-center {
+    color: var(--sys-on-surface-variant);
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
