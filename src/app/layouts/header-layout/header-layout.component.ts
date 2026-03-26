@@ -57,11 +57,11 @@ export class HeaderLayoutComponent {
       return;
     }
 
-    const rect = button.getBoundingClientRect();
+    const { left, top, width, height } = button.getBoundingClientRect();
 
     this.themeSwitchService.toggleThemeWithTransition({
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
+      x: left + width / 2,
+      y: top + height / 2,
     });
   }
 }
