@@ -175,3 +175,59 @@ html {
   --mat-sys-surface-container-high:     var(--sys-surface-container-high);
   --mat-sys-surface-container-highest:  var(--sys-surface-container-highest);
 }
+
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  animation: theme-root-shrink var(--theme-transition-duration, 520ms) cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+  z-index: 2;
+}
+
+::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
+
+@keyframes theme-root-shrink {
+  from {
+    clip-path: circle(var(--theme-transition-max-radius, 150vmax) at var(--theme-transition-x, 50vw)
+        var(--theme-transition-y, 50vh));
+  }
+
+  to {
+    clip-path: circle(0 at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh));
+  }
+}
+
+html.theme-fallback-transition-active::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--theme-transition-old-bg, var(--sys-background));
+  animation: theme-fallback-shrink var(--theme-transition-duration, 520ms) cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+@keyframes theme-fallback-shrink {
+  from {
+    clip-path: circle(var(--theme-transition-max-radius, 150vmax) at var(--theme-transition-x, 50vw)
+        var(--theme-transition-y, 50vh));
+  }
+
+  to {
+    clip-path: circle(0 at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  html.theme-fallback-transition-active::before {
+    animation-duration: 1ms !important;
+  }
+}

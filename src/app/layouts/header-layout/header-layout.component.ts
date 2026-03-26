@@ -49,7 +49,19 @@ export class HeaderLayoutComponent {
     this.languageSwitchService.toggleLanguage();
   }
 
-  public onToggleTheme(): void {
-    this.themeSwitchService.toggleTheme();
+  public onToggleTheme(event: Event): void {
+    const button = event.currentTarget as HTMLElement | null;
+
+    if (!button) {
+      this.themeSwitchService.toggleTheme();
+      return;
+    }
+
+    const rect = button.getBoundingClientRect();
+
+    this.themeSwitchService.toggleThemeWithTransition({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
   }
 }

@@ -14,7 +14,7 @@
       {{ currentLanguage().toUpperCase() }}
     </button>
 
-    <button mat-icon-button (click)="onToggleTheme()" class="dark-mode-btn"
+    <button mat-icon-button (click)="onToggleTheme($event)" class="dark-mode-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.TOGGLE_DARK_MODE' | translate">
       @if(darkMode() === 'light') {
       <mat-icon>light_mode</mat-icon>
@@ -24,12 +24,8 @@
     </button>
     <button mat-icon-button routerLink="/profile" class="profile-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">
-      <img
-        class="profile-btn-avatar"
-        [src]="getHeaderAvatarUrl()"
-        [alt]="currentUser()?.full_name ?? 'avatar'"
-        (error)="onHeaderAvatarError($event)"
-      />
+      <img class="profile-btn-avatar" [src]="getHeaderAvatarUrl()" [alt]="currentUser()?.full_name ?? 'avatar'"
+        (error)="onHeaderAvatarError($event)" />
     </button>
   </div>
 
