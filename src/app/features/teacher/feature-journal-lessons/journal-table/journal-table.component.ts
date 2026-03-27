@@ -32,6 +32,7 @@ export class JournalTableComponent {
       minWidth: 80,
       maxWidth: 80,
       resizable: false,
+      suppressMovable: true,
       sortable: false,
       suppressSizeToFit: true,
       cellClass: (params) => this.getLessonCellClass(params.value as JournalCellVm | null),
@@ -44,6 +45,7 @@ export class JournalTableComponent {
         field: 'studentName',
         pinned: 'left',
         minWidth: 260,
+        suppressMovable: true,
       },
       ...lessonColumns,
       {
@@ -51,6 +53,7 @@ export class JournalTableComponent {
         field: 'averageMark',
         pinned: 'right',
         minWidth: 130,
+        suppressMovable: true,
         valueFormatter: (params) => (typeof params.value === 'number' ? params.value.toFixed(2) : '—'),
       },
     ];
