@@ -158,14 +158,6 @@ export class AdminSubjectsComponent implements OnInit {
         console.error(err);
       },
     });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-
-      this.performDeleteSubject(subject);
-    });
   }
 
   public applyFilter(value: string): void {
@@ -204,22 +196,6 @@ export class AdminSubjectsComponent implements OnInit {
 
   public loadMoreSubjects(): void {
     this.listState.loadMore();
-  }
-
-  private performDeleteSubject(subject: SubjectEntity): void {
-    this.deletingSubjectId.set(subject.id);
-
-    this.subjectsService.deleteSubject(subject.id).subscribe({
-      next: () => {
-        this.deletingSubjectId.set(null);
-        this.loadSubjects();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage.set('Ошибка при удалении предмета. Попробуйте снова.');
-        this.deletingSubjectId.set(null);
-        console.error(err);
-      },
-    });
   }
 
   private buildSearchFilters(rawSearch: string): Record<string, string | number> {
