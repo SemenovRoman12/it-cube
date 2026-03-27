@@ -1,0 +1,32 @@
+.student-subject-card {
+  border-radius: 14px;
+  height: 100%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.student-subject-card__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+}
+
+.student-subject-card__info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.student-subject-card__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-subject-card__open-link {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+

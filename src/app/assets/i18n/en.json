@@ -290,7 +290,14 @@
     "SUBJECTS": {
       "TITLE": "My subjects",
       "SUBTITLE": "Choose a subject to open lesson list",
-      "EMPTY": "No subjects assigned to your group yet."
+      "EMPTY": "No subjects assigned to your group yet.",
+      "ERROR_NO_GROUP": "User is not assigned to any group.",
+      "ERROR_LOAD": "Failed to load subjects.",
+      "SORT": {
+        "BY_NAME": "By name",
+        "BY_ID": "By ID",
+        "DIRECTION": "Change sort direction"
+      }
     },
     "LESSONS": {
       "BACK_TO_SUBJECTS": "Back to subjects",

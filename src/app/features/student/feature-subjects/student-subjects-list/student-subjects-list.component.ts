@@ -1,20 +1,35 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { catchError, finalize, of } from 'rxjs';
+import { Sort } from '@angular/material/sort';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Observable, of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { UserEntity } from '../../../../core/models/user.model';
 import { StudentSubjectEntity } from '../../models/student-subject.model';
-import { StudentSubjectsService } from '../../services/student-subjects.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { StudentSubjectsPageQuery, StudentSubjectsService } from '../../services/student-subjects.service';
+import { ListQuery, ListStateFacade } from '../../../admin/shared/list-state';
+import { StudentSubjectCardComponent } from '../student-subject-card/student-subject-card.component';
+
+type SubjectSortField = 'subject_name' | 'subject_id';
+type SubjectSortDirection = 'asc' | 'desc';
 
 @Component({
   selector: 'student-subjects-list',
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatPaginatorModule,
+    MatTooltipModule,
+    StudentSubjectCardComponent,
+    TranslateModule,
+  ],
   templateUrl: './student-subjects-list.component.html',
   styleUrl: './student-subjects-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,39 +37,132 @@ import { TranslateModule } from '@ngx-translate/core';
 export class StudentSubjectsListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly studentSubjectsService = inject(StudentSubjectsService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   public readonly user = this.authService.user() as UserEntity | null;
-  public readonly subjects = signal<StudentSubjectEntity[]>([]);
-  public readonly isLoading = signal(false);
-  public readonly error = signal<string | null>(null);
+  public readonly sortField = signal<SubjectSortField>('subject_name');
+  public readonly sortDirection = signal<SubjectSortDirection>('asc');
+
+  private readonly listState = new ListStateFacade<StudentSubjectEntity, Record<string, string | number>>(
+    {
+      loadPage: (query) => this.getSubjectsPage(query),
+    },
+    {
+      pageSize: 9,
+      createFilters: (rawSearch) => this.buildSearchFilters(rawSearch),
+      loadingErrorMessage: this.translate.instant('STUDENT.SUBJECTS.ERROR_LOAD'),
+    },
+  );
+
+  public readonly pageSize = this.listState.pageSize;
+  public readonly isLoading = this.listState.isLoading;
+  public readonly errorMessage = this.listState.errorMessage;
+  public readonly searchValue = this.listState.searchValue;
+  public readonly currentPage = this.listState.currentPage;
+  public readonly subjects = this.listState.data;
+  public readonly hasGroup = Boolean(this.user?.group_id);
+  public readonly trackBySubject = (_index: number, subject: StudentSubjectEntity): number => subject.id;
 
   public ngOnInit(): void {
-    this.loadSubjects();
-  }
-
-  private loadSubjects(): void {
-    if (!this.user?.group_id) {
-      this.error.set('Пользователь не привязан к группе.');
-      this.subjects.set([]);
+    if (!this.hasGroup) {
       return;
     }
 
-    this.isLoading.set(true);
-    this.error.set(null);
+    this.applySort();
+  }
 
-    this.studentSubjectsService
-      .getSubjectsByGroup(this.user.group_id)
-      .pipe(
-        catchError(() => {
-          this.error.set('Не удалось загрузить предметы.');
-          this.subjects.set([]);
-          return of([]);
-        }),
-        finalize(() => this.isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((subjects) => this.subjects.set(subjects));
+  public loadSubjects(resetToFirstPage = false): void {
+    if (!this.hasGroup) {
+      return;
+    }
+
+    this.listState.load(resetToFirstPage);
+  }
+
+  public onPageChange(event: PageEvent): void {
+    this.listState.onPageChange(event.pageIndex + 1);
+  }
+
+  public applyFilter(value: string): void {
+    this.listState.applyFilter(value);
+  }
+
+  public clearSearch(): void {
+    this.listState.clearSearch();
+  }
+
+  public resetFilters(): void {
+    this.sortField.set('subject_name');
+    this.sortDirection.set('asc');
+    this.listState.resetFilters();
+    this.applySort();
+  }
+
+  public setSortField(field: SubjectSortField): void {
+    this.sortField.set(field);
+    this.applySort();
+  }
+
+  public toggleSortDirection(): void {
+    this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    this.applySort();
+  }
+
+  public loadMoreSubjects(): void {
+    this.listState.loadMore();
+  }
+
+  public get totalSubjects(): number {
+    return this.listState.total;
+  }
+
+  public get filteredSubjectsCount(): number {
+    return this.listState.total;
+  }
+
+  public get hasMoreSubjects(): boolean {
+    return this.listState.hasMore;
+  }
+
+  private applySort(): void {
+    const sort: Sort = {
+      active: this.sortField(),
+      direction: this.sortDirection(),
+    };
+
+    this.listState.onSortChange(sort);
+  }
+
+  private getSubjectsPage(query: ListQuery<Record<string, string | number>>): Observable<{ items: StudentSubjectEntity[]; total: number }> {
+    const groupId = this.user?.group_id;
+
+    if (!groupId) {
+      return of({ items: [], total: 0 });
+    }
+
+    const pageQuery: StudentSubjectsPageQuery = {
+      page: query.page,
+      limit: query.limit,
+      groupId,
+      sortBy: query.sortBy as 'subject_id' | 'subject_name' | undefined,
+      order: query.order,
+      filters: query.filters,
+    };
+
+    return this.studentSubjectsService.getSubjectsPage(pageQuery);
+  }
+
+  private buildSearchFilters(rawSearch: string): Record<string, string | number> {
+    const search = rawSearch.trim();
+    if (!search) {
+      return {};
+    }
+
+    if (/^\d+$/.test(search)) {
+      return { subject_id: Number(search) };
+    }
+
+    return { subject_name: `*${search}` };
   }
 }
 

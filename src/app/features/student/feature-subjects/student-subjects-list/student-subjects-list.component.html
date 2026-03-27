@@ -1,39 +1,129 @@
 <section class="student-subjects-list">
   <div class="student-subjects-list__header">
-    <h2 class="student-subjects-list__title">{{ 'STUDENT.SUBJECTS.TITLE' | translate }}</h2>
-    <p class="student-subjects-list__subtitle">{{ 'STUDENT.SUBJECTS.SUBTITLE' | translate }}</p>
+    <div class="student-subjects-list__title-block">
+      <mat-icon class="student-subjects-list__title-icon">menu_book</mat-icon>
+      <div>
+        <h2 class="student-subjects-list__title">{{ 'STUDENT.SUBJECTS.TITLE' | translate }}</h2>
+        <p class="student-subjects-list__subtitle">{{ 'STUDENT.SUBJECTS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="student-subjects-list__controls">
+      <div class="student-subjects-list__search-wrapper">
+        <mat-icon class="student-subjects-list__search-icon">search</mat-icon>
+        <input
+          class="student-subjects-list__search-input"
+          type="text"
+          [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate"
+          [value]="searchValue()"
+          (input)="applyFilter($any($event.target).value)"
+        />
+        @if (searchValue()) {
+          <button
+            class="student-subjects-list__search-clear"
+            type="button"
+            (click)="clearSearch()"
+            [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="student-subjects-list__sort-controls">
+        <button
+          mat-stroked-button
+          type="button"
+          [class.student-subjects-list__sort-button--active]="sortField() === 'subject_name'"
+          (click)="setSortField('subject_name')"
+        >
+          {{ 'STUDENT.SUBJECTS.SORT.BY_NAME' | translate }}
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.student-subjects-list__sort-button--active]="sortField() === 'subject_id'"
+          (click)="setSortField('subject_id')"
+        >
+          {{ 'STUDENT.SUBJECTS.SORT.BY_ID' | translate }}
+        </button>
+
+        <button mat-icon-button type="button" (click)="toggleSortDirection()" [matTooltip]="'STUDENT.SUBJECTS.SORT.DIRECTION' | translate">
+          <mat-icon>{{ sortDirection() === 'asc' ? 'north' : 'south' }}</mat-icon>
+        </button>
+      </div>
+
+      <div class="student-subjects-list__action-controls">
+        <button mat-stroked-button type="button" (click)="loadSubjects()" [disabled]="isLoading()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'COMMON.ACTIONS.REFRESH' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading()">
+          <mat-icon>filter_alt_off</mat-icon>
+          {{ 'COMMON.ACTIONS.RESET_FILTERS' | translate }}
+        </button>
+      </div>
+    </div>
   </div>
 
-  @if (isLoading()) {
+  @if (!hasGroup) {
+    <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">
+      <p class="student-subjects-list__state student-subjects-list__state--error">{{ 'STUDENT.SUBJECTS.ERROR_NO_GROUP' | translate }}</p>
+    </mat-card>
+  } @else if (isLoading()) {
   <div class="student-subjects-list__loading">
     <mat-progress-bar class="student-subjects-list__loading-bar" mode="indeterminate" />
   </div>
-  } @else if (error(); as errorText) {
+  } @else if (errorMessage(); as errorText) {
   <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">
     <p class="student-subjects-list__state student-subjects-list__state--error">{{ errorText }}</p>
+    <button mat-flat-button color="primary" type="button" (click)="loadSubjects()">
+      {{ 'COMMON.ACTIONS.RETRY' | translate }}
+    </button>
   </mat-card>
   } @else if (!subjects().length) {
   <mat-card appearance="outlined" class="student-subjects-list__state-card">
-    <p class="student-subjects-list__state">{{ 'STUDENT.SUBJECTS.EMPTY' | translate }}</p>
+    <p class="student-subjects-list__state">
+      @if (searchValue()) {
+        {{ 'COMMON.TEXT.NOTHING_FOUND_BY_QUERY' | translate:{ query: searchValue() } }}
+      } @else {
+        {{ 'STUDENT.SUBJECTS.EMPTY' | translate }}
+      }
+    </p>
   </mat-card>
   } @else {
+  <mat-card class="student-subjects-list__summary-card" appearance="outlined">
+    <mat-card-subtitle>
+      {{ 'COMMON.TEXT.TOTAL' | translate }} <strong>{{ totalSubjects }}</strong>
+      @if (searchValue()) {
+      &nbsp;/ {{ 'COMMON.TEXT.FOUND' | translate }} <strong>{{ filteredSubjectsCount }}</strong>
+      }
+    </mat-card-subtitle>
+  </mat-card>
+
   <ul class="student-subjects-list__grid">
-    @for (subject of subjects(); track subject.id) {
+    @for (subject of subjects(); track trackBySubject($index, subject)) {
     <li class="student-subjects-list__grid-item">
-      <mat-card class="student-subjects-list__subject-card" appearance="outlined">
-        <mat-card-content class="student-subjects-list__subject-card-content">
-          <div class="student-subjects-list__subject-info">
-            <mat-icon>menu_book</mat-icon>
-            <span>{{ subject.name }}</span>
-          </div>
-          <a class="student-subjects-list__open-link" mat-flat-button color="primary"
-            [routerLink]="['/student/subjects', subject.id]" [queryParams]="{ name: subject.name }">
-            {{ 'COMMON.ACTIONS.OPEN' | translate }}
-          </a>
-        </mat-card-content>
-      </mat-card>
+      <student-subject-card [subject]="subject" [linkCommands]="['/student/subjects', subject.id]" [queryParams]="{ name: subject.name }" />
     </li>
     }
   </ul>
+
+  <div class="student-subjects-list__footer">
+    <button mat-stroked-button color="primary" type="button" (click)="loadMoreSubjects()" [disabled]="!hasMoreSubjects || isLoading()">
+      <mat-icon>expand_more</mat-icon>
+      {{ 'COMMON.ACTIONS.LOAD_MORE' | translate:{ count: pageSize } }}
+    </button>
+
+    <mat-paginator
+      [length]="totalSubjects"
+      [pageIndex]="currentPage() - 1"
+      [pageSize]="pageSize"
+      [hidePageSize]="true"
+      [showFirstLastButtons]="true"
+      (page)="onPageChange($event)"
+    />
+  </div>
   }
 </section>

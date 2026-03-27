@@ -1,0 +1,13 @@
+<mat-card class="student-subject-card" appearance="outlined">
+  <mat-card-content class="student-subject-card__content">
+    <div class="student-subject-card__info">
+      <mat-icon>menu_book</mat-icon>
+      <span class="student-subject-card__name">{{ subject().name }}</span>
+    </div>
+
+    <a class="student-subject-card__open-link" mat-flat-button color="primary" [routerLink]="linkCommands()" [queryParams]="queryParams()">
+      {{ 'COMMON.ACTIONS.OPEN' | translate }}
+    </a>
+  </mat-card-content>
+</mat-card>
+

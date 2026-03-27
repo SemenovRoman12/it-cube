@@ -6,7 +6,17 @@
 
 .student-subjects-list__header {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.75rem;
+}
+
+.student-subjects-list__title-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.student-subjects-list__title-icon {
+  color: var(--mat-sys-primary);
 }
 
 .student-subjects-list__title,
@@ -16,6 +26,69 @@
 
 .student-subjects-list__subtitle {
   color: var(--mat-sys-on-surface-variant);
+}
+
+.student-subjects-list__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.student-subjects-list__search-wrapper {
+  position: relative;
+  min-width: 260px;
+  flex: 1 1 320px;
+}
+
+.student-subjects-list__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.student-subjects-list__search-input {
+  width: 100%;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 12px;
+  height: 42px;
+  padding: 0 2.5rem 0 2.5rem;
+  outline: none;
+  color: var(--mat-sys-on-surface);
+}
+
+.student-subjects-list__search-input:focus {
+  border-color: var(--mat-sys-primary);
+}
+
+.student-subjects-list__search-clear {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.student-subjects-list__sort-controls,
+.student-subjects-list__action-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.student-subjects-list__sort-button--active {
+  border-color: var(--mat-sys-primary);
+  color: var(--mat-sys-primary);
 }
 
 .student-subjects-list__loading {
@@ -32,10 +105,16 @@
 
 .student-subjects-list__state-card {
   border-radius: 12px;
+  display: grid;
+  gap: 0.75rem;
 }
 
 .student-subjects-list__state--error {
   color: var(--mat-sys-error);
+}
+
+.student-subjects-list__summary-card {
+  border-radius: 12px;
 }
 
 .student-subjects-list__grid {
@@ -51,26 +130,28 @@
   display: block;
 }
 
-.student-subjects-list__subject-card {
-  border-radius: 14px;
-  height: 100%;
-}
-
-.student-subjects-list__subject-card-content {
+.student-subjects-list__footer {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-}
-
-.student-subjects-list__subject-info {
-  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.student-subjects-list__open-link {
-  text-decoration: none;
+@media (max-width: 768px) {
+  .student-subjects-list__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .student-subjects-list__sort-controls,
+  .student-subjects-list__action-controls {
+    width: 100%;
+  }
+
+  .student-subjects-list__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
