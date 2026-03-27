@@ -1,0 +1,26 @@
+<a
+  class="student-subject-card__link"
+  [routerLink]="linkCommands()"
+  [queryParams]="queryParams()"
+  [attr.aria-label]="('COMMON.ACTIONS.OPEN' | translate) + ' ' + subject().name"
+>
+  <mat-card class="student-subject-card" appearance="outlined">
+    <mat-card-content class="student-subject-card__content">
+      <div class="student-subject-card__info">
+        <div class="student-subject-card__icon-wrapper" aria-hidden="true">
+          <mat-icon>menu_book</mat-icon>
+        </div>
+
+        <div class="student-subject-card__meta">
+          <span class="student-subject-card__eyebrow">{{ 'COMMON.FIELDS.SUBJECT' | translate }}</span>
+          <span class="student-subject-card__name">{{ subject().name }}</span>
+        </div>
+      </div>
+
+      <div class="student-subject-card__arrow" aria-hidden="true">
+        <mat-icon>arrow_outward</mat-icon>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</a>
+
