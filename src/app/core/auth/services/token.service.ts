@@ -1,21 +1,23 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { CookieStorageService } from './cookie-storage.service';
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class TokenService {
+  private readonly cookieStorageService = inject(CookieStorageService);
   private readonly token: string = 'token';
 
   public getToken(): string | null {
-    return localStorage.getItem(this.token) || null;
+    return this.cookieStorageService.get(this.token);
   }
 
-  public setToken(value: string) {
-    localStorage.setItem(this.token, value);
+  public setToken(value: string): void {
+    this.cookieStorageService.set(this.token, value);
   }
 
-  public removeToken(){
-    localStorage.removeItem(this.token);
+  public removeToken(): void {
+    this.cookieStorageService.remove(this.token);
   }
 }
