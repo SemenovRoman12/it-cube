@@ -18,6 +18,9 @@ import { StudentSubjectCardComponent } from '../student-subject-card/student-sub
 type SubjectSortField = 'subject_name' | 'subject_id';
 type SubjectSortDirection = 'asc' | 'desc';
 
+const DEFAULT_SORT_FIELD: SubjectSortField = 'subject_name';
+const DEFAULT_SORT_DIRECTION: SubjectSortDirection = 'asc';
+
 @Component({
   selector: 'student-subjects-list',
   imports: [
@@ -40,8 +43,8 @@ export class StudentSubjectsListComponent implements OnInit {
   private readonly translate = inject(TranslateService);
 
   public readonly user = this.authService.user() as UserEntity | null;
-  public readonly sortField = signal<SubjectSortField>('subject_name');
-  public readonly sortDirection = signal<SubjectSortDirection>('asc');
+  public readonly sortField = signal<SubjectSortField>(DEFAULT_SORT_FIELD);
+  public readonly sortDirection = signal<SubjectSortDirection>(DEFAULT_SORT_DIRECTION);
 
   private readonly listState = new ListStateFacade<StudentSubjectEntity, Record<string, string | number>>(
     {
@@ -76,7 +79,12 @@ export class StudentSubjectsListComponent implements OnInit {
       return;
     }
 
-    this.listState.load(resetToFirstPage);
+    if (resetToFirstPage) {
+      this.listState.load(true);
+      return;
+    }
+
+    this.listState.reload();
   }
 
   public onPageChange(event: PageEvent): void {
@@ -92,9 +100,13 @@ export class StudentSubjectsListComponent implements OnInit {
   }
 
   public resetFilters(): void {
-    this.sortField.set('subject_name');
-    this.sortDirection.set('asc');
-    this.listState.resetFilters();
+    if (!this.hasGroup) {
+      return;
+    }
+
+    this.searchValue.set('');
+    this.sortField.set(DEFAULT_SORT_FIELD);
+    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
     this.applySort();
   }
 
