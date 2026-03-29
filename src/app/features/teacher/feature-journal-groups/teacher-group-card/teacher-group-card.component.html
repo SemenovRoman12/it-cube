@@ -1,4 +1,5 @@
-<button mat-button type="button" class="group-card" (click)="onOpenRequested()">
-  <mat-icon>folder</mat-icon>
-  <span>{{ group().name }}</span>
-</button>
+<mat-card appearance="outlined" class="nav-card" (click)="onOpenRequested()">
+  <div class="nav-card__avatar">{{ group().name.charAt(0).toUpperCase() }}</div>
+  <span class="nav-card__name">{{ group().name }}</span>
+  <mat-icon class="nav-card__arrow">chevron_right</mat-icon>
+</mat-card>

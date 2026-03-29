@@ -41,8 +41,6 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
-/* ── States ── */
-
 .state {
   display: flex;
   align-items: center;
@@ -51,39 +49,20 @@
   gap: 16px;
   padding: 60px 24px;
 
-  p {
-    margin: 0;
-    font-size: 0.95rem;
-  }
+  p { margin: 0; font-size: 0.95rem; }
 
-  &.state--loading {
-    align-items: stretch;
-    gap: 0;
-    padding: 24px 0;
-  }
+  &.state--loading { align-items: stretch; gap: 0; padding: 24px 0; }
 
   &.state--error {
     color: var(--mat-sys-error);
-
-    mat-icon {
-      font-size: 3rem;
-      width: 3rem;
-      height: 3rem;
-    }
+    mat-icon { font-size: 3rem; width: 3rem; height: 3rem; }
   }
 
   &.state--empty {
     color: var(--mat-sys-on-surface-variant);
-
-    mat-icon {
-      font-size: 3rem;
-      width: 3rem;
-      height: 3rem;
-    }
+    mat-icon { font-size: 3rem; width: 3rem; height: 3rem; }
   }
 }
-
-/* ── Card grid ── */
 
 .card-grid {
   display: grid;
@@ -91,11 +70,12 @@
   gap: 16px;
 }
 
-.subject-card {
+.nav-card {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 14px;
-  padding: 20px;
+  padding: 18px 20px;
   cursor: pointer;
   border-radius: 12px !important;
   transition: background 0.15s, box-shadow 0.15s;
@@ -106,32 +86,37 @@
   }
 }
 
-.subject-card__avatar {
+.nav-card__avatar {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
   font-weight: 600;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
 }
 
-.subject-card__body {
+.nav-card__avatar--accent {
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.nav-card__name {
   flex: 1;
   min-width: 0;
-}
-
-.subject-card__name {
   font-weight: 600;
   font-size: 1rem;
   color: var(--mat-sys-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.subject-card__arrow {
+.nav-card__arrow {
   color: var(--mat-sys-on-surface-variant);
   flex-shrink: 0;
 }

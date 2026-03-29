@@ -1,115 +1,58 @@
-.student-subject-card__link {
+.nav-card-link {
   display: block;
-  height: 100%;
   text-decoration: none;
   color: inherit;
-  border-radius: 20px;
-}
 
-.student-subject-card__link:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--mat-sys-primary) 38%, transparent);
-  outline-offset: 4px;
-}
-
-.student-subject-card {
-  border-radius: 20px;
-  height: 100%;
-  border-color: color-mix(in srgb, var(--mat-sys-outline-variant) 72%, transparent);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--mat-sys-primary-container) 22%, var(--mat-sys-surface) 78%) 0%, var(--mat-sys-surface) 100%);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--mat-sys-shadow) 10%, transparent);
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
-}
-
-.student-subject-card__link:hover .student-subject-card,
-.student-subject-card__link:focus-visible .student-subject-card {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px color-mix(in srgb, var(--mat-sys-shadow) 16%, transparent);
-  border-color: color-mix(in srgb, var(--mat-sys-primary) 32%, var(--mat-sys-outline-variant) 68%);
-}
-
-.student-subject-card__content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.3rem 1.25rem;
-  min-height: 112px;
-}
-
-.student-subject-card__info {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.student-subject-card__icon-wrapper {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--mat-sys-primary-container) 78%, var(--mat-sys-surface-bright) 22%);
-  color: var(--mat-sys-primary);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
-}
-
-.student-subject-card__meta {
-  min-width: 0;
-  display: grid;
-  gap: 0.3rem;
-}
-
-.student-subject-card__eyebrow {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.student-subject-card__name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  white-space: normal;
-  font-size: 1.1rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--mat-sys-on-surface);
-}
-
-.student-subject-card__arrow {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--mat-sys-primary);
-  background: color-mix(in srgb, var(--mat-sys-primary-container) 70%, var(--mat-sys-surface) 30%);
-  transition: transform 180ms ease, background-color 180ms ease;
-}
-
-.student-subject-card__link:hover .student-subject-card__arrow,
-.student-subject-card__link:focus-visible .student-subject-card__arrow {
-  transform: translate(2px, -2px);
-  background: color-mix(in srgb, var(--mat-sys-primary-container) 82%, var(--mat-sys-surface) 18%);
-}
-
-@media (max-width: 640px) {
-  .student-subject-card__content {
-    min-height: 96px;
-    padding: 1.1rem;
+  &:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--mat-sys-primary) 38%, transparent);
+    outline-offset: 4px;
+    border-radius: 12px;
   }
 }
 
+.nav-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  border-radius: 12px !important;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.nav-card-link:hover .nav-card,
+.nav-card-link:focus-visible .nav-card {
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.nav-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-card__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--mat-sys-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-card__arrow {
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
