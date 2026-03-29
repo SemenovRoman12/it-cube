@@ -91,6 +91,14 @@ export const routes: Routes = [
             path: 'journal/groups/:groupId',
             loadComponent: () => import('./features/teacher/feature-journal-lessons/teacher-lessons-list/teacher-lessons-list.component').then(c => c.TeacherLessonsListComponent),
           },
+          {
+            path: 'attendance',
+            loadComponent: () => import('./features/teacher/shared/groups-list/groups-list.component').then(c => c.GroupsListComponent),
+          },
+          {
+            path: 'attendance/groups/:groupId',
+            loadComponent: () => import('./features/teacher/feature-attendance-analytics/teacher-attendance-analytics.component').then(c => c.TeacherAttendanceAnalyticsComponent),
+          },
         ]
       },
       {
