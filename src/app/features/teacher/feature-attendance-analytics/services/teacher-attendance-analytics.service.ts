@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { JournalEntryEntity } from '../../models/journal-entry.model';
 import { LessonEntity } from '../../models/lesson.model';
@@ -26,10 +26,14 @@ export class TeacherAttendanceAnalyticsService {
   private readonly journalApi = inject(TeacherJournalApiService);
 
   public getGroupAttendanceAnalytics(query: AttendanceAnalyticsQuery): Observable<AttendanceAnalyticsResult> {
-    return this.journalApi.getLessonsByGroup(query.groupId).pipe(
-      switchMap((lessons) => {
+    return forkJoin({
+      lessons: this.journalApi.getLessonsByGroup(query.groupId),
+      students: this.journalApi.getStudentsByGroup(query.groupId),
+    }).pipe(
+      switchMap(({ lessons, students }) => {
         const bounds = this.resolveBounds(query.period, lessons);
         const scopedLessons = lessons.filter((lesson) => this.isDateInBounds(lesson.date, bounds));
+        const studentsCount = students.length;
 
         console.debug('[attendance] lessons loaded', {
           groupId: query.groupId,
@@ -37,6 +41,7 @@ export class TeacherAttendanceAnalyticsService {
           resolution: query.resolution,
           allLessons: lessons.length,
           scopedLessons: scopedLessons.length,
+          studentsCount,
           bounds,
         });
 
@@ -57,7 +62,7 @@ export class TeacherAttendanceAnalyticsService {
             groupId: query.groupId,
             period: query.period,
             resolution: query.resolution,
-            intervals: this.buildIntervals(entries, lessonDateMap, bounds, query.resolution),
+            intervals: this.buildIntervals(entries, scopedLessons, lessonDateMap, bounds, query.resolution, studentsCount),
           })),
         );
       }),
@@ -86,15 +91,28 @@ export class TeacherAttendanceAnalyticsService {
 
   private buildIntervals(
     entries: JournalEntryEntity[],
+    scopedLessons: LessonEntity[],
     lessonDateMap: Map<number, string>,
     bounds: DateBounds,
     resolution: AttendanceResolution,
+    studentsCount: number,
   ): AttendanceIntervalStat[] {
-    const bucketMap = this.createIntervalSeed(bounds, resolution);
+    const bucketMap = this.createIntervalSeedByBounds(bounds, resolution);
+
+    for (const lesson of scopedLessons) {
+      const lessonBucket = this.resolveBucket(lesson.date, resolution);
+      const existing = bucketMap.get(lessonBucket.key);
+      if (!existing) {
+        continue;
+      }
+
+      existing.totalEntries += studentsCount;
+      bucketMap.set(lessonBucket.key, existing);
+    }
 
     for (const entry of entries) {
       const lessonDate = lessonDateMap.get(entry.lesson_id);
-      if (!lessonDate || !this.isDateInBounds(lessonDate, bounds)) {
+      if (!lessonDate) {
         continue;
       }
 
@@ -109,7 +127,6 @@ export class TeacherAttendanceAnalyticsService {
         attendancePercent: 0,
       };
 
-      existing.totalEntries += 1;
       if (this.isPresentEntry(entry)) {
         existing.presentEntries += 1;
       }
@@ -136,7 +153,7 @@ export class TeacherAttendanceAnalyticsService {
     return result;
   }
 
-  private createIntervalSeed(bounds: DateBounds, resolution: AttendanceResolution): Map<string, AttendanceIntervalStat> {
+  private createIntervalSeedByBounds(bounds: DateBounds, resolution: AttendanceResolution): Map<string, AttendanceIntervalStat> {
     const seed = new Map<string, AttendanceIntervalStat>();
     const cursor = new Date(`${bounds.startIsoDate}T00:00:00`);
     const end = new Date(`${bounds.endIsoDate}T00:00:00`);
@@ -186,9 +203,11 @@ export class TeacherAttendanceAnalyticsService {
     const weekInfo = this.getIsoWeekInfo(date);
     const weekText = String(weekInfo.week).padStart(2, '0');
     const key = `${weekInfo.year}-W${weekText}`;
+    const startText = this.isoDateToDayMonth(weekInfo.weekStart);
+    const endText = this.isoDateToDayMonth(weekInfo.weekEnd);
     return {
       key,
-      label: `W${weekText} ${weekInfo.year}`,
+      label: `${startText}-${endText}`,
       fromIsoDate: weekInfo.weekStart,
       toIsoDate: weekInfo.weekEnd,
     };
@@ -236,5 +255,11 @@ export class TeacherAttendanceAnalyticsService {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
+
+  private isoDateToDayMonth(isoDate: string): string {
+    const [, month, day] = isoDate.split('-');
+    return `${day}.${month}`;
+  }
+
 }
 
