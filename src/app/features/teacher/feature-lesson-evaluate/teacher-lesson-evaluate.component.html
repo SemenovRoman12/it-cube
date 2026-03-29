@@ -1,0 +1,49 @@
+<section class="teacher-lesson-evaluate">
+  @if (isLoading()) {
+  <mat-card>
+    <mat-progress-bar mode="indeterminate" />
+  </mat-card>
+  } @else if (error(); as errorText) {
+  <mat-card>{{ errorText }}</mat-card>
+  } @else if (lesson(); as lessonData) {
+  <mat-card class="teacher-lesson-evaluate__card">
+    <div class="teacher-lesson-evaluate__header">
+      <a mat-stroked-button
+        [routerLink]="['/teacher/subjects/groups', lessonData.group_id, 'subjects', lessonData.subject_id, 'lessons', lessonData.id, 'submissions']">
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
+      </a>
+      <h3>{{ lessonData.title || lessonData.topic }}</h3>
+      <p>{{ student()?.full_name }}</p>
+    </div>
+
+    <mat-card appearance="outlined">
+      <p><strong>Ответ ученика:</strong></p>
+      <p>{{ answerText() }}</p>
+    </mat-card>
+
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="teacher-lesson-evaluate__form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
+        <mat-select formControlName="mark">
+          @for (mark of markOptions; track mark) {
+          <mat-option [value]="mark">{{ mark }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'COMMON.FIELDS.COMMENT' | translate }}</mat-label>
+        <textarea matInput rows="6" formControlName="teacher_comment"></textarea>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+        {{ 'COMMON.ACTIONS.SAVE' | translate }}
+      </button>
+    </form>
+
+    @if (success(); as successText) {
+    <p class="teacher-lesson-evaluate__success">{{ successText }}</p>
+    }
+  </mat-card>
+  }
+</section>

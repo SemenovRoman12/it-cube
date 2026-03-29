@@ -1,0 +1,21 @@
+.teacher-subject-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teacher-subject-groups__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.teacher-subject-groups__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.teacher-subject-groups__state--error {
+  color: #c62828;
+}

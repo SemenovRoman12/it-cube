@@ -1,0 +1,40 @@
+<section class="teacher-subject-lesson-create">
+  <mat-card appearance="outlined">
+    <h2>Создание урока</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onCreateLesson()" class="teacher-subject-lesson-create__form">
+      <p>Дата создания урока: {{ today | date:'dd.MM.yyyy' }}</p>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Название</mat-label>
+        <input matInput formControlName="title" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Описание</mat-label>
+        <textarea matInput rows="4" formControlName="description"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Дедлайн</mat-label>
+        <input matInput [matDatepicker]="deadlinePicker" formControlName="due_date" />
+        <mat-datepicker-toggle matIconSuffix [for]="deadlinePicker"></mat-datepicker-toggle>
+        <mat-datepicker #deadlinePicker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="teacher-subject-lesson-create__actions">
+        <button mat-stroked-button type="button"
+          [routerLink]="['/teacher/subjects/groups', route.snapshot.paramMap.get('groupId'), 'subjects', route.snapshot.paramMap.get('subjectId')]">
+          Отмена
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isCreating()">
+          Создать урок
+        </button>
+      </div>
+    </form>
+
+    @if (error(); as errorText) {
+    <p>{{ errorText }}</p>
+    }
+  </mat-card>
+</section>

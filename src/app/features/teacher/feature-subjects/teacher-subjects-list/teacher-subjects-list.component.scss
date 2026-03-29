@@ -1,0 +1,21 @@
+.teacher-subjects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teacher-subjects-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.teacher-subjects-list__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.teacher-subjects-list__state--error {
+  color: #c62828;
+}

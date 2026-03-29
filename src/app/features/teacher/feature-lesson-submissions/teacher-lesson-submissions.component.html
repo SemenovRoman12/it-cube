@@ -1,0 +1,53 @@
+<section class="teacher-lesson-submissions">
+  @if (isLoading()) {
+  <mat-card>
+    <mat-progress-bar mode="indeterminate" />
+  </mat-card>
+  } @else if (error(); as errorText) {
+  <mat-card>{{ errorText }}</mat-card>
+  } @else if (lesson(); as lessonData) {
+  <mat-card class="teacher-lesson-submissions__card">
+    <div class="teacher-lesson-submissions__header">
+      <a mat-stroked-button [routerLink]="['/teacher/subjects/groups', lessonData.group_id]">
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
+      </a>
+      <h3>{{ lessonData.title || lessonData.topic }}</h3>
+    </div>
+
+    <table class="teacher-lesson-submissions__table">
+      <thead>
+        <tr>
+          <th>Ученик</th>
+          <th>Статус</th>
+          <th>Действие</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.student.id) {
+        <tr>
+          <td>{{ row.student.full_name }}</td>
+          <td>
+            @switch (row.status) {
+            @case ('submitted') {
+            Выполнено
+            }
+            @case ('overdue') {
+            Просрочено
+            }
+            @default {
+            Не выполнено
+            }
+            }
+          </td>
+          <td>
+            <button mat-stroked-button type="button" (click)="openEvaluate(row.student.id)">
+              Перейти к оцениванию
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </mat-card>
+  }
+</section>

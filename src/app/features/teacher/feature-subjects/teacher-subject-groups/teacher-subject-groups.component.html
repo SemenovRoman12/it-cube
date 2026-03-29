@@ -1,0 +1,27 @@
+<section class="teacher-subject-groups">
+  <div class="teacher-subject-groups__header">
+    <a mat-stroked-button routerLink="/teacher/subjects">Назад к группам</a>
+    <h2>{{ title() }}</h2>
+  </div>
+
+  @if (isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+  } @else if (error(); as errorText) {
+  <p class="teacher-subject-groups__state teacher-subject-groups__state--error">{{ errorText }}</p>
+  } @else if (!subjects().length) {
+  <p class="teacher-subject-groups__state">Предметы по группе не найдены.</p>
+  } @else {
+  <div class="teacher-subject-groups__grid">
+    @for (subject of subjects(); track subject.id) {
+    <mat-card appearance="outlined" class="teacher-subject-groups__card">
+      <mat-card-title>{{ subject.name }}</mat-card-title>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" type="button" (click)="onOpenSubject(subject.id)">
+          Открыть
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+</section>

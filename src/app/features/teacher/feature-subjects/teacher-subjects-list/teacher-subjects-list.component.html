@@ -1,0 +1,24 @@
+<section class="teacher-subjects-list">
+  <h2 class="teacher-subjects-list__title">Мои предметы: выберите группу</h2>
+
+  @if (isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+  } @else if (error(); as errorText) {
+  <p class="teacher-subjects-list__state teacher-subjects-list__state--error">{{ errorText }}</p>
+  } @else if (!groups().length) {
+  <p class="teacher-subjects-list__state">Группы не найдены.</p>
+  } @else {
+  <div class="teacher-subjects-list__grid">
+    @for (group of groups(); track group.id) {
+    <mat-card class="teacher-subjects-list__card" appearance="outlined">
+      <mat-card-title>{{ group.name }}</mat-card-title>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" type="button" (click)="onOpenGroup(group.id)">
+          Открыть
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+</section>

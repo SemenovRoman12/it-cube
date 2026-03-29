@@ -34,7 +34,10 @@
       "LOADING_STUDENTS": "Loading students...",
       "CREATING": "Creating...",
       "SAVING": "Saving...",
-      "ADDING": "Adding..."
+      "ADDING": "Adding...",
+      "SUBMITTED": "Submitted",
+      "PENDING": "Pending",
+      "OVERDUE": "Overdue"
     },
     "FIELDS": {
       "EMAIL": "Email",
@@ -48,13 +51,17 @@
       "GROUP_OPTIONAL": "Group (optional)",
       "SUBJECT": "Subject",
       "DATE": "Date",
+      "TITLE": "Title",
       "LESSON_DATE": "Lesson date",
       "TOPIC": "Topic",
       "LESSON_TOPIC": "Lesson topic",
+      "DEADLINE": "Deadline",
+      "STATUS": "Status",
       "QUARTER": "Quarter",
       "MARK": "Grade",
       "ATTENDANCE": "Attendance",
-      "COMMENT": "Comment"
+      "COMMENT": "Comment",
+      "ANSWER": "Answer"
     },
     "TEXT": {
       "TOTAL": "Total:",

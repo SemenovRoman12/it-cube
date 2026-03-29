@@ -1,0 +1,53 @@
+<section class="teacher-subject-lessons">
+  <div class="teacher-subject-lessons__header">
+    <a mat-stroked-button [routerLink]="['/teacher/subjects/groups', route.snapshot.paramMap.get('groupId')]">
+      Назад к группам
+    </a>
+    <h2>Уроки и задания</h2>
+  </div>
+
+  <div>
+    <button mat-raised-button color="primary" type="button" (click)="goToCreateLesson()">
+      Создать урок
+    </button>
+  </div>
+
+  @if (isLoading()) {
+  <mat-card>
+    <mat-progress-bar mode="indeterminate" />
+  </mat-card>
+  } @else if (error(); as errorText) {
+  <mat-card>{{ errorText }}</mat-card>
+  } @else if (!lessonRows().length) {
+  <mat-card>Уроки по предмету пока не найдены.</mat-card>
+  } @else {
+  <table class="teacher-subject-lessons__table">
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Название</th>
+        <th>Выполнено</th>
+        <th>Просрочено</th>
+        <th>Не выполнено</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of lessonRows(); track row.lesson.id) {
+      <tr>
+        <td>{{ row.lesson.date }}</td>
+        <td>{{ row.lesson.title || row.lesson.topic }}</td>
+        <td>{{ row.submittedCount }}</td>
+        <td>{{ row.overdueCount }}</td>
+        <td>{{ row.pendingCount }}</td>F
+        <td>
+          <button mat-stroked-button type="button" (click)="openSubmissions(row.lesson.id)">
+            Оценить
+          </button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</section>

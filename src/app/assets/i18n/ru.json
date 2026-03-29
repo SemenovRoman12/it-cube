@@ -34,7 +34,10 @@
       "LOADING_STUDENTS": "Загрузка учеников...",
       "CREATING": "Создание...",
       "SAVING": "Сохранение...",
-      "ADDING": "Добавление..."
+      "ADDING": "Добавление...",
+      "SUBMITTED": "Выполнено",
+      "PENDING": "Не выполнено",
+      "OVERDUE": "Просрочено"
     },
     "FIELDS": {
       "EMAIL": "Email",
@@ -48,13 +51,17 @@
       "GROUP_OPTIONAL": "Группа (необязательно)",
       "SUBJECT": "Предмет",
       "DATE": "Дата",
+      "TITLE": "Название",
       "LESSON_DATE": "Дата урока",
       "TOPIC": "Тема",
       "LESSON_TOPIC": "Тема урока",
+      "DEADLINE": "Дедлайн",
+      "STATUS": "Статус",
       "QUARTER": "Четверть",
       "MARK": "Оценка",
       "ATTENDANCE": "Посещаемость",
-      "COMMENT": "Комментарий"
+      "COMMENT": "Комментарий",
+      "ANSWER": "Ответ"
     },
     "TEXT": {
       "TOTAL": "Всего:",
