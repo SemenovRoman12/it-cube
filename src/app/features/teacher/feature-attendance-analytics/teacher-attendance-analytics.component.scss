@@ -4,3 +4,31 @@
   gap: 1rem;
 }
 
+.filters-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.filters-toolbar__label {
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.chart-placeholder {
+  min-height: 240px;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 1rem;
+  text-align: center;
+}
+

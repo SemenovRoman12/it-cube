@@ -152,7 +152,13 @@
       },
       "ANALYTICS": {
         "TITLE": "Group attendance analytics",
-        "STEP_PLACEHOLDER": "Step 3+: period toolbars and ngx-charts graph will be added here."
+        "DETALIZATION": "Detalization",
+        "PERIOD_Q1": "Quarter 1",
+        "PERIOD_Q2": "Quarter 2",
+        "PERIOD_YEAR": "Whole academic year",
+        "RESOLUTION_WEEK": "By weeks",
+        "RESOLUTION_MONTH": "By months",
+        "STEP_PLACEHOLDER": "Step 4+: attendance calculation and ngx-charts graph will be added here."
       }
     }
   },

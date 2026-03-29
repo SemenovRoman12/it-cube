@@ -8,7 +8,29 @@
     </mat-card-header>
 
     <mat-card-content>
-      <p>{{ 'TEACHER.ATTENDANCE.ANALYTICS.STEP_PLACEHOLDER' | translate }}</p>
+      <mat-toolbar class="filters-toolbar" role="toolbar">
+        <span class="filters-toolbar__label">{{ 'COMMON.FIELDS.QUARTER' | translate }}</span>
+        <mat-button-toggle-group [value]="selectedPeriod()" (valueChange)="onPeriodChange($event)"
+          aria-label="Attendance period">
+          @for (option of periodOptions; track option.id) {
+          <mat-button-toggle [value]="option.id">{{ option.labelKey | translate }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </mat-toolbar>
+
+      <mat-toolbar class="filters-toolbar" role="toolbar">
+        <span class="filters-toolbar__label">{{ 'TEACHER.ATTENDANCE.ANALYTICS.DETALIZATION' | translate }}</span>
+        <mat-button-toggle-group [value]="selectedResolution()" (valueChange)="onResolutionChange($event)"
+          aria-label="Attendance detalization">
+          @for (option of resolutionOptions; track option.id) {
+          <mat-button-toggle [value]="option.id">{{ option.labelKey | translate }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </mat-toolbar>
+
+      <div class="chart-placeholder">
+        {{ 'TEACHER.ATTENDANCE.ANALYTICS.STEP_PLACEHOLDER' | translate }}
+      </div>
     </mat-card-content>
   </mat-card>
 </section>

@@ -152,7 +152,13 @@
       },
       "ANALYTICS": {
         "TITLE": "Аналитика посещаемости группы",
-        "STEP_PLACEHOLDER": "Шаг 3+: здесь появятся тулбары периодов и график ngx-charts."
+        "DETALIZATION": "Детализация",
+        "PERIOD_Q1": "1 четверть",
+        "PERIOD_Q2": "2 четверть",
+        "PERIOD_YEAR": "Весь учебный год",
+        "RESOLUTION_WEEK": "По неделям",
+        "RESOLUTION_MONTH": "По месяцам",
+        "STEP_PLACEHOLDER": "Шаг 4+: здесь появятся расчет данных и график ngx-charts."
       }
     }
   },
