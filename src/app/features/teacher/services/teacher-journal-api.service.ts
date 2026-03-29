@@ -34,6 +34,11 @@ export class TeacherJournalApiService {
     return this.api.get<LessonEntity[]>(`lessons?group_id=${groupId}&subject_id=${subjectId}`);
   }
 
+  /** Загружает все уроки группы (без фильтра по предмету). */
+  public getLessonsByGroup(groupId: number): Observable<LessonEntity[]> {
+    return this.api.get<LessonEntity[]>(`lessons?group_id=${groupId}`);
+  }
+
   public getLessonById(lessonId: number): Observable<LessonEntity | null> {
     return this.api.get<LessonEntity[]>(`lessons?id=${lessonId}`).pipe(map((items) => items[0] ?? null));
   }

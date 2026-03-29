@@ -143,25 +143,6 @@
       "ATTENDANCE_ANALYTICS": "Attendance"
     }
   },
-  "TEACHER": {
-    "ATTENDANCE": {
-      "GROUPS": {
-        "TITLE": "Attendance: groups",
-        "EMPTY": "No groups are available for attendance analytics.",
-        "ERROR": "Failed to load groups for attendance analytics."
-      },
-      "ANALYTICS": {
-        "TITLE": "Group attendance analytics",
-        "DETALIZATION": "Detalization",
-        "PERIOD_Q1": "Quarter 1",
-        "PERIOD_Q2": "Quarter 2",
-        "PERIOD_YEAR": "Whole academic year",
-        "RESOLUTION_WEEK": "By weeks",
-        "RESOLUTION_MONTH": "By months",
-        "STEP_PLACEHOLDER": "Step 4+: attendance calculation and ngx-charts graph will be added here."
-      }
-    }
-  },
   "AUTH": {
     "LOGIN": {
       "TITLE": "Sign in"
@@ -295,6 +276,25 @@
     "GROUPS": {
       "TITLE": "My groups",
       "EMPTY": "No groups available."
+    },
+    "ATTENDANCE": {
+      "GROUPS": {
+        "TITLE": "Attendance: groups",
+        "EMPTY": "No groups are available for attendance analytics.",
+        "ERROR": "Failed to load groups for attendance analytics."
+      },
+      "ANALYTICS": {
+        "TITLE": "Group attendance analytics",
+        "DETALIZATION": "Detalization",
+        "PERIOD_Q1": "Quarter 1",
+        "PERIOD_Q2": "Quarter 2",
+        "PERIOD_YEAR": "Whole academic year",
+        "RESOLUTION_WEEK": "By weeks",
+        "RESOLUTION_MONTH": "By months",
+        "EMPTY": "No attendance data for selected period.",
+        "ERROR": "Failed to load attendance analytics.",
+        "STEP_PLACEHOLDER": "Step 4+: attendance calculation and Chart.js graph will be added here."
+      }
     },
     "LESSONS": {
       "ACTIONS": {

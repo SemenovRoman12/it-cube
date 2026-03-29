@@ -1,0 +1,10 @@
+.attendance-chart {
+  width: 100%;
+  min-height: 360px;
+}
+
+::ng-deep .attendance-chart ngx-charts-chart {
+  display: block;
+  width: 100%;
+}
+
