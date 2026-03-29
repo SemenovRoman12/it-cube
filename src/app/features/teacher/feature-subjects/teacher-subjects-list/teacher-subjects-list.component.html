@@ -10,33 +10,33 @@
   </div>
 
   @if (isLoading()) {
-    <div class="state state--loading">
-      <mat-progress-bar mode="indeterminate" />
-    </div>
+  <div class="state state--loading">
+    <mat-progress-bar mode="indeterminate" />
+  </div>
   } @else if (error(); as errKey) {
-    <div class="state state--error">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ errKey | translate }}</p>
-      <button mat-flat-button color="primary" (click)="loadGroups()">
-        {{ 'COMMON.ACTIONS.RETRY' | translate }}
-      </button>
-    </div>
+  <div class="state state--error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ errKey | translate }}</p>
+    <button mat-flat-button color="primary" (click)="loadGroups()">
+      {{ 'COMMON.ACTIONS.RETRY' | translate }}
+    </button>
+  </div>
   } @else if (!groups().length) {
-    <div class="state state--empty">
-      <mat-icon>folder_off</mat-icon>
-      <p>{{ 'TEACHER.SUBJECTS_FEATURE.GROUPS_EMPTY' | translate }}</p>
-    </div>
+  <div class="state state--empty">
+    <mat-icon>folder_off</mat-icon>
+    <p>{{ 'TEACHER.SUBJECTS_FEATURE.GROUPS_EMPTY' | translate }}</p>
+  </div>
   } @else {
-    <div class="card-grid">
-      @for (group of groups(); track group.id) {
-        <mat-card appearance="outlined" class="group-card" (click)="onOpenGroup(group.id)">
-          <div class="group-card__avatar">{{ group.name.charAt(0).toUpperCase() }}</div>
-          <div class="group-card__body">
-            <span class="group-card__name">{{ group.name }}</span>
-          </div>
-          <mat-icon class="group-card__arrow">chevron_right</mat-icon>
-        </mat-card>
-      }
-    </div>
+  <div class="card-grid">
+    @for (group of groups(); track group.id) {
+    <mat-card appearance="outlined" class="group-card" (click)="onOpenGroup(group.id)">
+      <div class="group-card__avatar">{{ group.name.charAt(0).toUpperCase() }}</div>
+      <div class="group-card__body">
+        <span class="group-card__name">{{ group.name }}</span>
+      </div>
+      <mat-icon class="group-card__arrow">chevron_right</mat-icon>
+    </mat-card>
+    }
+  </div>
   }
 </div>
