@@ -93,7 +93,7 @@ export const routes: Routes = [
           },
           {
             path: 'attendance',
-            loadComponent: () => import('./features/teacher/feature-attendance-groups/teacher-attendance-groups-list/teacher-attendance-groups-list.component').then(c => c.TeacherAttendanceGroupsListComponent),
+            loadComponent: () => import('./features/teacher/shared/groups-list/groups-list.component').then(c => c.GroupsListComponent),
           },
           {
             path: 'attendance/groups/:groupId',

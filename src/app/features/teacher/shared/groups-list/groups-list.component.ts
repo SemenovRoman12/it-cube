@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin, map, of, catchError, finalize } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,18 +14,24 @@ import { TeacherAssignmentsService } from '../../services/teacher-assignments.se
 import { TeacherGroupCardComponent } from '../../feature-journal-groups/teacher-group-card/teacher-group-card.component';
 
 @Component({
-  selector: 'teacher-attendance-groups-list',
+  selector: 'groups-list',
   imports: [TeacherGroupCardComponent, MatIconModule, MatButtonModule, MatProgressBarModule, TranslateModule],
-  templateUrl: './teacher-attendance-groups-list.component.html',
-  styleUrl: './teacher-attendance-groups-list.component.scss',
+  templateUrl: './groups-list.component.html',
+  styleUrl: './groups-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TeacherAttendanceGroupsListComponent implements OnInit {
+export class GroupsListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly assignmentsService = inject(TeacherAssignmentsService);
   private readonly groupsService = inject(GroupsService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+
+  public readonly titleKey = input('TEACHER.ATTENDANCE.GROUPS.TITLE');
+  public readonly icon = input('analytics');
+  public readonly emptyKey = input('TEACHER.ATTENDANCE.GROUPS.EMPTY');
+  public readonly errorKey = input('TEACHER.ATTENDANCE.GROUPS.ERROR');
+  public readonly navigatePrefix = input('/teacher/attendance/groups');
 
   public readonly user = this.authService.user() as UserEntity;
   public readonly groups = signal<GroupEntity[]>([]);
@@ -37,7 +43,7 @@ export class TeacherAttendanceGroupsListComponent implements OnInit {
   }
 
   public onOpenGroup(groupId: number): void {
-    this.router.navigateByUrl(`/teacher/attendance/groups/${groupId}`);
+    this.router.navigateByUrl(`${this.navigatePrefix()}/${groupId}`);
   }
 
   public loadGroups(): void {
@@ -54,7 +60,7 @@ export class TeacherAttendanceGroupsListComponent implements OnInit {
           return groups.filter((group) => allowedGroupIds.has(group.id));
         }),
         catchError(() => {
-          this.error.set('TEACHER.ATTENDANCE.GROUPS.ERROR');
+          this.error.set(this.errorKey());
           return of([]);
         }),
         finalize(() => this.isLoading.set(false)),
@@ -63,3 +69,4 @@ export class TeacherAttendanceGroupsListComponent implements OnInit {
       .subscribe((items) => this.groups.set(items));
   }
 }
+

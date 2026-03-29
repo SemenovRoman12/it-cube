@@ -1,9 +1,9 @@
 <div class="page">
   <div class="page__header">
     <div class="page__title-block">
-      <mat-icon class="page__title-icon">analytics</mat-icon>
+      <mat-icon class="page__title-icon">{{ icon() }}</mat-icon>
       <div>
-        <h1 class="page__title">{{ 'TEACHER.ATTENDANCE.GROUPS.TITLE' | translate }}</h1>
+        <h1 class="page__title">{{ titleKey() | translate }}</h1>
       </div>
     </div>
   </div>
@@ -23,7 +23,7 @@
   } @else if (!groups().length) {
   <div class="state state--empty">
     <mat-icon>folder_off</mat-icon>
-    <p>{{ 'TEACHER.ATTENDANCE.GROUPS.EMPTY' | translate }}</p>
+    <p>{{ emptyKey() | translate }}</p>
   </div>
   } @else {
   <div class="card-grid">
