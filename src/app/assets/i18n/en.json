@@ -147,7 +147,8 @@
     "ATTENDANCE": {
       "GROUPS": {
         "TITLE": "Attendance: groups",
-        "STEP_PLACEHOLDER": "Step 2: teacher available groups for attendance analytics will be shown here."
+        "EMPTY": "No groups are available for attendance analytics.",
+        "ERROR": "Failed to load groups for attendance analytics."
       },
       "ANALYTICS": {
         "TITLE": "Group attendance analytics",
