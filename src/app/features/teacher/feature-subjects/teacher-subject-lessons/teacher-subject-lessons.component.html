@@ -1,0 +1,79 @@
+<div class="page">
+  <div class="page__header">
+    <a mat-stroked-button [routerLink]="['/teacher/subjects/groups', groupId]" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'TEACHER.SUBJECTS_FEATURE.BACK_TO_SUBJECTS' | translate }}
+    </a>
+
+    <div class="page__title-row">
+      <div class="page__title-block">
+        <mat-icon class="page__title-icon">assignment</mat-icon>
+        <h1 class="page__title">{{ 'TEACHER.SUBJECTS_FEATURE.LESSONS_TITLE' | translate }}</h1>
+      </div>
+
+      <button mat-flat-button color="primary" (click)="goToCreateLesson()">
+        <mat-icon>add</mat-icon>
+        {{ 'COMMON.ACTIONS.CREATE_LESSON' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } @else if (error(); as errKey) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errKey | translate }}</p>
+    </div>
+  } @else if (!lessonRows().length) {
+    <div class="state state--empty">
+      <mat-icon>school</mat-icon>
+      <p>{{ 'TEACHER.SUBJECTS_FEATURE.LESSONS_EMPTY' | translate }}</p>
+      <button mat-flat-button color="primary" (click)="goToCreateLesson()">
+        <mat-icon>add</mat-icon>
+        {{ 'COMMON.ACTIONS.CREATE_LESSON' | translate }}
+      </button>
+    </div>
+  } @else {
+    <mat-card class="lessons-card">
+      <mat-card-content>
+        <table class="lessons-table">
+          <thead>
+            <tr>
+              <th>{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_DATE' | translate }}</th>
+              <th>{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_TITLE' | translate }}</th>
+              <th class="lessons-table__center">{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_SUBMITTED' | translate }}</th>
+              <th class="lessons-table__center">{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_OVERDUE' | translate }}</th>
+              <th class="lessons-table__center">{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_PENDING' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of lessonRows(); track row.lesson.id) {
+              <tr class="lessons-table__row">
+                <td class="lessons-table__date">{{ row.lesson.date | date:'dd.MM.yyyy' }}</td>
+                <td class="lessons-table__title">{{ row.lesson.title || row.lesson.topic }}</td>
+                <td class="lessons-table__center">
+                  <span class="badge badge--success">{{ row.submittedCount }}</span>
+                </td>
+                <td class="lessons-table__center">
+                  <span class="badge badge--warn">{{ row.overdueCount }}</span>
+                </td>
+                <td class="lessons-table__center">
+                  <span class="badge badge--neutral">{{ row.pendingCount }}</span>
+                </td>
+                <td class="lessons-table__actions">
+                  <button mat-stroked-button (click)="openSubmissions(row.lesson.id)">
+                    {{ 'TEACHER.SUBJECTS_FEATURE.ACTION_EVALUATE' | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

@@ -1,0 +1,73 @@
+<div class="page">
+  @if (isLoading()) {
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } @else if (error(); as errKey) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errKey | translate }}</p>
+    </div>
+  } @else if (lesson(); as lessonData) {
+    <div class="page__header">
+      <a mat-stroked-button
+        [routerLink]="['/teacher/subjects/groups', groupId, 'subjects', subjectId]"
+        class="page__back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
+      </a>
+
+      <div class="page__title-block">
+        <mat-icon class="page__title-icon">grading</mat-icon>
+        <div>
+          <h1 class="page__title">{{ lessonData.title || lessonData.topic }}</h1>
+          <p class="page__subtitle">{{ 'TEACHER.SUBJECTS_FEATURE.SUBMISSIONS_TITLE' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <mat-card class="submissions-card">
+      <mat-card-content>
+        <table class="submissions-table">
+          <thead>
+            <tr>
+              <th>{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_STUDENT' | translate }}</th>
+              <th>{{ 'TEACHER.SUBJECTS_FEATURE.TABLE_STATUS' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.student.id) {
+              <tr class="submissions-table__row">
+                <td>
+                  <div class="student-info">
+                    <div class="student-info__avatar">{{ row.student.full_name.charAt(0).toUpperCase() }}</div>
+                    <span class="student-info__name">{{ row.student.full_name }}</span>
+                  </div>
+                </td>
+                <td>
+                  @switch (row.status) {
+                    @case ('submitted') {
+                      <span class="status-badge status-badge--success">{{ 'COMMON.STATUS.SUBMITTED' | translate }}</span>
+                    }
+                    @case ('overdue') {
+                      <span class="status-badge status-badge--warn">{{ 'COMMON.STATUS.OVERDUE' | translate }}</span>
+                    }
+                    @default {
+                      <span class="status-badge status-badge--neutral">{{ 'COMMON.STATUS.PENDING' | translate }}</span>
+                    }
+                  }
+                </td>
+                <td class="submissions-table__actions">
+                  <button mat-stroked-button (click)="openEvaluate(row.student.id)">
+                    {{ 'TEACHER.SUBJECTS_FEATURE.ACTION_GO_TO_EVALUATE' | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

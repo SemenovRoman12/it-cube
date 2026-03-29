@@ -1,0 +1,44 @@
+<div class="page">
+  <div class="page__header">
+    <a mat-stroked-button routerLink="/teacher/subjects" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'TEACHER.SUBJECTS_FEATURE.BACK_TO_GROUPS' | translate }}
+    </a>
+
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">class</mat-icon>
+      <div>
+        <h1 class="page__title">{{ 'TEACHER.SUBJECTS_FEATURE.SUBJECT_SELECT_TITLE' | translate }}</h1>
+        <p class="page__subtitle">{{ 'TEACHER.SUBJECTS_FEATURE.SUBJECT_SELECT_SUBTITLE' | translate:{ name: groupName() } }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } @else if (error(); as errKey) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errKey | translate }}</p>
+    </div>
+  } @else if (!subjects().length) {
+    <div class="state state--empty">
+      <mat-icon>book</mat-icon>
+      <p>{{ 'TEACHER.SUBJECTS_FEATURE.SUBJECTS_EMPTY' | translate }}</p>
+    </div>
+  } @else {
+    <div class="card-grid">
+      @for (subject of subjects(); track subject.id) {
+        <mat-card appearance="outlined" class="subject-card" (click)="onOpenSubject(subject.id)">
+          <div class="subject-card__avatar">{{ subject.name.charAt(0).toUpperCase() }}</div>
+          <div class="subject-card__body">
+            <span class="subject-card__name">{{ subject.name }}</span>
+          </div>
+          <mat-icon class="subject-card__arrow">chevron_right</mat-icon>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

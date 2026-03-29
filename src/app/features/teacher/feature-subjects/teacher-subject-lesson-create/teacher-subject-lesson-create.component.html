@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="page__header">
+    <a mat-stroked-button [routerLink]="backRoute" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.ACTIONS.BACK' | translate }}
+    </a>
+
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">add_circle</mat-icon>
+      <h1 class="page__title">{{ 'TEACHER.SUBJECTS_FEATURE.CREATE_TITLE' | translate }}</h1>
+    </div>
+  </div>
+
+  <mat-card appearance="outlined" class="form-card">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onCreateLesson()" class="lesson-form">
+        <p class="lesson-form__date-label">
+          {{ 'TEACHER.SUBJECTS_FEATURE.CREATE_DATE_LABEL' | translate }}:
+          <strong>{{ today | date:'dd.MM.yyyy' }}</strong>
+        </p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMMON.FIELDS.TITLE' | translate }}</mat-label>
+          <input matInput formControlName="title" />
+          @if (form.controls.title.hasError('required') && form.controls.title.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+          } @else if (form.controls.title.hasError('minlength') && form.controls.title.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'TEACHER.SUBJECTS_FEATURE.CREATE_DESCRIPTION' | translate }}</mat-label>
+          <textarea matInput rows="4" formControlName="description"></textarea>
+          @if (form.controls.description.hasError('required') && form.controls.description.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+          } @else if (form.controls.description.hasError('minlength') && form.controls.description.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.MIN_3' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'TEACHER.SUBJECTS_FEATURE.CREATE_DEADLINE_LABEL' | translate }}</mat-label>
+          <input matInput [matDatepicker]="deadlinePicker" formControlName="due_date" />
+          <mat-datepicker-toggle matIconSuffix [for]="deadlinePicker" />
+          <mat-datepicker #deadlinePicker />
+          @if (form.controls.due_date.hasError('required') && form.controls.due_date.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        @if (error(); as errKey) {
+        <div class="lesson-form__error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errKey | translate }}</span>
+        </div>
+        }
+
+        <div class="lesson-form__actions">
+          <a mat-stroked-button [routerLink]="backRoute">
+            {{ 'COMMON.ACTIONS.CANCEL' | translate }}
+          </a>
+          <button mat-flat-button color="primary" type="submit" [disabled]="isCreating()">
+            @if (isCreating()) {
+            {{ 'COMMON.STATUS.CREATING' | translate }}
+            }
+
+            @if (!isCreating()) {
+            <mat-icon>add</mat-icon>
+            }
+
+            @if (!isCreating()) {
+            {{ 'COMMON.ACTIONS.CREATE_LESSON' | translate }}
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -2,6 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../core/http/api.service';
+import {
+  LessonSubmissionCreate,
+  LessonSubmissionEntity,
+  LessonSubmissionUpdate,
+} from '../../../core/models/lesson-submission.model';
 import { JournalEntryCreate, JournalEntryEntity, JournalEntryUpdate } from '../models/journal-entry.model';
 import { LessonCreate, LessonEntity, LessonUpdate } from '../models/lesson.model';
 import { UserEntity } from '../../../core/models/user.model';
@@ -27,6 +32,10 @@ export class TeacherJournalApiService {
   /** Загружает все уроки по группе и предмету (без фильтра по преподавателю). */
   public getLessonsByGroupAndSubject(groupId: number, subjectId: number): Observable<LessonEntity[]> {
     return this.api.get<LessonEntity[]>(`lessons?group_id=${groupId}&subject_id=${subjectId}`);
+  }
+
+  public getLessonById(lessonId: number): Observable<LessonEntity | null> {
+    return this.api.get<LessonEntity[]>(`lessons?id=${lessonId}`).pipe(map((items) => items[0] ?? null));
   }
 
   /** Создаёт новый урок. */
@@ -62,6 +71,24 @@ export class TeacherJournalApiService {
   /** Обновляет существующую запись журнала. */
   public updateJournalEntry(id: number, payload: JournalEntryUpdate): Observable<JournalEntryEntity> {
     return this.api.patch<JournalEntryEntity>(`journal_entries/${id}`, payload as Partial<JournalEntryEntity>);
+  }
+
+  public getLessonSubmissionsByLesson(lessonId: number): Observable<LessonSubmissionEntity[]> {
+    return this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}`);
+  }
+
+  public getLessonSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
+    return this.api
+      .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
+      .pipe(map((items) => items[0] ?? null));
+  }
+
+  public createLessonSubmission(payload: LessonSubmissionCreate): Observable<LessonSubmissionEntity> {
+    return this.api.post<LessonSubmissionCreate, LessonSubmissionEntity>('lesson_submissions', payload);
+  }
+
+  public updateLessonSubmission(id: number, payload: LessonSubmissionUpdate): Observable<LessonSubmissionEntity> {
+    return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${id}`, payload);
   }
 }
 

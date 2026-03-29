@@ -5,5 +5,9 @@ export interface StudentLessonEntity {
   subject_id: number;
   date: string;
   topic: string;
+  lesson_type?: 'assignment';
+  title?: string;
+  description?: string;
+  due_at?: string;
 }
 

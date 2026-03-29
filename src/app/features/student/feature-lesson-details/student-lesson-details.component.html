@@ -1,0 +1,70 @@
+<section class="student-lesson-details">
+  @if (isLoading()) {
+  <mat-card appearance="outlined">
+    <mat-progress-bar mode="indeterminate" />
+  </mat-card>
+  } @else if (error(); as errorText) {
+  <mat-card appearance="outlined">{{ errorText }}</mat-card>
+  } @else if (lesson(); as lessonData) {
+  <mat-card appearance="outlined" class="student-lesson-details__card">
+    <div class="student-lesson-details__header">
+      <a mat-stroked-button [routerLink]="['/student/subjects', lessonData.subject_id]">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'COMMON.ACTIONS.BACK' | translate }}
+      </a>
+    </div>
+
+    <h2>{{ lessonData.title || lessonData.topic }}</h2>
+    <p>{{ lessonData.description || lessonData.topic }}</p>
+
+    <div class="student-lesson-details__meta">
+      <span>{{ 'COMMON.FIELDS.DATE' | translate }}: {{ lessonData.date }}</span>
+      <span>
+        {{ 'COMMON.FIELDS.DEADLINE' | translate }}:
+        {{ lessonData.due_at ? (lessonData.due_at | date:'dd.MM.yyyy HH:mm') : '—' }}
+      </span>
+      <span>
+        {{ 'COMMON.FIELDS.STATUS' | translate }}:
+        @switch (status()) {
+        @case ('submitted') {
+        {{ 'COMMON.STATUS.SUBMITTED' | translate }}
+        }
+        @case ('overdue') {
+        {{ 'COMMON.STATUS.OVERDUE' | translate }}
+        }
+        @default {
+        {{ 'COMMON.STATUS.PENDING' | translate }}
+        }
+        }
+      </span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-lesson-details__form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'COMMON.FIELDS.ANSWER' | translate }}</mat-label>
+        <textarea matInput rows="10" formControlName="answer_text"></textarea>
+      </mat-form-field>
+
+      @if (submission()?.teacher_comment) {
+      <p class="student-lesson-details__teacher-comment">
+        {{ 'COMMON.FIELDS.COMMENT' | translate }}: {{ submission()?.teacher_comment }}
+      </p>
+      }
+
+      @if (submission()?.mark != null) {
+      <p class="student-lesson-details__teacher-mark">
+        {{ 'COMMON.FIELDS.MARK' | translate }}: {{ submission()?.mark }}
+      </p>
+      }
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+        {{ 'COMMON.ACTIONS.SAVE' | translate }}
+      </button>
+    </form>
+
+    @if (success(); as successText) {
+    <p class="student-lesson-details__success">{{ successText }}</p>
+    }
+  </mat-card>
+  }
+</section>

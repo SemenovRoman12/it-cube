@@ -5,6 +5,12 @@ export interface LessonEntity {
   subject_id: number;
   date: string;
   topic: string;
+  lesson_type?: 'assignment';
+  title?: string;
+  description?: string;
+  due_at?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export type LessonCreate = Omit<LessonEntity, 'id'>;

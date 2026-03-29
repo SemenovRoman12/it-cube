@@ -1,0 +1,164 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page__back-btn {
+  align-self: flex-start;
+}
+
+.page__title-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page__title-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: var(--mat-sys-primary);
+}
+
+.page__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.page__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ── States ── */
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  padding: 60px 24px;
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  &.state--loading {
+    align-items: stretch;
+    gap: 0;
+    padding: 24px 0;
+  }
+
+  &.state--error {
+    color: var(--mat-sys-error);
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}
+
+/* ── Answer card ── */
+
+.answer-card {
+  border-radius: 12px !important;
+
+  mat-card-content {
+    padding: 20px !important;
+  }
+}
+
+.answer-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--mat-sys-on-surface);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.answer-card__text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--mat-sys-on-surface);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.answer-card__empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+}
+
+/* ── Form card ── */
+
+.form-card {
+  border-radius: 12px !important;
+
+  mat-card-content {
+    padding: 24px !important;
+  }
+}
+
+.evaluate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evaluate-form__message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.evaluate-form__message--error {
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.evaluate-form__message--success {
+  background: color-mix(in srgb, #2e7d32 12%, transparent);
+  color: #2e7d32;
+}
+
+.evaluate-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

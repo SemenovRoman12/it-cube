@@ -72,12 +72,44 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="topic">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.TOPIC' | translate }}</th>
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.TITLE' | translate }}</th>
           <td mat-cell *matCellDef="let lesson">
             <div class="student-subject-lessons__topic-cell">
-              <span class="student-subject-lessons__topic">{{ lesson.topic }}</span>
+              <span class="student-subject-lessons__topic">{{ getLessonTitle(lesson) }}</span>
             </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="due">
+          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DEADLINE' | translate }}</th>
+          <td mat-cell *matCellDef="let lesson">{{ lesson.due_at ? (lesson.due_at | date:'dd.MM.yyyy HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.STATUS' | translate }}</th>
+          <td mat-cell *matCellDef="let lesson">
+            @switch (getLessonStatus(lesson)) {
+            @case ('submitted') {
+            {{ 'COMMON.STATUS.SUBMITTED' | translate }}
+            }
+            @case ('overdue') {
+            {{ 'COMMON.STATUS.OVERDUE' | translate }}
+            }
+            @default {
+            {{ 'COMMON.STATUS.PENDING' | translate }}
+            }
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS.OPEN' | translate }}</th>
+          <td mat-cell *matCellDef="let lesson">
+            <a mat-stroked-button [routerLink]="['/student/subjects', lesson.subject_id, 'lessons', lesson.id]">
+              {{ 'COMMON.ACTIONS.OPEN' | translate }}
+            </a>
           </td>
         </ng-container>
 

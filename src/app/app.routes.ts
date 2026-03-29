@@ -60,6 +60,30 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/teacher/teacher.component').then(c => c.TeacherComponent),
         children: [
           {
+            path: 'subjects',
+            loadComponent: () => import('./features/teacher/feature-subjects/teacher-subjects-list/teacher-subjects-list.component').then(c => c.TeacherSubjectsListComponent),
+          },
+          {
+            path: 'subjects/groups/:groupId',
+            loadComponent: () => import('./features/teacher/feature-subjects/teacher-subject-groups/teacher-subject-groups.component').then(c => c.TeacherSubjectGroupsComponent),
+          },
+          {
+            path: 'subjects/groups/:groupId/subjects/:subjectId',
+            loadComponent: () => import('./features/teacher/feature-subjects/teacher-subject-lessons/teacher-subject-lessons.component').then(c => c.TeacherSubjectLessonsComponent),
+          },
+          {
+            path: 'subjects/groups/:groupId/subjects/:subjectId/lessons/create',
+            loadComponent: () => import('./features/teacher/feature-subjects/teacher-subject-lesson-create/teacher-subject-lesson-create.component').then(c => c.TeacherSubjectLessonCreateComponent),
+          },
+          {
+            path: 'subjects/groups/:groupId/subjects/:subjectId/lessons/:lessonId/submissions',
+            loadComponent: () => import('./features/teacher/feature-lesson-submissions/teacher-lesson-submissions.component').then(c => c.TeacherLessonSubmissionsComponent),
+          },
+          {
+            path: 'subjects/groups/:groupId/subjects/:subjectId/lessons/:lessonId/students/:studentId/evaluate',
+            loadComponent: () => import('./features/teacher/feature-lesson-evaluate/teacher-lesson-evaluate.component').then(c => c.TeacherLessonEvaluateComponent),
+          },
+          {
             path: 'groups',
             loadComponent: () => import('./features/teacher/feature-journal-groups/teacher-groups-list/teacher-groups-list.component').then(c => c.TeacherGroupsListComponent),
           },
@@ -68,6 +92,11 @@ export const routes: Routes = [
             loadComponent: () => import('./features/teacher/feature-journal-lessons/teacher-lessons-list/teacher-lessons-list.component').then(c => c.TeacherLessonsListComponent),
           },
         ]
+      },
+      {
+        path: 'student/subjects/:subjectId/lessons/:lessonId',
+        canActivate: [studentGuard],
+        loadComponent: () => import('./features/student/feature-lesson-details/student-lesson-details.component').then(c => c.StudentLessonDetailsComponent),
       },
       {
         path: 'student/subjects/:subjectId',
