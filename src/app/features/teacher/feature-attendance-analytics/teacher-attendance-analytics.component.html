@@ -1,12 +1,15 @@
-<section class="attendance-analytics-page">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'TEACHER.ATTENDANCE.ANALYTICS.TITLE' | translate }}</mat-card-title>
-      <mat-card-subtitle>
-        {{ 'COMMON.FIELDS.GROUP' | translate }}: {{ groupId() ?? '-' }}
-      </mat-card-subtitle>
-    </mat-card-header>
+<section class="page">
+  <div class="page__header">
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">analytics</mat-icon>
+      <div>
+        <h1 class="page__title">{{ 'TEACHER.ATTENDANCE.ANALYTICS.TITLE' | translate }}</h1>
+        <p class="page__subtitle">{{ 'COMMON.FIELDS.GROUP' | translate }}: {{ groupId() ?? '-' }}</p>
+      </div>
+    </div>
+  </div>
 
+  <mat-card>
     <mat-card-content>
       <mat-toolbar class="filters-toolbar" role="toolbar">
         <span class="filters-toolbar__label">{{ 'COMMON.FIELDS.QUARTER' | translate }}</span>
