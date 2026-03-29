@@ -1,16 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { catchError, finalize, map } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
 import { UserEntity } from '../../../core/models/user.model';
 import { JournalEntryEntity, MarkValue } from '../models/journal-entry.model';
@@ -20,12 +21,12 @@ import { TeacherJournalApiService } from '../services/teacher-journal-api.servic
 @Component({
   selector: 'teacher-lesson-evaluate',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSelectModule,
     MatProgressBarModule,
@@ -39,6 +40,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly journalApi = inject(TeacherJournalApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly lesson = signal<LessonEntity | null>(null);
   public readonly student = signal<UserEntity | null>(null);
@@ -54,7 +56,19 @@ export class TeacherLessonEvaluateComponent implements OnInit {
     teacher_comment: this.formBuilder.nonNullable.control(''),
   });
 
-  public readonly answerText = computed(() => this.submission()?.answer_text || 'Ответ не отправлен');
+  public readonly answerText = computed(() => this.submission()?.answer_text || null);
+
+  public readonly backRoute = computed(() => {
+    const l = this.lesson();
+    if (!l) {
+      return ['/teacher/subjects'];
+    }
+    return [
+      '/teacher/subjects/groups', String(l.group_id),
+      'subjects', String(l.subject_id),
+      'lessons', String(l.id), 'submissions',
+    ];
+  });
 
   public ngOnInit(): void {
     this.loadData();
@@ -79,19 +93,20 @@ export class TeacherLessonEvaluateComponent implements OnInit {
 
     this.saveSubmission(lesson.id, student.id, mark, this.form.controls.teacher_comment.value.trim())
       .pipe(
-        switchMap((savedSubmission) => this.upsertJournalEntry(lesson.id, student.id, mark, savedSubmission.teacher_comment)),
+        switchMap((savedSubmission) =>
+          this.upsertJournalEntry(lesson.id, student.id, mark, savedSubmission.teacher_comment),
+        ),
         finalize(() => this.isSaving.set(false)),
         catchError(() => {
-          this.error.set('Не удалось сохранить оценку.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.EVALUATE_SAVE_ERROR');
           return of(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((result) => {
-        if (!result) {
-          return;
+        if (result) {
+          this.success.set('TEACHER.SUBJECTS_FEATURE.EVALUATE_SUCCESS');
         }
-
-        this.success.set('Оценка сохранена.');
       });
   }
 
@@ -101,7 +116,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
     const studentId = Number(this.route.snapshot.paramMap.get('studentId'));
 
     if (!Number.isFinite(groupId) || !Number.isFinite(lessonId) || !Number.isFinite(studentId)) {
-      this.error.set('Некорректные параметры страницы.');
+      this.error.set('TEACHER.SUBJECTS_FEATURE.LESSONS_INVALID_PARAMS');
       return;
     }
 
@@ -115,21 +130,22 @@ export class TeacherLessonEvaluateComponent implements OnInit {
       entries: this.journalApi.getJournalEntriesByLesson(lessonId),
     })
       .pipe(
-        finalize(() => this.isLoading.set(false)),
         catchError(() => {
-          this.error.set('Не удалось загрузить данные оценивания.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.EVALUATE_ERROR');
           return of({ lesson: null, students: [], submission: null, entries: [] as JournalEntryEntity[] });
         }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ lesson, students, submission, entries }) => {
         if (!lesson) {
-          this.error.set('Урок не найден.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.SUBMISSIONS_LESSON_NOT_FOUND');
           return;
         }
 
         const student = students.find((item) => item.id === studentId) ?? null;
         if (!student) {
-          this.error.set('Ученик не найден в группе.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.EVALUATE_STUDENT_NOT_FOUND');
           return;
         }
 
@@ -149,10 +165,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
     return this.journalApi.getLessonSubmission(lessonId, studentId).pipe(
       switchMap((existing) => {
         if (existing) {
-          return this.journalApi.updateLessonSubmission(existing.id, {
-            mark,
-            teacher_comment: teacherComment,
-          });
+          return this.journalApi.updateLessonSubmission(existing.id, { mark, teacher_comment: teacherComment });
         }
 
         return this.journalApi.createLessonSubmission({

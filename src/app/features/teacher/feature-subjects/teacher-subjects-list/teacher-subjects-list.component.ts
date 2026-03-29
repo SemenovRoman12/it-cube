@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
@@ -14,7 +15,7 @@ import { TeacherAssignmentsService } from '../../services/teacher-assignments.se
 
 @Component({
   selector: 'teacher-subjects-list',
-  imports: [MatCardModule, MatButtonModule, MatProgressBarModule, TranslateModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule],
   templateUrl: './teacher-subjects-list.component.html',
   styleUrl: './teacher-subjects-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +40,7 @@ export class TeacherSubjectsListComponent implements OnInit {
     this.router.navigateByUrl(`/teacher/subjects/groups/${groupId}`);
   }
 
-  private loadGroups(): void {
+  public loadGroups(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -53,8 +54,7 @@ export class TeacherSubjectsListComponent implements OnInit {
           return groups.filter((group) => allowedGroupIds.has(group.id));
         }),
         catchError(() => {
-          this.error.set('Ошибка загрузки групп учителя.');
-          this.groups.set([]);
+          this.error.set('TEACHER.SUBJECTS_FEATURE.GROUPS_ERROR');
           return of([]);
         }),
         finalize(() => this.isLoading.set(false)),

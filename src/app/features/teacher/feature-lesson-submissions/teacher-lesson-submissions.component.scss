@@ -1,24 +1,179 @@
-.teacher-lesson-submissions__card {
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.page__header {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-.teacher-lesson-submissions__header {
+.page__back-btn {
+  align-self: flex-start;
+}
+
+.page__title-block {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 14px;
 }
 
-.teacher-lesson-submissions__table {
+.page__title-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: var(--mat-sys-primary);
+}
+
+.page__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.page__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ── States ── */
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  padding: 60px 24px;
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  &.state--loading {
+    align-items: stretch;
+    gap: 0;
+    padding: 24px 0;
+  }
+
+  &.state--error {
+    color: var(--mat-sys-error);
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}
+
+/* ── Table ── */
+
+.submissions-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+
+  mat-card-content {
+    padding: 0 !important;
+    overflow-x: auto;
+  }
+}
+
+.submissions-table {
   width: 100%;
   border-collapse: collapse;
 
   th,
   td {
     text-align: left;
-    padding: 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 12px 16px;
   }
+
+  th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 2px solid var(--mat-sys-outline-variant);
+    white-space: nowrap;
+  }
+
+  td {
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    font-size: 0.9rem;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.submissions-table__row {
+  transition: background 0.12s;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.submissions-table__actions {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+/* ── Student info ── */
+
+.student-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-info__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-info__name {
+  font-weight: 500;
+}
+
+/* ── Status badges ── */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge--success {
+  background: color-mix(in srgb, #2e7d32 15%, transparent);
+  color: #2e7d32;
+}
+
+.status-badge--warn {
+  background: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+  color: var(--mat-sys-error);
+}
+
+.status-badge--neutral {
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
 }

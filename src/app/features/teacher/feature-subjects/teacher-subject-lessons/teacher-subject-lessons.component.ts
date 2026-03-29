@@ -1,12 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { forkJoin, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { MatChipsModule } from '@angular/material/chips';
 import { TranslateModule } from '@ngx-translate/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { LessonSubmissionEntity } from '../../../../core/models/lesson-submission.model';
 import { UserEntity } from '../../../../core/models/user.model';
 import { LessonEntity } from '../../models/lesson.model';
@@ -15,11 +18,13 @@ import { TeacherJournalApiService } from '../../services/teacher-journal-api.ser
 @Component({
   selector: 'teacher-subject-lessons',
   imports: [
-    CommonModule,
+    DatePipe,
     RouterLink,
     MatCardModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressBarModule,
+    MatChipsModule,
     TranslateModule,
   ],
   templateUrl: './teacher-subject-lessons.component.html',
@@ -27,9 +32,10 @@ import { TeacherJournalApiService } from '../../services/teacher-journal-api.ser
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TeacherSubjectLessonsComponent implements OnInit {
-  public readonly route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly journalApi = inject(TeacherJournalApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly lessons = signal<LessonEntity[]>([]);
   public readonly students = signal<UserEntity[]>([]);
@@ -37,23 +43,20 @@ export class TeacherSubjectLessonsComponent implements OnInit {
   public readonly isLoading = signal(false);
   public readonly error = signal<string | null>(null);
 
+  public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
+  public readonly subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
+
   public readonly lessonRows = computed(() =>
     this.lessons()
       .map((lesson) => {
         const lessonSubmissions = this.submissions().filter((item) => item.lesson_id === lesson.id);
-
         const submittedCount = lessonSubmissions.filter((item) => item.status === 'submitted').length;
         const overdueCount = lessonSubmissions.filter((item) => item.status === 'overdue').length;
         const pendingCount = Math.max(this.students().length - lessonSubmissions.length, 0);
 
-        return {
-          lesson,
-          submittedCount,
-          overdueCount,
-          pendingCount,
-        };
+        return { lesson, submittedCount, overdueCount, pendingCount };
       })
-      .sort((first, second) => second.lesson.date.localeCompare(first.lesson.date)),
+      .sort((a, b) => b.lesson.date.localeCompare(a.lesson.date)),
   );
 
   public ngOnInit(): void {
@@ -61,38 +64,24 @@ export class TeacherSubjectLessonsComponent implements OnInit {
   }
 
   public openSubmissions(lessonId: number): void {
-    const subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
-    const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
-    if (!Number.isFinite(subjectId) || !Number.isFinite(groupId)) {
-      return;
-    }
-
     this.router.navigate([
-      '/teacher/subjects/groups',
-      groupId,
-      'subjects',
-      subjectId,
-      'lessons',
-      lessonId,
-      'submissions',
+      '/teacher/subjects/groups', this.groupId,
+      'subjects', this.subjectId,
+      'lessons', lessonId, 'submissions',
     ]);
   }
 
   public goToCreateLesson(): void {
-    const subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
-    const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
-    if (!Number.isFinite(subjectId) || !Number.isFinite(groupId)) {
-      return;
-    }
-
-    this.router.navigate(['/teacher/subjects/groups', groupId, 'subjects', subjectId, 'lessons', 'create']);
+    this.router.navigate([
+      '/teacher/subjects/groups', this.groupId,
+      'subjects', this.subjectId,
+      'lessons', 'create',
+    ]);
   }
 
   private loadData(): void {
-    const subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
-    const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
-    if (!Number.isFinite(subjectId) || !Number.isFinite(groupId)) {
-      this.error.set('Некорректные параметры страницы.');
+    if (!Number.isFinite(this.subjectId) || !Number.isFinite(this.groupId)) {
+      this.error.set('TEACHER.SUBJECTS_FEATURE.LESSONS_INVALID_PARAMS');
       return;
     }
 
@@ -100,28 +89,31 @@ export class TeacherSubjectLessonsComponent implements OnInit {
     this.error.set(null);
 
     forkJoin({
-      students: this.journalApi.getStudentsByGroup(groupId),
-      lessons: this.journalApi.getLessonsByGroupAndSubject(groupId, subjectId),
+      students: this.journalApi.getStudentsByGroup(this.groupId),
+      lessons: this.journalApi.getLessonsByGroupAndSubject(this.groupId, this.subjectId),
     })
       .pipe(
-        finalize(() => this.isLoading.set(false)),
-        catchError(() => {
-          this.error.set('Не удалось загрузить уроки по предмету.');
-          return of({ students: [], lessons: [] as LessonEntity[] });
+        switchMap(({ students, lessons }) => {
+          this.students.set(students);
+          this.lessons.set(lessons);
+
+          if (!lessons.length) {
+            return of([] as LessonSubmissionEntity[][]);
+          }
+
+          return forkJoin(
+            lessons.map((lesson) =>
+              this.journalApi.getLessonSubmissionsByLesson(lesson.id).pipe(catchError(() => of([]))),
+            ),
+          );
         }),
+        catchError(() => {
+          this.error.set('TEACHER.SUBJECTS_FEATURE.LESSONS_ERROR');
+          return of([] as LessonSubmissionEntity[][]);
+        }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ students, lessons }) => {
-        this.students.set(students);
-        this.lessons.set(lessons);
-
-        if (!lessons.length) {
-          this.submissions.set([]);
-          return;
-        }
-
-        forkJoin(lessons.map((lesson) => this.journalApi.getLessonSubmissionsByLesson(lesson.id)))
-          .pipe(catchError(() => of([] as LessonSubmissionEntity[][])))
-          .subscribe((chunks) => this.submissions.set(chunks.flat()));
-      });
+      .subscribe((chunks) => this.submissions.set(chunks.flat()));
   }
 }

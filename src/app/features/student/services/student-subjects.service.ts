@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from '../../../core/http/api.service';
 import {
   LessonSubmissionCreate,
@@ -96,7 +96,15 @@ export class StudentSubjectsService {
   }
 
   public getLessonById(lessonId: number): Observable<StudentLessonEntity | null> {
-    return this.api.get<StudentLessonEntity[]>(`lessons?id=${lessonId}`).pipe(map((items) => items[0] ?? null));
+    return this.api.get<StudentLessonEntity>(`lessons/${lessonId}`).pipe(
+      map((item) => item ?? null),
+      catchError(() =>
+        this.api.get<StudentLessonEntity[]>(`lessons?id=${lessonId}`).pipe(
+          map((items) => items[0] ?? null),
+          catchError(() => of(null)),
+        ),
+      ),
+    );
   }
 
   public getStudentSubmissionMap(
@@ -108,7 +116,9 @@ export class StudentSubjectsService {
     }
 
     const requests = lessonIds.map((lessonId) =>
-      this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`),
+      this.api
+        .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
+        .pipe(catchError(() => of([]))),
     );
 
     return forkJoin(requests).pipe(
@@ -124,7 +134,10 @@ export class StudentSubjectsService {
   public getStudentSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
     return this.api
       .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
-      .pipe(map((items) => items[0] ?? null));
+      .pipe(
+        map((items) => items[0] ?? null),
+        catchError(() => of(null)),
+      );
   }
 
   public upsertStudentSubmission(

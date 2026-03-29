@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
 import { UserEntity } from '../../../core/models/user.model';
 import { LessonEntity } from '../models/lesson.model';
@@ -14,7 +15,7 @@ import { TeacherJournalApiService } from '../services/teacher-journal-api.servic
 
 @Component({
   selector: 'teacher-lesson-submissions',
-  imports: [CommonModule, RouterLink, MatCardModule, MatButtonModule, MatProgressBarModule, TranslateModule],
+  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule],
   templateUrl: './teacher-lesson-submissions.component.html',
   styleUrl: './teacher-lesson-submissions.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +24,7 @@ export class TeacherLessonSubmissionsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly journalApi = inject(TeacherJournalApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly lesson = signal<LessonEntity | null>(null);
   public readonly students = signal<UserEntity[]>([]);
@@ -30,17 +32,17 @@ export class TeacherLessonSubmissionsComponent implements OnInit {
   public readonly isLoading = signal(false);
   public readonly error = signal<string | null>(null);
 
+  public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
+  public readonly subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
+  public readonly lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
+
   public readonly rows = computed(() =>
     this.students().map((student) => {
       const submission = this.submissionsByStudentId()[student.id] ?? null;
       const dueAt = this.lesson()?.due_at;
       const status = submission?.status ?? (dueAt && new Date(dueAt).getTime() < Date.now() ? 'overdue' : 'pending');
 
-      return {
-        student,
-        submission,
-        status,
-      };
+      return { student, submission, status };
     }),
   );
 
@@ -49,32 +51,17 @@ export class TeacherLessonSubmissionsComponent implements OnInit {
   }
 
   public openEvaluate(studentId: number): void {
-    const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
-    const lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
-    const subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
-
-    if (!Number.isFinite(groupId) || !Number.isFinite(lessonId) || !Number.isFinite(subjectId)) {
-      return;
-    }
-
     this.router.navigate([
-      '/teacher/subjects/groups',
-      groupId,
-      'subjects',
-      subjectId,
-      'lessons',
-      lessonId,
-      'students',
-      studentId,
-      'evaluate',
+      '/teacher/subjects/groups', this.groupId,
+      'subjects', this.subjectId,
+      'lessons', this.lessonId,
+      'students', studentId, 'evaluate',
     ]);
   }
 
   private loadData(): void {
-    const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
-    const lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
-    if (!Number.isFinite(groupId) || !Number.isFinite(lessonId)) {
-      this.error.set('Некорректные параметры страницы.');
+    if (!Number.isFinite(this.groupId) || !Number.isFinite(this.lessonId)) {
+      this.error.set('TEACHER.SUBJECTS_FEATURE.LESSONS_INVALID_PARAMS');
       return;
     }
 
@@ -82,20 +69,21 @@ export class TeacherLessonSubmissionsComponent implements OnInit {
     this.error.set(null);
 
     forkJoin({
-      lesson: this.journalApi.getLessonById(lessonId),
-      students: this.journalApi.getStudentsByGroup(groupId),
-      submissions: this.journalApi.getLessonSubmissionsByLesson(lessonId),
+      lesson: this.journalApi.getLessonById(this.lessonId),
+      students: this.journalApi.getStudentsByGroup(this.groupId),
+      submissions: this.journalApi.getLessonSubmissionsByLesson(this.lessonId),
     })
       .pipe(
-        finalize(() => this.isLoading.set(false)),
         catchError(() => {
-          this.error.set('Не удалось загрузить список на проверку.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.SUBMISSIONS_ERROR');
           return of({ lesson: null, students: [], submissions: [] as LessonSubmissionEntity[] });
         }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ lesson, students, submissions }) => {
         if (!lesson) {
-          this.error.set('Урок не найден.');
+          this.error.set('TEACHER.SUBJECTS_FEATURE.SUBMISSIONS_LESSON_NOT_FOUND');
           return;
         }
 

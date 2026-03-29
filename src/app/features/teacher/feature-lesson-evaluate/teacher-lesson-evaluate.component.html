@@ -1,49 +1,96 @@
-<section class="teacher-lesson-evaluate">
+<div class="page">
   @if (isLoading()) {
-  <mat-card>
+  <div class="state state--loading">
     <mat-progress-bar mode="indeterminate" />
-  </mat-card>
-  } @else if (error(); as errorText) {
-  <mat-card>{{ errorText }}</mat-card>
+  </div>
+  } @else if (error(); as errKey) {
+  <div class="state state--error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ errKey | translate }}</p>
+  </div>
   } @else if (lesson(); as lessonData) {
-  <mat-card class="teacher-lesson-evaluate__card">
-    <div class="teacher-lesson-evaluate__header">
-      <a mat-stroked-button
-        [routerLink]="['/teacher/subjects/groups', lessonData.group_id, 'subjects', lessonData.subject_id, 'lessons', lessonData.id, 'submissions']">
-        {{ 'COMMON.ACTIONS.BACK' | translate }}
-      </a>
-      <h3>{{ lessonData.title || lessonData.topic }}</h3>
-      <p>{{ student()?.full_name }}</p>
+  <div class="page__header">
+    <a mat-stroked-button [routerLink]="backRoute()" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.ACTIONS.BACK' | translate }}
+    </a>
+
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">rate_review</mat-icon>
+      <div>
+        <h1 class="page__title">{{ lessonData.title || lessonData.topic }}</h1>
+        <p class="page__subtitle">{{ student()?.full_name }}</p>
+      </div>
     </div>
+  </div>
 
-    <mat-card appearance="outlined">
-      <p><strong>Ответ ученика:</strong></p>
-      <p>{{ answerText() }}</p>
-    </mat-card>
+  <!-- Student answer -->
+  <mat-card appearance="outlined" class="answer-card">
+    <mat-card-content>
+      <div class="answer-card__header">
+        <mat-icon>description</mat-icon>
+        <strong>{{ 'TEACHER.SUBJECTS_FEATURE.EVALUATE_STUDENT_ANSWER' | translate }}</strong>
+      </div>
+      @if (answerText(); as text) {
+      <p class="answer-card__text">{{ text }}</p>
+      } @else {
+      <p class="answer-card__empty">{{ 'TEACHER.SUBJECTS_FEATURE.EVALUATE_NO_ANSWER' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
 
-    <form [formGroup]="form" (ngSubmit)="onSave()" class="teacher-lesson-evaluate__form">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
-        <mat-select formControlName="mark">
-          @for (mark of markOptions; track mark) {
-          <mat-option [value]="mark">{{ mark }}</mat-option>
+  <!-- Evaluate form -->
+  <mat-card appearance="outlined" class="form-card">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="evaluate-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMMON.FIELDS.MARK' | translate }}</mat-label>
+          <mat-select formControlName="mark">
+            @for (mark of markOptions; track mark) {
+            <mat-option [value]="mark">{{ mark }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.mark.hasError('required') && form.controls.mark.touched) {
+          <mat-error>{{ 'COMMON.VALIDATION.REQUIRED' | translate }}</mat-error>
           }
-        </mat-select>
-      </mat-form-field>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'COMMON.FIELDS.COMMENT' | translate }}</mat-label>
-        <textarea matInput rows="6" formControlName="teacher_comment"></textarea>
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMMON.FIELDS.COMMENT' | translate }}</mat-label>
+          <textarea matInput rows="4" formControlName="teacher_comment"></textarea>
+        </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
-        {{ 'COMMON.ACTIONS.SAVE' | translate }}
-      </button>
-    </form>
+        @if (error(); as errKey) {
+        <div class="evaluate-form__message evaluate-form__message--error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errKey | translate }}</span>
+        </div>
+        }
 
-    @if (success(); as successText) {
-    <p class="teacher-lesson-evaluate__success">{{ successText }}</p>
-    }
+        @if (success(); as successKey) {
+        <div class="evaluate-form__message evaluate-form__message--success">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ successKey | translate }}</span>
+        </div>
+        }
+
+        <div class="evaluate-form__actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+            @if (isSaving()) {
+            {{ 'COMMON.STATUS.SAVING' | translate }}
+            }
+
+            @if (!isSaving()) {
+            <mat-icon>save</mat-icon>
+            }
+
+            @if (!isSaving()) {
+            {{ 'COMMON.ACTIONS.SAVE' | translate }}
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
   </mat-card>
   }
-</section>
+</div>
