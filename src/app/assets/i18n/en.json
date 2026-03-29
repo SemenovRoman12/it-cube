@@ -139,7 +139,20 @@
       "SUBJECTS": "Subjects",
       "USERS": "Users",
       "TEACHER_JOURNAL": "Journal",
-      "MY_SUBJECTS": "My subjects"
+      "MY_SUBJECTS": "My subjects",
+      "ATTENDANCE_ANALYTICS": "Attendance"
+    }
+  },
+  "TEACHER": {
+    "ATTENDANCE": {
+      "GROUPS": {
+        "TITLE": "Attendance: groups",
+        "STEP_PLACEHOLDER": "Step 2: teacher available groups for attendance analytics will be shown here."
+      },
+      "ANALYTICS": {
+        "TITLE": "Group attendance analytics",
+        "STEP_PLACEHOLDER": "Step 3+: period toolbars and ngx-charts graph will be added here."
+      }
     }
   },
   "AUTH": {

@@ -139,7 +139,20 @@
       "SUBJECTS": "Предметы",
       "USERS": "Пользователи",
       "TEACHER_JOURNAL": "Журнал",
-      "MY_SUBJECTS": "Мои предметы"
+      "MY_SUBJECTS": "Мои предметы",
+      "ATTENDANCE_ANALYTICS": "Посещаемости"
+    }
+  },
+  "TEACHER": {
+    "ATTENDANCE": {
+      "GROUPS": {
+        "TITLE": "Посещаемость: группы",
+        "STEP_PLACEHOLDER": "Шаг 2: здесь будет список доступных групп учителя для анализа посещаемости."
+      },
+      "ANALYTICS": {
+        "TITLE": "Аналитика посещаемости группы",
+        "STEP_PLACEHOLDER": "Шаг 3+: здесь появятся тулбары периодов и график ngx-charts."
+      }
     }
   },
   "AUTH": {
