@@ -1,122 +1,88 @@
-<section class="student-subject-lessons">
-  <mat-card appearance="outlined" class="student-subject-lessons__hero-card">
-    <mat-card-content class="student-subject-lessons__hero-content">
-      <div class="student-subject-lessons__header-row">
-        <button mat-stroked-button type="button" routerLink="/student" class="student-subject-lessons__back">
-          <mat-icon>arrow_back</mat-icon>
-          {{ 'STUDENT.LESSONS.BACK_TO_SUBJECTS' | translate }}
-        </button>
+<div class="page">
+  <div class="page__header">
+    <a mat-stroked-button routerLink="/student" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'STUDENT.LESSONS.BACK_TO_SUBJECTS' | translate }}
+    </a>
+
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">library_books</mat-icon>
+      <div>
+        <h1 class="page__title">{{ subjectName() }}</h1>
+        <p class="page__subtitle">{{ 'STUDENT.LESSONS.SUBTITLE' | translate }}</p>
       </div>
-
-      <div class="student-subject-lessons__title-row">
-        <div class="student-subject-lessons__title-block">
-          <div class="student-subject-lessons__title-icon-shell" aria-hidden="true">
-            <mat-icon>library_books</mat-icon>
-          </div>
-
-          <div>
-            <p class="student-subject-lessons__eyebrow">Subject timeline</p>
-            <h2 class="student-subject-lessons__title">{{ subjectName() }}</h2>
-            <p class="student-subject-lessons__subtitle">{{ 'STUDENT.LESSONS.SUBTITLE' | translate }}</p>
-          </div>
-        </div>
-
-        <div class="student-subject-lessons__summary-chip">
-          <span>{{ 'COMMON.TEXT.TOTAL' | translate }}</span>
-          <strong>{{ lessons().length }}</strong>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
   @if (isLoading()) {
-  <mat-card class="student-subject-lessons__loading-card" appearance="outlined">
-    <div class="student-subject-lessons__loading-copy">
-      <mat-icon>hourglass_top</mat-icon>
-      <div>
-        <p class="student-subject-lessons__loading-title">{{ subjectName() }}</p>
-        <p class="student-subject-lessons__loading-subtitle">{{ 'COMMON.STATUS.LOADING' | translate }}</p>
-      </div>
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
     </div>
-    <mat-progress-bar class="student-subject-lessons__loading-bar" mode="indeterminate" />
-  </mat-card>
   } @else if (error(); as errorText) {
-  <mat-card appearance="outlined"
-    class="student-subject-lessons__state-card student-subject-lessons__state-card--error">
-    <mat-icon class="student-subject-lessons__state-icon">error_outline</mat-icon>
-    <p class="student-subject-lessons__state student-subject-lessons__state--error">{{ errorText }}</p>
-  </mat-card>
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorText }}</p>
+    </div>
   } @else if (!lessons().length) {
-  <mat-card appearance="outlined" class="student-subject-lessons__state-card">
-    <mat-icon class="student-subject-lessons__state-icon">event_busy</mat-icon>
-    <p class="student-subject-lessons__state">{{ 'STUDENT.LESSONS.EMPTY' | translate }}</p>
-  </mat-card>
+    <div class="state state--empty">
+      <mat-icon>event_busy</mat-icon>
+      <p>{{ 'STUDENT.LESSONS.EMPTY' | translate }}</p>
+    </div>
   } @else {
-  <mat-card appearance="outlined" class="student-subject-lessons__table-card">
-    <div class="student-subject-lessons__table-header">
-      <div>
-        <h3 class="student-subject-lessons__table-title">{{ subjectName() }}</h3>
-        <p class="student-subject-lessons__table-subtitle">{{ 'STUDENT.LESSONS.SUBTITLE' | translate }}</p>
-      </div>
-    </div>
+    <mat-card class="lessons-card">
+      <mat-card-content>
+        <table mat-table [dataSource]="lessons()" class="lessons-table">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DATE' | translate }}</th>
+            <td mat-cell *matCellDef="let lesson">
+              <span class="lessons-table__date">{{ lesson.date }}</span>
+            </td>
+          </ng-container>
 
-    <div class="student-subject-lessons__table-wrapper">
-      <table mat-table [dataSource]="lessons()" class="student-subject-lessons__table">
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DATE' | translate }}</th>
-          <td mat-cell *matCellDef="let lesson">
-            <span class="student-subject-lessons__date">
-              <mat-icon class="student-subject-lessons__date-icon">event</mat-icon>
-              {{ lesson.date }}
-            </span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.TITLE' | translate }}</th>
+            <td mat-cell *matCellDef="let lesson">
+              <span class="lessons-table__title">{{ getLessonTitle(lesson) }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.TITLE' | translate }}</th>
-          <td mat-cell *matCellDef="let lesson">
-            <div class="student-subject-lessons__topic-cell">
-              <span class="student-subject-lessons__topic">{{ getLessonTitle(lesson) }}</span>
-            </div>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="due">
+            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DEADLINE' | translate }}</th>
+            <td mat-cell *matCellDef="let lesson">
+              {{ lesson.due_at ? (lesson.due_at | date:'dd.MM.yyyy HH:mm') : '—' }}
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="due">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DEADLINE' | translate }}</th>
-          <td mat-cell *matCellDef="let lesson">{{ lesson.due_at ? (lesson.due_at | date:'dd.MM.yyyy HH:mm') : '—' }}
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.STATUS' | translate }}</th>
+            <td mat-cell *matCellDef="let lesson">
+              @switch (getLessonStatus(lesson)) {
+                @case ('submitted') {
+                  <span class="status-badge status-badge--success">{{ 'COMMON.STATUS.SUBMITTED' | translate }}</span>
+                }
+                @case ('overdue') {
+                  <span class="status-badge status-badge--warn">{{ 'COMMON.STATUS.OVERDUE' | translate }}</span>
+                }
+                @default {
+                  <span class="status-badge status-badge--neutral">{{ 'COMMON.STATUS.PENDING' | translate }}</span>
+                }
+              }
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.STATUS' | translate }}</th>
-          <td mat-cell *matCellDef="let lesson">
-            @switch (getLessonStatus(lesson)) {
-            @case ('submitted') {
-            {{ 'COMMON.STATUS.SUBMITTED' | translate }}
-            }
-            @case ('overdue') {
-            {{ 'COMMON.STATUS.OVERDUE' | translate }}
-            }
-            @default {
-            {{ 'COMMON.STATUS.PENDING' | translate }}
-            }
-            }
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let lesson">
+              <a mat-stroked-button [routerLink]="['/student/subjects', lesson.subject_id, 'lessons', lesson.id]">
+                {{ 'COMMON.ACTIONS.OPEN' | translate }}
+              </a>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="action">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS.OPEN' | translate }}</th>
-          <td mat-cell *matCellDef="let lesson">
-            <a mat-stroked-button [routerLink]="['/student/subjects', lesson.subject_id, 'lessons', lesson.id]">
-              {{ 'COMMON.ACTIONS.OPEN' | translate }}
-            </a>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="student-subject-lessons__row"></tr>
-      </table>
-    </div>
-  </mat-card>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="lessons-table__row"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
   }
-</section>
+</div>

@@ -1,17 +1,35 @@
-<section class="teacher-groups-list">
-  <h2 class="teacher-groups-list__title">{{ 'TEACHER.GROUPS.TITLE' | translate }}</h2>
+<div class="page">
+  <div class="page__header">
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">groups</mat-icon>
+      <div>
+        <h1 class="page__title">{{ 'TEACHER.GROUPS.TITLE' | translate }}</h1>
+      </div>
+    </div>
+  </div>
 
   @if (isLoading()) {
-  <mat-progress-bar class="teacher-groups-list__loading-bar" mode="indeterminate" />
-  } @else if (error(); as errorText) {
-  <p class="teacher-groups-list__state teacher-groups-list__state--error">{{ errorText }}</p>
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } @else if (error(); as errKey) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errKey | translate }}</p>
+      <button mat-flat-button color="primary" (click)="loadGroups()">
+        {{ 'COMMON.ACTIONS.RETRY' | translate }}
+      </button>
+    </div>
   } @else if (!groups().length) {
-  <p class="teacher-groups-list__state">{{ 'TEACHER.GROUPS.EMPTY' | translate }}</p>
+    <div class="state state--empty">
+      <mat-icon>folder_off</mat-icon>
+      <p>{{ 'TEACHER.GROUPS.EMPTY' | translate }}</p>
+    </div>
   } @else {
-  <div class="teacher-groups-list__grid">
-    @for (group of groups(); track group.id) {
-    <teacher-group-card [group]="group" (openRequested)="onOpenGroup($event)" />
-    }
-  </div>
+    <div class="card-grid">
+      @for (group of groups(); track group.id) {
+        <teacher-group-card [group]="group" (openRequested)="onOpenGroup($event)" />
+      }
+    </div>
   }
-</section>
+</div>

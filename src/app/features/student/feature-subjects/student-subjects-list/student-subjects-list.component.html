@@ -1,159 +1,119 @@
-<section class="student-subjects-list">
-  <mat-card class="student-subjects-list__hero" appearance="outlined">
-    <mat-card-content class="student-subjects-list__hero-content">
-      <div class="student-subjects-list__hero-main">
-        <div class="student-subjects-list__title-block">
-          <div class="student-subjects-list__title-icon-shell" aria-hidden="true">
-            <mat-icon class="student-subjects-list__title-icon">menu_book</mat-icon>
-          </div>
-
-          <div>
-            <p class="student-subjects-list__eyebrow">Student workspace</p>
-            <h2 class="student-subjects-list__title">{{ 'STUDENT.SUBJECTS.TITLE' | translate }}</h2>
-            <p class="student-subjects-list__subtitle">{{ 'STUDENT.SUBJECTS.SUBTITLE' | translate }}</p>
-          </div>
-        </div>
-
-        <div class="student-subjects-list__hero-stats" aria-label="Subjects summary">
-          <div class="student-subjects-list__stat-chip">
-            <span class="student-subjects-list__stat-label">{{ 'COMMON.TEXT.TOTAL' | translate }}</span>
-            <strong class="student-subjects-list__stat-value">{{ totalSubjects }}</strong>
-          </div>
-
-          @if (searchValue()) {
-            <div class="student-subjects-list__stat-chip student-subjects-list__stat-chip--accent">
-              <span class="student-subjects-list__stat-label">{{ 'COMMON.TEXT.FOUND' | translate }}</span>
-              <strong class="student-subjects-list__stat-value">{{ filteredSubjectsCount }}</strong>
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="student-subjects-list__toolbar" role="region" aria-label="Subjects filters and actions">
-        <mat-card class="student-subjects-list__toolbar-card" appearance="outlined">
-          <div class="student-subjects-list__controls">
-            <label class="student-subjects-list__search-wrapper" [attr.aria-label]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate">
-              <mat-icon class="student-subjects-list__search-icon">search</mat-icon>
-              <input
-                class="student-subjects-list__search-input"
-                type="text"
-                [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate"
-                [value]="searchValue()"
-                (input)="applyFilter($any($event.target).value)"
-              />
-              @if (searchValue()) {
-                <button
-                  class="student-subjects-list__search-clear"
-                  type="button"
-                  (click)="clearSearch()"
-                  [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate"
-                  [attr.aria-label]="'COMMON.ACTIONS.CLEAR' | translate"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              }
-            </label>
-
-            <div class="student-subjects-list__sort-controls" aria-label="Sorting controls">
-              <button
-                mat-stroked-button
-                type="button"
-                [class.student-subjects-list__sort-button--active]="sortField() === 'subject_name'"
-                (click)="setSortField('subject_name')"
-              >
-                <mat-icon>sort_by_alpha</mat-icon>
-                {{ 'STUDENT.SUBJECTS.SORT.BY_NAME' | translate }}
-              </button>
-
-              <button
-                mat-stroked-button
-                type="button"
-                [class.student-subjects-list__sort-button--active]="sortField() === 'subject_id'"
-                (click)="setSortField('subject_id')"
-              >
-                <mat-icon>tag</mat-icon>
-                {{ 'STUDENT.SUBJECTS.SORT.BY_ID' | translate }}
-              </button>
-
-              <button
-                mat-icon-button
-                type="button"
-                class="student-subjects-list__direction-button"
-                (click)="toggleSortDirection()"
-                [matTooltip]="'STUDENT.SUBJECTS.SORT.DIRECTION' | translate"
-                [attr.aria-label]="'STUDENT.SUBJECTS.SORT.DIRECTION' | translate"
-              >
-                <mat-icon>{{ sortDirection() === 'asc' ? 'north' : 'south' }}</mat-icon>
-              </button>
-            </div>
-
-            <div class="student-subjects-list__action-controls">
-              <button mat-stroked-button type="button" (click)="loadSubjects()" [disabled]="isLoading()">
-                <mat-icon>refresh</mat-icon>
-                {{ 'COMMON.ACTIONS.REFRESH' | translate }}
-              </button>
-              <button mat-flat-button color="primary" type="button" (click)="resetFilters()" [disabled]="isLoading()">
-                <mat-icon>filter_alt_off</mat-icon>
-                {{ 'COMMON.ACTIONS.RESET_FILTERS' | translate }}
-              </button>
-            </div>
-          </div>
-        </mat-card>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  @if (!hasGroup) {
-    <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">
-      <mat-icon class="student-subjects-list__state-icon">person_off</mat-icon>
-      <p class="student-subjects-list__state student-subjects-list__state--error">{{ 'STUDENT.SUBJECTS.ERROR_NO_GROUP' | translate }}</p>
-    </mat-card>
-  } @else if (isLoading()) {
-  <mat-card class="student-subjects-list__loading-card" appearance="outlined">
-    <div class="student-subjects-list__loading-copy">
-      <mat-icon>hourglass_top</mat-icon>
+<div class="page">
+  <div class="page__header">
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">menu_book</mat-icon>
       <div>
-        <p class="student-subjects-list__loading-title">{{ 'STUDENT.SUBJECTS.TITLE' | translate }}</p>
-        <p class="student-subjects-list__loading-subtitle">{{ 'COMMON.STATUS.LOADING' | translate }}</p>
+        <h1 class="page__title">{{ 'STUDENT.SUBJECTS.TITLE' | translate }}</h1>
+        <p class="page__subtitle">{{ 'STUDENT.SUBJECTS.SUBTITLE' | translate }}</p>
       </div>
     </div>
-    <mat-progress-bar class="student-subjects-list__loading-bar" mode="indeterminate" />
-  </mat-card>
+
+    <div class="page__toolbar">
+      <div class="search-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate"
+          [value]="searchValue()"
+          (input)="applyFilter($any($event.target).value)"
+        />
+        @if (searchValue()) {
+          <button
+            class="search-clear"
+            type="button"
+            (click)="clearSearch()"
+            [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="page__toolbar-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          [class.sort-btn--active]="sortField() === 'subject_name'"
+          (click)="setSortField('subject_name')"
+        >
+          <mat-icon>sort_by_alpha</mat-icon>
+          {{ 'STUDENT.SUBJECTS.SORT.BY_NAME' | translate }}
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.sort-btn--active]="sortField() === 'subject_id'"
+          (click)="setSortField('subject_id')"
+        >
+          <mat-icon>tag</mat-icon>
+          {{ 'STUDENT.SUBJECTS.SORT.BY_ID' | translate }}
+        </button>
+
+        <button
+          mat-icon-button
+          type="button"
+          (click)="toggleSortDirection()"
+          [matTooltip]="'STUDENT.SUBJECTS.SORT.DIRECTION' | translate"
+        >
+          <mat-icon>{{ sortDirection() === 'asc' ? 'north' : 'south' }}</mat-icon>
+        </button>
+
+        <button mat-stroked-button type="button" (click)="loadSubjects()" [disabled]="isLoading()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'COMMON.ACTIONS.REFRESH' | translate }}
+        </button>
+
+        <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading()">
+          <mat-icon>filter_alt_off</mat-icon>
+          {{ 'COMMON.ACTIONS.RESET_FILTERS' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (!hasGroup) {
+    <div class="state state--error">
+      <mat-icon>person_off</mat-icon>
+      <p>{{ 'STUDENT.SUBJECTS.ERROR_NO_GROUP' | translate }}</p>
+    </div>
+  } @else if (isLoading()) {
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
   } @else if (errorMessage(); as errorText) {
-  <mat-card appearance="outlined" class="student-subjects-list__state-card student-subjects-list__state-card--error">
-    <mat-icon class="student-subjects-list__state-icon">error_outline</mat-icon>
-    <p class="student-subjects-list__state student-subjects-list__state--error">{{ errorText }}</p>
-    <button mat-flat-button color="primary" type="button" (click)="loadSubjects()">
-      {{ 'COMMON.ACTIONS.RETRY' | translate }}
-    </button>
-  </mat-card>
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorText }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="loadSubjects()">
+        {{ 'COMMON.ACTIONS.RETRY' | translate }}
+      </button>
+    </div>
   } @else if (!subjects().length) {
-  <mat-card appearance="outlined" class="student-subjects-list__state-card">
-    <mat-icon class="student-subjects-list__state-icon">search_off</mat-icon>
-    <p class="student-subjects-list__state">
-      @if (searchValue()) {
-        {{ 'COMMON.TEXT.NOTHING_FOUND_BY_QUERY' | translate:{ query: searchValue() } }}
-      } @else {
-        {{ 'STUDENT.SUBJECTS.EMPTY' | translate }}
-      }
-    </p>
-  </mat-card>
+    <div class="state state--empty">
+      <mat-icon>search_off</mat-icon>
+      <p>
+        @if (searchValue()) {
+          {{ 'COMMON.TEXT.NOTHING_FOUND_BY_QUERY' | translate:{ query: searchValue() } }}
+        } @else {
+          {{ 'STUDENT.SUBJECTS.EMPTY' | translate }}
+        }
+      </p>
+    </div>
   } @else {
-  <ul class="student-subjects-list__grid">
-    @for (subject of subjects(); track trackBySubject($index, subject)) {
-    <li class="student-subjects-list__grid-item">
-      <student-subject-card [subject]="subject" [linkCommands]="['/student/subjects', subject.id]" [queryParams]="{ name: subject.name }" />
-    </li>
-    }
-  </ul>
+    <div class="card-grid">
+      @for (subject of subjects(); track trackBySubject($index, subject)) {
+        <student-subject-card [subject]="subject" [linkCommands]="['/student/subjects', subject.id]" [queryParams]="{ name: subject.name }" />
+      }
+    </div>
 
-  <div class="student-subjects-list__footer">
-    <button mat-stroked-button color="primary" type="button" class="student-subjects-list__load-more" (click)="loadMoreSubjects()" [disabled]="!hasMoreSubjects || isLoading()">
-      <mat-icon>expand_more</mat-icon>
-      {{ 'COMMON.ACTIONS.LOAD_MORE' | translate:{ count: pageSize } }}
-    </button>
+    <div class="page__footer">
+      <button mat-stroked-button color="primary" type="button" (click)="loadMoreSubjects()" [disabled]="!hasMoreSubjects || isLoading()">
+        <mat-icon>expand_more</mat-icon>
+        {{ 'COMMON.ACTIONS.LOAD_MORE' | translate:{ count: pageSize } }}
+      </button>
 
-    <mat-card class="student-subjects-list__paginator-card" appearance="outlined">
       <mat-paginator
         [length]="totalSubjects"
         [pageIndex]="currentPage() - 1"
@@ -162,7 +122,6 @@
         [showFirstLastButtons]="true"
         (page)="onPageChange($event)"
       />
-    </mat-card>
-  </div>
+    </div>
   }
-</section>
+</div>

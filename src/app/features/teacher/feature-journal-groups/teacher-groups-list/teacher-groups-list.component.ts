@@ -1,19 +1,21 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit, DestroyRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, map, of, catchError, finalize, filter } from 'rxjs';
+import { forkJoin, map, of, catchError, finalize } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { GroupEntity } from '../../../../core/models/group.model';
 import { GroupsService } from '../../../admin/services/groups.service';
 import { TeacherAssignmentsService } from '../../services/teacher-assignments.service';
 import { TeacherGroupCardComponent } from '../teacher-group-card/teacher-group-card.component';
 import { UserEntity } from '../../../../core/models/user.model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'teacher-groups-list',
-  imports: [TeacherGroupCardComponent, TranslateModule, MatProgressBarModule],
+  imports: [TeacherGroupCardComponent, MatIconModule, MatButtonModule, MatProgressBarModule, TranslateModule],
   templateUrl: './teacher-groups-list.component.html',
   styleUrl: './teacher-groups-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,27 +40,26 @@ export class TeacherGroupsListComponent implements OnInit {
     this.loadGroups();
   }
 
-  private loadGroups(): void {
+  public loadGroups(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
     forkJoin({
       assignments: this.assignmentsService.getTeacherAssignments(this.user.id),
       groups: this.groupsService.getGroups(),
-    }).pipe(
-      map(({ assignments, groups }) => {
-        const allowedGroupIds = new Set(assignments.map((item) => item.group_id));
-        const filteredGroups = groups.filter((group) => allowedGroupIds.has(group.id));
-        return filteredGroups;
-      }),
-      catchError(() => {
-        this.error.set('Ошибка загрузки групп учителя.');
-        this.groups.set([]);
-        return of([]);
-      }),
-      finalize(() => this.isLoading.set(false)),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(filteredGroups => this.groups.set(filteredGroups));
+    })
+      .pipe(
+        map(({ assignments, groups }) => {
+          const allowedGroupIds = new Set(assignments.map((item) => item.group_id));
+          return groups.filter((group) => allowedGroupIds.has(group.id));
+        }),
+        catchError(() => {
+          this.error.set('TEACHER.SUBJECTS_FEATURE.GROUPS_ERROR');
+          return of([]);
+        }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((items) => this.groups.set(items));
   }
-
 }

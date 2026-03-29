@@ -31,12 +31,10 @@
   } @else {
     <div class="card-grid">
       @for (subject of subjects(); track subject.id) {
-        <mat-card appearance="outlined" class="subject-card" (click)="onOpenSubject(subject.id)">
-          <div class="subject-card__avatar">{{ subject.name.charAt(0).toUpperCase() }}</div>
-          <div class="subject-card__body">
-            <span class="subject-card__name">{{ subject.name }}</span>
-          </div>
-          <mat-icon class="subject-card__arrow">chevron_right</mat-icon>
+        <mat-card appearance="outlined" class="nav-card" (click)="onOpenSubject(subject.id)">
+          <div class="nav-card__avatar nav-card__avatar--accent">{{ subject.name.charAt(0).toUpperCase() }}</div>
+          <span class="nav-card__name">{{ subject.name }}</span>
+          <mat-icon class="nav-card__arrow">chevron_right</mat-icon>
         </mat-card>
       }
     </div>
