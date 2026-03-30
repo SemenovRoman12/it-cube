@@ -140,6 +140,7 @@
       "USERS": "Users",
       "TEACHER_JOURNAL": "Journal",
       "MY_SUBJECTS": "My subjects",
+      "STUDENT_JOURNAL": "My journal",
       "ATTENDANCE_ANALYTICS": "Attendance"
     }
   },
@@ -365,6 +366,21 @@
     }
   },
   "STUDENT": {
+    "JOURNAL": {
+      "TITLE": "My journal",
+      "SUBTITLE": "All subjects, grades and average score for each subject.",
+      "EMPTY": "There is no journal data for you yet.",
+      "SUMMARY": {
+        "SUBJECTS": "Subjects",
+        "MARKS": "Grades",
+        "AVERAGE": "Overall average"
+      },
+      "SUBJECT": {
+        "MARKS": "Grades: {{count}}",
+        "AVERAGE_SHORT": "Average",
+        "EMPTY": "There are no lessons or grades for this subject yet."
+      }
+    },
     "SUBJECTS": {
       "TITLE": "My subjects",
       "SUBTITLE": "Choose a subject to open lesson list",

@@ -102,6 +102,11 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'student/journal',
+        canActivate: [studentGuard],
+        loadComponent: () => import('./features/student/feature-journal/student-journal.component').then(c => c.StudentJournalComponent),
+      },
+      {
         path: 'student/subjects/:subjectId/lessons/:lessonId',
         canActivate: [studentGuard],
         loadComponent: () => import('./features/student/feature-lesson-details/student-lesson-details.component').then(c => c.StudentLessonDetailsComponent),

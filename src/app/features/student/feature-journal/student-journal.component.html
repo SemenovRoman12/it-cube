@@ -1,0 +1,119 @@
+<section class="student-journal page">
+  <div class="page__header">
+    <a mat-stroked-button routerLink="/student" class="page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'COMMON.ACTIONS.BACK' | translate }}
+    </a>
+
+    <div class="page__title-block">
+      <mat-icon class="page__title-icon">fact_check</mat-icon>
+      <div>
+        <h1 class="page__title">{{ 'STUDENT.JOURNAL.TITLE' | translate }}</h1>
+        <p class="page__subtitle">{{ 'STUDENT.JOURNAL.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } @else if (error(); as errorText) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorText }}</p>
+      <button mat-stroked-button type="button" (click)="loadJournal()">
+        {{ 'COMMON.ACTIONS.RETRY' | translate }}
+      </button>
+    </div>
+  } @else if (!subjects().length) {
+    <div class="state state--empty">
+      <mat-icon>menu_book</mat-icon>
+      <p>{{ 'STUDENT.JOURNAL.EMPTY' | translate }}</p>
+    </div>
+  } @else {
+    <div class="student-journal__summary-grid">
+      <mat-card appearance="outlined" class="summary-card">
+        <mat-card-content>
+          <span class="summary-card__label">{{ 'STUDENT.JOURNAL.SUMMARY.SUBJECTS' | translate }}</span>
+          <strong class="summary-card__value">{{ totalSubjects() }}</strong>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="summary-card">
+        <mat-card-content>
+          <span class="summary-card__label">{{ 'STUDENT.JOURNAL.SUMMARY.MARKS' | translate }}</span>
+          <strong class="summary-card__value">{{ totalMarks() }}</strong>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="summary-card summary-card--accent">
+        <mat-card-content>
+          <span class="summary-card__label">{{ 'STUDENT.JOURNAL.SUMMARY.AVERAGE' | translate }}</span>
+          <strong class="summary-card__value">{{ formatAverage(overallAverage()) }}</strong>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-accordion class="student-journal__accordion" multi>
+      @for (subject of subjects(); track trackBySubject($index, subject)) {
+        <mat-expansion-panel class="subject-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ subject.subjectName }}
+            </mat-panel-title>
+
+            <mat-panel-description>
+              <mat-chip-set>
+                <mat-chip>{{ 'STUDENT.JOURNAL.SUBJECT.MARKS' | translate:{ count: subject.marksCount } }}</mat-chip>
+                <mat-chip highlighted>{{ 'STUDENT.JOURNAL.SUBJECT.AVERAGE_SHORT' | translate }}: {{ formatAverage(subject.averageMark) }}</mat-chip>
+              </mat-chip-set>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          @if (!subject.marks.length) {
+            <div class="subject-panel__empty">
+              {{ 'STUDENT.JOURNAL.SUBJECT.EMPTY' | translate }}
+            </div>
+          } @else {
+            <div class="subject-panel__table-wrap">
+              <table mat-table [dataSource]="subject.marks" class="journal-table">
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.DATE' | translate }}</th>
+                  <td mat-cell *matCellDef="let item">{{ item.lessonDate | date:'dd.MM.yyyy' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="topic">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.TOPIC' | translate }}</th>
+                  <td mat-cell *matCellDef="let item">{{ item.lessonTopic || '—' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="mark">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.MARK' | translate }}</th>
+                  <td mat-cell *matCellDef="let item">
+                    <span class="journal-table__mark" [class.journal-table__mark--empty]="item.mark == null">
+                      {{ item.mark ?? '—' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="attendance">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.ATTENDANCE' | translate }}</th>
+                  <td mat-cell *matCellDef="let item">{{ formatAttendance(item.attendance) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="comment">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.COMMENT' | translate }}</th>
+                  <td mat-cell *matCellDef="let item">{{ item.comment || '—' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</section>
