@@ -187,6 +187,11 @@
   gap: 10px;
 }
 
+.progress-breakdown--animated {
+  animation: progress-breakdown-enter 0.22s ease;
+  transform-origin: top;
+}
+
 .progress-breakdown__item {
   display: flex;
   align-items: center;
@@ -264,6 +269,18 @@
 
   .progress-breakdown__dot {
     background: var(--mat-sys-surface-container-highest);
+  }
+}
+
+@keyframes progress-breakdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
   }
 }
 
