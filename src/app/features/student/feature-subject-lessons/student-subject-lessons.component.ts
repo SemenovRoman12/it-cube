@@ -15,6 +15,19 @@ import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectsService } from '../services/student-subjects.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+type LessonStatus = 'submitted' | 'pending' | 'overdue';
+
+interface SubjectProgress {
+  total: number;
+  submitted: number;
+  overdue: number;
+  pending: number;
+  completionPercent: number;
+  submittedPercent: number;
+  overduePercent: number;
+  pendingPercent: number;
+}
+
 @Component({
   selector: 'student-subject-lessons',
   imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatTableModule, TranslateModule, DatePipe],
@@ -37,7 +50,7 @@ export class StudentSubjectLessonsComponent implements OnInit {
   public readonly displayedColumns = ['date', 'title', 'due', 'status', 'action'];
 
   public readonly subjectName = computed(() => this.route.snapshot.queryParamMap.get('name') ?? 'Предмет');
-  public readonly progress = computed(() => {
+  public readonly progress = computed<SubjectProgress>(() => {
     const lessons = this.lessons();
 
     if (!lessons.length) {
@@ -53,10 +66,9 @@ export class StudentSubjectLessonsComponent implements OnInit {
       };
     }
 
-    const stats = lessons.reduce(
+    const stats = lessons.reduce<Record<LessonStatus, number>>(
       (acc, lesson) => {
         const status = this.getLessonStatus(lesson);
-
         acc[status] += 1;
         return acc;
       },
@@ -64,18 +76,21 @@ export class StudentSubjectLessonsComponent implements OnInit {
         submitted: 0,
         overdue: 0,
         pending: 0,
-      } as Record<'submitted' | 'overdue' | 'pending', number>,
+      },
     );
 
+    const total = lessons.length;
+    const toPercent = (value: number) => Math.round((value / total) * 100);
+
     return {
-      total: lessons.length,
+      total,
       submitted: stats.submitted,
       overdue: stats.overdue,
       pending: stats.pending,
-      completionPercent: Math.round((stats.submitted / lessons.length) * 100),
-      submittedPercent: (stats.submitted / lessons.length) * 100,
-      overduePercent: (stats.overdue / lessons.length) * 100,
-      pendingPercent: (stats.pending / lessons.length) * 100,
+      completionPercent: toPercent(stats.submitted),
+      submittedPercent: toPercent(stats.submitted),
+      overduePercent: toPercent(stats.overdue),
+      pendingPercent: toPercent(stats.pending),
     };
   });
 
@@ -140,8 +155,9 @@ export class StudentSubjectLessonsComponent implements OnInit {
     this.isProgressExpanded.update((value) => !value);
   }
 
-  public getLessonStatus(lesson: StudentLessonEntity): 'submitted' | 'pending' | 'overdue' {
+  public getLessonStatus(lesson: StudentLessonEntity): LessonStatus {
     const submission = this.submissionsByLessonId()[lesson.id];
+
     if (submission?.status === 'submitted') {
       return 'submitted';
     }
