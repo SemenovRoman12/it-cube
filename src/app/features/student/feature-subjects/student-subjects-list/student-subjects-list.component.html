@@ -9,66 +9,52 @@
     </div>
 
     <div class="page__toolbar">
-      <div class="search-wrapper">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input
-          class="search-input"
-          type="text"
-          [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate"
-          [value]="searchValue()"
-          (input)="applyFilter($any($event.target).value)"
-        />
-        @if (searchValue()) {
-          <button
-            class="search-clear"
-            type="button"
-            (click)="clearSearch()"
-            [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        }
+      <div class="page__toolbar-search">
+        <label class="search-field" [class.search-field--filled]="hasSearchValue()">
+          <span class="search-field__icon-wrap">
+            <mat-icon class="search-icon">search</mat-icon>
+          </span>
+
+          <input
+            class="search-input"
+            type="text"
+            [placeholder]="'COMMON.PLACEHOLDERS.SEARCH_SUBJECTS' | translate"
+            [value]="searchValue()"
+            (input)="setSearchValue($any($event.target).value)"
+          />
+
+          @if (hasSearchValue()) {
+            <button
+              class="search-clear"
+              type="button"
+              (click)="clearSearch()"
+              [matTooltip]="'COMMON.ACTIONS.CLEAR' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </label>
       </div>
 
-      <div class="page__toolbar-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          [class.sort-btn--active]="sortField() === 'subject_name'"
-          (click)="setSortField('subject_name')"
-        >
-          <mat-icon>sort_by_alpha</mat-icon>
-          {{ 'STUDENT.SUBJECTS.SORT.BY_NAME' | translate }}
-        </button>
+      <div class="page__toolbar-filters">
+        @if (hiddenSubjectIds().size) {
+          <button type="button" class="hidden-toggle-btn" [class.hidden-toggle-btn--active]="showHiddenSubjects()" (click)="toggleHiddenSubjectsVisibility()">
+            <mat-icon>{{ showHiddenSubjects() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ showHiddenSubjects() ? 'Скрытые' : 'Скрытые' }}
+          </button>
+        }
 
-        <button
-          mat-stroked-button
-          type="button"
-          [class.sort-btn--active]="sortField() === 'subject_id'"
-          (click)="setSortField('subject_id')"
-        >
-          <mat-icon>tag</mat-icon>
-          {{ 'STUDENT.SUBJECTS.SORT.BY_ID' | translate }}
-        </button>
-
-        <button
-          mat-icon-button
-          type="button"
-          (click)="toggleSortDirection()"
-          [matTooltip]="'STUDENT.SUBJECTS.SORT.DIRECTION' | translate"
-        >
-          <mat-icon>{{ sortDirection() === 'asc' ? 'north' : 'south' }}</mat-icon>
-        </button>
-
-        <button mat-stroked-button type="button" (click)="loadSubjects()" [disabled]="isLoading()">
-          <mat-icon>refresh</mat-icon>
-          {{ 'COMMON.ACTIONS.REFRESH' | translate }}
-        </button>
-
-        <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="isLoading()">
-          <mat-icon>filter_alt_off</mat-icon>
-          {{ 'COMMON.ACTIONS.RESET_FILTERS' | translate }}
-        </button>
+        @if (favoriteSubjectIds().size) {
+          <button
+            type="button"
+            class="hidden-toggle-btn"
+            [class.hidden-toggle-btn--active]="showOnlyFavorites()"
+            (click)="toggleOnlyFavorites()"
+          >
+            <mat-icon>{{ showOnlyFavorites() ? 'star' : 'star_outline' }}</mat-icon>
+            {{ 'Избранные' }}
+          </button>
+        }
       </div>
     </div>
   </div>
@@ -90,7 +76,7 @@
         {{ 'COMMON.ACTIONS.RETRY' | translate }}
       </button>
     </div>
-  } @else if (!subjects().length) {
+  } @else if (!visibleSubjects().length) {
     <div class="state state--empty">
       <mat-icon>search_off</mat-icon>
       <p>
@@ -103,8 +89,16 @@
     </div>
   } @else {
     <div class="card-grid">
-      @for (subject of subjects(); track trackBySubject($index, subject)) {
-        <student-subject-card [subject]="subject" [linkCommands]="['/student/subjects', subject.id]" [queryParams]="{ name: subject.name }" />
+      @for (subject of visibleSubjects(); track trackBySubject($index, subject)) {
+        <student-subject-card
+          [subject]="subject"
+          [linkCommands]="['/student/subjects', subject.id]"
+          [queryParams]="{ name: subject.name }"
+          [isFavorite]="isFavorite(subject.id)"
+          [isHidden]="isHidden(subject.id)"
+          (favoriteToggle)="toggleFavorite(subject.id)"
+          (hiddenToggle)="isHidden(subject.id) ? restoreHiddenSubject(subject.id) : hideSubject(subject.id)"
+        />
       }
     </div>
 

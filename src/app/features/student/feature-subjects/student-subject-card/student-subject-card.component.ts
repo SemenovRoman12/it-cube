@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,5 +16,22 @@ export class StudentSubjectCardComponent {
   public readonly subject = input.required<StudentSubjectEntity>();
   public readonly linkCommands = input.required<readonly (string | number)[]>();
   public readonly queryParams = input<Params>({});
+  public readonly isFavorite = input(false);
+  public readonly isHidden = input(false);
+
+  public readonly favoriteToggle = output<void>();
+  public readonly hiddenToggle = output<void>();
+
+  public onFavoriteClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.favoriteToggle.emit();
+  }
+
+  public onHiddenClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.hiddenToggle.emit();
+  }
 }
 

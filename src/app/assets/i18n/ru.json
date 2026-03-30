@@ -19,7 +19,7 @@
       "EDIT": "Редактировать",
       "OPEN": "Открыть",
       "RETRY": "Попробовать снова",
-      "LOAD_MORE": "Загрузить ещё {{count}}",
+      "LOAD_MORE": "Загрузить ещё",
       "EXPORT": "Экспорт",
       "LOGIN": "Войти",
       "LOGOUT": "Выход",
@@ -106,8 +106,8 @@
       "ROLE_REQUIRED": "Выберите роль"
     },
     "PLACEHOLDERS": {
-      "SEARCH_GROUPS": "Поиск по названию или ID...",
-      "SEARCH_SUBJECTS": "Поиск по названию или ID...",
+      "SEARCH_GROUPS": "Поиск по названию...",
+      "SEARCH_SUBJECTS": "Поиск по названию...",
       "SEARCH_USERS": "Поиск по имени, email, роли, группе...",
       "SEARCH_STUDENT": "Имя или email",
       "GROUP_EXAMPLE": "Например, 9А",
