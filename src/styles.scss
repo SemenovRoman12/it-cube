@@ -231,3 +231,7 @@ html.theme-fallback-transition-active::before {
     animation-duration: 1ms !important;
   }
 }
+
+.cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-content {
+  padding: 0 !important;
+}

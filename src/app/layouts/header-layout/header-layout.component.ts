@@ -1,16 +1,15 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, OnInit, output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule, MatIconButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { NotificationsService } from '../../core/services/notifications.service';
+import { NotificationsPopoverComponent } from './notifications-popover/notifications-popover.component';
 import { LanguageToggleComponent } from '../../shared/ui/language-toggle/language-toggle.component';
 import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.component';
 
@@ -21,16 +20,14 @@ const DEFAULT_AVATAR_MOKKY_URL = 'http://mokky.dev/uploaded/dfnhxiq6j/image/uplo
   imports: [
     MatToolbarModule,
     MatIconButton,
-    MatButtonModule,
     MatIcon,
     MatBadgeModule,
     MatMenuModule,
-    MatProgressBarModule,
     RouterLink,
     TranslateModule,
+    NotificationsPopoverComponent,
     LanguageToggleComponent,
     ThemeToggleComponent,
-    DatePipe,
   ],
   templateUrl: './header-layout.component.html',
   styleUrl: './header-layout.component.scss',

@@ -1,0 +1,129 @@
+:host {
+  display: block;
+  width: min(480px, calc(100vw - 24px));
+  max-width: 100%;
+}
+
+.notifications-popover {
+  width: 100%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sys-surface);
+  color: var(--sys-on-surface);
+  overflow-x: hidden;
+}
+
+.notifications-popover__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notifications-popover__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.notifications-popover__subtitle {
+  margin-top: 4px;
+  color: var(--sys-on-surface-variant);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.notifications-popover__counter {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sys-primary-container);
+  color: var(--sys-primary);
+  font-weight: 700;
+}
+
+.notifications-popover__content {
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.notifications-popover__empty {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--sys-on-surface-variant);
+  text-align: center;
+}
+
+.notifications-popover__item {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  border-radius: 14px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.notifications-popover__item--unread {
+  background: rgba(33, 150, 243, 0.08);
+}
+
+.notifications-popover__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.notifications-popover__item-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.notifications-popover__item-title {
+  font-weight: 700;
+}
+
+.notifications-popover__item-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(244, 67, 54, 0.12);
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.notifications-popover__item-message,
+.notifications-popover__item-date {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.notifications-popover__item-date {
+  color: var(--sys-on-surface-variant);
+  font-size: 12px;
+}
+
+@media (max-width: 599px) {
+  :host {
+    width: calc(100vw - 16px);
+  }
+}
