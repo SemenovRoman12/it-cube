@@ -1,10 +1,12 @@
-import { Component, ChangeDetectionStrategy, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, output, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { MatBadgeModule } from '@angular/material/badge';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { NotificationsService } from '../../core/services/notifications.service';
 import { LanguageToggleComponent } from '../../shared/ui/language-toggle/language-toggle.component';
 import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.component';
 
@@ -16,6 +18,7 @@ const DEFAULT_AVATAR_MOKKY_URL = 'http://mokky.dev/uploaded/dfnhxiq6j/image/uplo
     MatToolbarModule,
     MatIconButton,
     MatIcon,
+    MatBadgeModule,
     RouterLink,
     TranslateModule,
     LanguageToggleComponent,
@@ -27,9 +30,18 @@ const DEFAULT_AVATAR_MOKKY_URL = 'http://mokky.dev/uploaded/dfnhxiq6j/image/uplo
 })
 export class HeaderLayoutComponent {
   private readonly authService = inject(AuthService);
+  private readonly notificationsService = inject(NotificationsService);
 
   public readonly sidenavToggle = output<void>();
   public readonly currentUser = this.authService.user;
+  public readonly unreadCount = this.notificationsService.unreadCount;
+
+  public ngOnInit(): void {
+    if (this.currentUser()?.role === 'user') {
+      this.notificationsService.startPolling();
+      this.notificationsService.loadUnreadCount().subscribe();
+    }
+  }
 
   public getHeaderAvatarUrl(): string {
     return this.currentUser()?.avatar_url?.trim() || DEFAULT_AVATAR_MOKKY_URL;

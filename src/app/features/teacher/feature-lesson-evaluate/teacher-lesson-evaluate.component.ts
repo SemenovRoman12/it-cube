@@ -13,6 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
+import { NotificationCreate } from '../../../core/models/notification.model';
 import { UserEntity } from '../../../core/models/user.model';
 import { JournalEntryEntity, MarkValue } from '../models/journal-entry.model';
 import { LessonEntity } from '../models/lesson.model';
@@ -95,6 +96,12 @@ export class TeacherLessonEvaluateComponent implements OnInit {
       .pipe(
         switchMap((savedSubmission) =>
           this.upsertJournalEntry(lesson.id, student.id, mark, savedSubmission.teacher_comment),
+        ),
+        switchMap((entry) =>
+          this.createMarkNotification(lesson, student, mark, entry.id).pipe(
+            map(() => entry),
+            catchError(() => of(entry)),
+          ),
         ),
         finalize(() => this.isSaving.set(false)),
         catchError(() => {
@@ -207,5 +214,28 @@ export class TeacherLessonEvaluateComponent implements OnInit {
         });
       }),
     );
+  }
+
+  private createMarkNotification(lesson: LessonEntity, student: UserEntity, mark: MarkValue, journalEntryId: number) {
+    const payload: NotificationCreate = {
+      user_id: student.id,
+      type: 'mark_assigned',
+      title: 'Новая оценка',
+      message: `Вам выставлена оценка ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      lesson_id: lesson.id,
+      subject_id: lesson.subject_id,
+      group_id: lesson.group_id,
+      teacher_id: lesson.teacher_id,
+      student_id: student.id,
+      mark,
+      entity_kind: 'journal_entry',
+      entity_id: journalEntryId,
+      link: `/student/subjects/${lesson.subject_id}/lessons/${lesson.id}`,
+    };
+
+    return this.journalApi.createNotification(payload);
   }
 }

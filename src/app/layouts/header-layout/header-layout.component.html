@@ -12,6 +12,19 @@
     <language-toggle class="language-btn" />
     <theme-toggle class="dark-mode-btn" />
 
+    @if (currentUser()?.role === 'user') {
+      <button
+        mat-icon-button
+        routerLink="/student/notifications"
+        class="notifications-btn"
+        [matBadge]="unreadCount()"
+        [matBadgeHidden]="!unreadCount()"
+        matBadgeColor="warn"
+        [attr.aria-label]="'NOTIFICATIONS.OPEN' | translate">
+        <mat-icon>notifications</mat-icon>
+      </button>
+    }
+
     <button mat-icon-button routerLink="/profile" class="profile-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">
       <img class="profile-btn-avatar" [src]="getHeaderAvatarUrl()" [alt]="currentUser()?.full_name ?? 'avatar'"
