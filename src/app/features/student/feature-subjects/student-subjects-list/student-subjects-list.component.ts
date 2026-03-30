@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, OnInit, inject, signal } from '@angular/core';
 import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Sort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
@@ -17,14 +15,18 @@ import { StudentSubjectCardComponent } from '../student-subject-card/student-sub
 
 type SubjectSortField = 'subject_name' | 'subject_id';
 type SubjectSortDirection = 'asc' | 'desc';
+type SubjectPreferences = {
+  favoriteSubjectIds?: number[];
+  hiddenSubjectIds?: number[];
+};
 
 const DEFAULT_SORT_FIELD: SubjectSortField = 'subject_name';
 const DEFAULT_SORT_DIRECTION: SubjectSortDirection = 'asc';
+const STORAGE_NAMESPACE = 'student-subjects-preferences';
 
 @Component({
   selector: 'student-subjects-list',
   imports: [
-    MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
@@ -43,8 +45,6 @@ export class StudentSubjectsListComponent implements OnInit {
   private readonly translate = inject(TranslateService);
 
   public readonly user = this.authService.user() as UserEntity | null;
-  public readonly sortField = signal<SubjectSortField>(DEFAULT_SORT_FIELD);
-  public readonly sortDirection = signal<SubjectSortDirection>(DEFAULT_SORT_DIRECTION);
 
   private readonly listState = new ListStateFacade<StudentSubjectEntity, Record<string, string | number>>(
     {
@@ -64,6 +64,37 @@ export class StudentSubjectsListComponent implements OnInit {
   public readonly currentPage = this.listState.currentPage;
   public readonly subjects = this.listState.data;
   public readonly hasGroup = Boolean(this.user?.group_id);
+  public readonly hasSearchValue = computed(() => this.searchValue().trim().length > 0);
+  public readonly favoriteSubjectIds = signal<Set<number>>(new Set<number>());
+  public readonly hiddenSubjectIds = signal<Set<number>>(new Set<number>());
+  public readonly showHiddenSubjects = signal(false);
+  public readonly showOnlyFavorites = signal(false);
+  public readonly visibleSubjects = computed(() => {
+    const favorites = this.favoriteSubjectIds();
+    const hidden = this.hiddenSubjectIds();
+    const showHidden = this.showHiddenSubjects();
+    const onlyFavorites = this.showOnlyFavorites();
+
+    return [...this.subjects()]
+      .filter((subject) => showHidden || !hidden.has(subject.id))
+      .filter((subject) => !onlyFavorites || favorites.has(subject.id))
+      .sort((left, right) => {
+        const leftHidden = hidden.has(left.id);
+        const rightHidden = hidden.has(right.id);
+        const leftFavorite = favorites.has(left.id);
+        const rightFavorite = favorites.has(right.id);
+
+        if (leftHidden !== rightHidden) {
+          return leftHidden ? 1 : -1;
+        }
+
+        if (leftFavorite === rightFavorite) {
+          return 0;
+        }
+
+        return leftFavorite ? -1 : 1;
+      });
+  });
   public readonly trackBySubject = (_index: number, subject: StudentSubjectEntity): number => subject.id;
 
   public ngOnInit(): void {
@@ -71,7 +102,8 @@ export class StudentSubjectsListComponent implements OnInit {
       return;
     }
 
-    this.applySort();
+    this.restorePreferences();
+    this.listState.load();
   }
 
   public loadSubjects(resetToFirstPage = false): void {
@@ -91,33 +123,78 @@ export class StudentSubjectsListComponent implements OnInit {
     this.listState.onPageChange(event.pageIndex + 1);
   }
 
-  public applyFilter(value: string): void {
-    this.listState.applyFilter(value);
-  }
-
   public clearSearch(): void {
     this.listState.clearSearch();
   }
 
-  public resetFilters(): void {
-    if (!this.hasGroup) {
-      return;
-    }
-
-    this.searchValue.set('');
-    this.sortField.set(DEFAULT_SORT_FIELD);
-    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
-    this.applySort();
+  public setSearchValue(value: string): void {
+    this.listState.applyFilter(value);
   }
 
-  public setSortField(field: SubjectSortField): void {
-    this.sortField.set(field);
-    this.applySort();
+  public isFavorite(subjectId: number): boolean {
+    return this.favoriteSubjectIds().has(subjectId);
   }
 
-  public toggleSortDirection(): void {
-    this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
-    this.applySort();
+  public isHidden(subjectId: number): boolean {
+    return this.hiddenSubjectIds().has(subjectId);
+  }
+
+  public toggleFavorite(subjectId: number): void {
+    this.favoriteSubjectIds.update((current) => {
+      const next = new Set(current);
+
+      if (next.has(subjectId)) {
+        next.delete(subjectId);
+      } else {
+        next.add(subjectId);
+      }
+
+      return next;
+    });
+
+    this.persistPreferences();
+  }
+
+  public hideSubject(subjectId: number): void {
+    this.hiddenSubjectIds.update((current) => {
+      const next = new Set(current);
+      next.add(subjectId);
+      return next;
+    });
+
+    this.favoriteSubjectIds.update((current) => {
+      if (!current.has(subjectId)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.delete(subjectId);
+      return next;
+    });
+
+    this.persistPreferences();
+  }
+
+  public restoreHiddenSubject(subjectId: number): void {
+    this.hiddenSubjectIds.update((current) => {
+      if (!current.has(subjectId)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.delete(subjectId);
+      return next;
+    });
+
+    this.persistPreferences();
+  }
+
+  public toggleHiddenSubjectsVisibility(): void {
+    this.showHiddenSubjects.update((current) => !current);
+  }
+
+  public toggleOnlyFavorites(): void {
+    this.showOnlyFavorites.update((current) => !current);
   }
 
   public loadMoreSubjects(): void {
@@ -128,21 +205,8 @@ export class StudentSubjectsListComponent implements OnInit {
     return this.listState.total;
   }
 
-  public get filteredSubjectsCount(): number {
-    return this.listState.total;
-  }
-
   public get hasMoreSubjects(): boolean {
     return this.listState.hasMore;
-  }
-
-  private applySort(): void {
-    const sort: Sort = {
-      active: this.sortField(),
-      direction: this.sortDirection(),
-    };
-
-    this.listState.onSortChange(sort);
   }
 
   private getSubjectsPage(query: ListQuery<Record<string, string | number>>): Observable<{ items: StudentSubjectEntity[]; total: number }> {
@@ -156,8 +220,8 @@ export class StudentSubjectsListComponent implements OnInit {
       page: query.page,
       limit: query.limit,
       groupId,
-      sortBy: query.sortBy as 'subject_id' | 'subject_name' | undefined,
-      order: query.order,
+      sortBy: DEFAULT_SORT_FIELD,
+      order: DEFAULT_SORT_DIRECTION,
       filters: query.filters,
     };
 
@@ -175,6 +239,60 @@ export class StudentSubjectsListComponent implements OnInit {
     }
 
     return { subject_name: `*${search}` };
+  }
+
+  private restorePreferences(): void {
+    const storageKey = this.getStorageKey();
+
+    if (!storageKey) {
+      return;
+    }
+
+    try {
+      const rawValue = localStorage.getItem(storageKey);
+
+      if (!rawValue) {
+        return;
+      }
+
+      const parsed = JSON.parse(rawValue) as SubjectPreferences;
+
+      this.favoriteSubjectIds.set(new Set(parsed.favoriteSubjectIds ?? []));
+      this.hiddenSubjectIds.set(new Set(parsed.hiddenSubjectIds ?? []));
+    } catch {
+      this.resetPreferences();
+    }
+  }
+
+  private persistPreferences(): void {
+    const storageKey = this.getStorageKey();
+
+    if (!storageKey) {
+      return;
+    }
+
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        favoriteSubjectIds: [...this.favoriteSubjectIds()],
+        hiddenSubjectIds: [...this.hiddenSubjectIds()],
+      }),
+    );
+  }
+
+  private getStorageKey(): string | null {
+    const userId = this.user?.id;
+
+    if (!userId) {
+      return null;
+    }
+
+    return `${STORAGE_NAMESPACE}:${userId}`;
+  }
+
+  private resetPreferences(): void {
+    this.favoriteSubjectIds.set(new Set<number>());
+    this.hiddenSubjectIds.set(new Set<number>());
   }
 }
 

@@ -5,8 +5,28 @@
   [attr.aria-label]="('COMMON.ACTIONS.OPEN' | translate) + ' ' + subject().name"
 >
   <mat-card class="nav-card" appearance="outlined">
+    <div class="nav-card__actions">
+      <button
+        type="button"
+        class="nav-card__action-btn"
+        [class.nav-card__action-btn--active]="isFavorite()"
+        [attr.aria-label]="isFavorite() ? 'Убрать из избранного' : 'Добавить в избранное'"
+        (click)="onFavoriteClick($event)"
+      >
+        <mat-icon>{{ isFavorite() ? 'star' : 'star_outline' }}</mat-icon>
+      </button>
+
+      <button
+        type="button"
+        class="nav-card__action-btn"
+        [attr.aria-label]="isHidden() ? 'Вернуть предмет' : 'Скрыть предмет'"
+        (click)="onHiddenClick($event)"
+      >
+        <mat-icon>{{ isHidden() ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+    </div>
+
     <div class="nav-card__avatar">{{ subject().name.charAt(0).toUpperCase() }}</div>
     <span class="nav-card__name">{{ subject().name }}</span>
-    <mat-icon class="nav-card__arrow">chevron_right</mat-icon>
   </mat-card>
 </a>
