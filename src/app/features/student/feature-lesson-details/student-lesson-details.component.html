@@ -1,70 +1,141 @@
-<section class="student-lesson-details">
+<section class="student-lesson-details page">
   @if (isLoading()) {
-  <mat-card appearance="outlined">
-    <mat-progress-bar mode="indeterminate" />
-  </mat-card>
+    <div class="state state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
   } @else if (error(); as errorText) {
-  <mat-card appearance="outlined">{{ errorText }}</mat-card>
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorText }}</p>
+    </div>
   } @else if (lesson(); as lessonData) {
-  <mat-card appearance="outlined" class="student-lesson-details__card">
-    <div class="student-lesson-details__header">
-      <a mat-stroked-button [routerLink]="['/student/subjects', lessonData.subject_id]">
+    <div class="page__header">
+      <a
+        mat-stroked-button
+        class="page__back-btn"
+        [routerLink]="['/student/subjects', lessonData.subject_id]"
+      >
         <mat-icon>arrow_back</mat-icon>
         {{ 'COMMON.ACTIONS.BACK' | translate }}
       </a>
+
+      <div class="page__title-block">
+        <div class="page__title-icon-wrap">
+          <mat-icon class="page__title-icon">assignment</mat-icon>
+        </div>
+
+        <div class="page__title-content">
+          <div class="page__status-row">
+            @switch (status()) {
+              @case ('submitted') {
+                <span class="status-badge status-badge--submitted">{{ 'COMMON.STATUS.SUBMITTED' | translate }}</span>
+              }
+              @case ('overdue') {
+                <span class="status-badge status-badge--overdue">{{ 'COMMON.STATUS.OVERDUE' | translate }}</span>
+              }
+              @default {
+                <span class="status-badge status-badge--pending">{{ 'COMMON.STATUS.PENDING' | translate }}</span>
+              }
+            }
+          </div>
+
+          <h1 class="page__title">{{ getLessonTitle(lessonData) }}</h1>
+          <p class="page__subtitle">{{ getLessonDescription(lessonData) }}</p>
+        </div>
+      </div>
     </div>
 
-    <h2>{{ lessonData.title || lessonData.topic }}</h2>
-    <p>{{ lessonData.description || lessonData.topic }}</p>
+    <div class="student-lesson-details__layout">
+      <mat-card appearance="outlined" class="info-card">
+        <mat-card-content class="info-card__content">
+          <div class="info-card__meta-list">
+            <div class="meta-item">
+              <span class="meta-item__label">{{ 'COMMON.FIELDS.DATE' | translate }}</span>
+              <span class="meta-item__value">{{ lessonData.date }}</span>
+            </div>
 
-    <div class="student-lesson-details__meta">
-      <span>{{ 'COMMON.FIELDS.DATE' | translate }}: {{ lessonData.date }}</span>
-      <span>
-        {{ 'COMMON.FIELDS.DEADLINE' | translate }}:
-        {{ lessonData.due_at ? (lessonData.due_at | date:'dd.MM.yyyy HH:mm') : '—' }}
-      </span>
-      <span>
-        {{ 'COMMON.FIELDS.STATUS' | translate }}:
-        @switch (status()) {
-        @case ('submitted') {
-        {{ 'COMMON.STATUS.SUBMITTED' | translate }}
-        }
-        @case ('overdue') {
-        {{ 'COMMON.STATUS.OVERDUE' | translate }}
-        }
-        @default {
-        {{ 'COMMON.STATUS.PENDING' | translate }}
-        }
-        }
-      </span>
+            <div class="meta-item">
+              <span class="meta-item__label">{{ 'COMMON.FIELDS.DEADLINE' | translate }}</span>
+              <span class="meta-item__value">
+                {{ getLessonDueAt(lessonData) ? (getLessonDueAt(lessonData) | date:'dd.MM.yyyy HH:mm') : '—' }}
+              </span>
+            </div>
+
+            <div class="meta-item">
+              <span class="meta-item__label">{{ 'COMMON.FIELDS.STATUS' | translate }}</span>
+              <span class="meta-item__value meta-item__value--status">
+                @switch (status()) {
+                  @case ('submitted') {
+                    {{ 'COMMON.STATUS.SUBMITTED' | translate }}
+                  }
+                  @case ('overdue') {
+                    {{ 'COMMON.STATUS.OVERDUE' | translate }}
+                  }
+                  @default {
+                    {{ 'COMMON.STATUS.PENDING' | translate }}
+                  }
+                }
+              </span>
+            </div>
+          </div>
+
+          @if (submission()?.teacher_comment || submission()?.mark != null) {
+            <div class="feedback-panel">
+              <div class="feedback-panel__header">
+                <div class="feedback-panel__title-group">
+                  <mat-icon>star</mat-icon>
+                  <span>{{ 'COMMON.FIELDS.MARK' | translate }}</span>
+                </div>
+
+                @if (submission()?.mark != null) {
+                  <span class="feedback-item__mark">{{ submission()?.mark }}</span>
+                }
+              </div>
+
+              <div class="feedback-panel__content">
+                @if (submission()?.teacher_comment) {
+                  <div class="feedback-item">
+                    <span class="feedback-item__label">{{ 'COMMON.FIELDS.COMMENT' | translate }}</span>
+                    <p class="feedback-item__text">{{ submission()?.teacher_comment }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="editor-card">
+        <mat-card-content class="editor-card__content">
+          <div class="editor-card__header">
+            <div>
+              <h2 class="editor-card__title">{{ 'COMMON.FIELDS.ANSWER' | translate }}</h2>
+              <p class="editor-card__subtitle">Заполните ответ и сохраните изменения.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-lesson-details__form">
+            <mat-form-field appearance="outline" class="student-lesson-details__field">
+              <mat-label>{{ 'COMMON.FIELDS.ANSWER' | translate }}</mat-label>
+              <textarea matInput rows="12" formControlName="answer_text"></textarea>
+            </mat-form-field>
+
+            @if (success(); as successText) {
+              <div class="form-message form-message--success">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ successText }}</span>
+              </div>
+            }
+
+            <div class="student-lesson-details__actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+                <mat-icon>save</mat-icon>
+                {{ 'COMMON.ACTIONS.SAVE' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
     </div>
-
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-lesson-details__form">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'COMMON.FIELDS.ANSWER' | translate }}</mat-label>
-        <textarea matInput rows="10" formControlName="answer_text"></textarea>
-      </mat-form-field>
-
-      @if (submission()?.teacher_comment) {
-      <p class="student-lesson-details__teacher-comment">
-        {{ 'COMMON.FIELDS.COMMENT' | translate }}: {{ submission()?.teacher_comment }}
-      </p>
-      }
-
-      @if (submission()?.mark != null) {
-      <p class="student-lesson-details__teacher-mark">
-        {{ 'COMMON.FIELDS.MARK' | translate }}: {{ submission()?.mark }}
-      </p>
-      }
-
-      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
-        {{ 'COMMON.ACTIONS.SAVE' | translate }}
-      </button>
-    </form>
-
-    @if (success(); as successText) {
-    <p class="student-lesson-details__success">{{ successText }}</p>
-    }
-  </mat-card>
   }
 </section>

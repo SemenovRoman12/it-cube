@@ -72,6 +72,18 @@ export class StudentLessonDetailsComponent implements OnInit {
     return new Date(dueAt).getTime() < Date.now() ? 'overdue' : 'pending';
   });
 
+  public getLessonTitle(lesson: StudentLessonEntity): string {
+    return (lesson as StudentLessonEntity & { title?: string }).title || lesson.topic;
+  }
+
+  public getLessonDescription(lesson: StudentLessonEntity): string {
+    return (lesson as StudentLessonEntity & { description?: string }).description || lesson.topic;
+  }
+
+  public getLessonDueAt(lesson: StudentLessonEntity): string | null {
+    return (lesson as StudentLessonEntity & { due_at?: string }).due_at ?? null;
+  }
+
   public ngOnInit(): void {
     this.loadData();
   }
