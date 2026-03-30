@@ -32,6 +32,7 @@ export class StudentSubjectLessonsComponent implements OnInit {
   public readonly lessons = signal<StudentLessonEntity[]>([]);
   public readonly submissionsByLessonId = signal<Record<number, LessonSubmissionEntity | null>>({});
   public readonly isLoading = signal(false);
+  public readonly isProgressExpanded = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly displayedColumns = ['date', 'title', 'due', 'status', 'action'];
 
@@ -133,6 +134,10 @@ export class StudentSubjectLessonsComponent implements OnInit {
 
   public getLessonTitle(lesson: StudentLessonEntity): string {
     return lesson.title?.trim() || lesson.topic;
+  }
+
+  public toggleProgressExpanded(): void {
+    this.isProgressExpanded.update((value) => !value);
   }
 
   public getLessonStatus(lesson: StudentLessonEntity): 'submitted' | 'pending' | 'overdue' {

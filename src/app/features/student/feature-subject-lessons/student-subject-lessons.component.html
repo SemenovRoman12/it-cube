@@ -29,58 +29,50 @@
       <p>{{ 'STUDENT.LESSONS.EMPTY' | translate }}</p>
     </div>
   } @else {
-    <mat-card appearance="outlined" class="progress-card">
-      <mat-card-content>
-        <div class="progress-card__header">
-          <div>
-            <p class="progress-card__eyebrow">{{ 'STUDENT.LESSONS.PROGRESS.LABEL' | translate }}</p>
-            <h2 class="progress-card__title">{{ 'STUDENT.LESSONS.PROGRESS.TITLE' | translate }}</h2>
+    <div class="progress-card">
+        <button type="button" class="progress-card__compact" (click)="toggleProgressExpanded()">
+          <span class="progress-card__compact-percent">{{ progress().completionPercent }}%</span>
+
+          <div class="progress-card__compact-bar">
+            <span class="progress-card__bar-segment progress-card__bar-segment--success" [style.width.%]="progress().submittedPercent"></span>
+            <span class="progress-card__bar-segment progress-card__bar-segment--warn" [style.width.%]="progress().overduePercent"></span>
+            <span class="progress-card__bar-segment progress-card__bar-segment--neutral" [style.width.%]="progress().pendingPercent"></span>
           </div>
 
-          <div class="progress-card__summary">
-            <span class="progress-card__percent">{{ progress().completionPercent }}%</span>
-            <span class="progress-card__caption">
-              {{ 'STUDENT.LESSONS.PROGRESS.COMPLETED_OF_TOTAL' | translate:{ completed: progress().submitted, total: progress().total } }}
-            </span>
-          </div>
-        </div>
+          <mat-icon class="progress-card__compact-icon">{{ isProgressExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
 
-        <div class="progress-card__bar" aria-hidden="true">
-          <span class="progress-card__bar-segment progress-card__bar-segment--success" [style.width.%]="progress().submittedPercent"></span>
-          <span class="progress-card__bar-segment progress-card__bar-segment--warn" [style.width.%]="progress().overduePercent"></span>
-          <span class="progress-card__bar-segment progress-card__bar-segment--neutral" [style.width.%]="progress().pendingPercent"></span>
-        </div>
-
-        <div class="progress-breakdown">
-          <div class="progress-breakdown__item progress-breakdown__item--success">
-            <div class="progress-breakdown__main">
-              <span class="progress-breakdown__dot"></span>
-              <mat-icon class="progress-breakdown__icon">task_alt</mat-icon>
-              <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.SUBMITTED' | translate }}</span>
+        @if (isProgressExpanded()) {
+          <div class="progress-breakdown">
+            <div class="progress-breakdown__item progress-breakdown__item--success">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">task_alt</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.SUBMITTED' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().submitted }}</strong>
             </div>
-            <strong class="progress-breakdown__value">{{ progress().submitted }}</strong>
-          </div>
 
-          <div class="progress-breakdown__item progress-breakdown__item--warn">
-            <div class="progress-breakdown__main">
-              <span class="progress-breakdown__dot"></span>
-              <mat-icon class="progress-breakdown__icon">schedule</mat-icon>
-              <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.OVERDUE' | translate }}</span>
+            <div class="progress-breakdown__item progress-breakdown__item--warn">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">schedule</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.OVERDUE' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().overdue }}</strong>
             </div>
-            <strong class="progress-breakdown__value">{{ progress().overdue }}</strong>
-          </div>
 
-          <div class="progress-breakdown__item progress-breakdown__item--neutral">
-            <div class="progress-breakdown__main">
-              <span class="progress-breakdown__dot"></span>
-              <mat-icon class="progress-breakdown__icon">hourglass_empty</mat-icon>
-              <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.PENDING' | translate }}</span>
+            <div class="progress-breakdown__item progress-breakdown__item--neutral">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">hourglass_empty</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.PENDING' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().pending }}</strong>
             </div>
-            <strong class="progress-breakdown__value">{{ progress().pending }}</strong>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        }
+    </div>
 
     <mat-card class="lessons-card">
       <mat-card-content>

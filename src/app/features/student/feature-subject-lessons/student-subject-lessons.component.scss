@@ -43,24 +43,74 @@
 
 .progress-card {
   margin-bottom: 20px;
-  border-radius: 18px !important;
-  border-color: var(--mat-sys-outline-variant) !important;
-  background: var(--mat-sys-surface-container-low);
-  overflow: hidden;
-
-  mat-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 24px !important;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .progress-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
+}
+
+.progress-card__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-card__compact {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.progress-card__compact-bar {
+  display: flex;
+  flex: 1;
+  min-width: 80px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.progress-card__compact-percent {
+  font-size: 1.2rem;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.progress-card__compact-caption {
+  font-size: 0.82rem;
+  color: var(--mat-sys-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progress-card__compact-icon {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.progress-card__expanded-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-card__collapse-btn {
+  flex-shrink: 0;
 }
 
 .progress-card__eyebrow {
@@ -85,6 +135,7 @@
   align-items: flex-end;
   gap: 4px;
   text-align: right;
+  margin-left: auto;
 }
 
 .progress-card__percent {
@@ -105,6 +156,13 @@
   border-radius: 999px;
   overflow: hidden;
   background: var(--mat-sys-surface-container-high);
+}
+
+.progress-card__bar-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .progress-card__bar-segment {
@@ -297,18 +355,30 @@
   .page { padding: 20px 16px; }
 
   .progress-card {
-    mat-card-content {
-      padding: 18px !important;
-    }
+    gap: 10px;
   }
 
   .progress-card__header {
     flex-direction: column;
   }
 
+  .progress-card__toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .progress-card__compact {
+    width: 100%;
+  }
+
+  .progress-card__expanded-bar {
+    width: 100%;
+  }
+
   .progress-card__summary {
     align-items: flex-start;
     text-align: left;
+    margin-left: 0;
   }
 
   .progress-breakdown__item {

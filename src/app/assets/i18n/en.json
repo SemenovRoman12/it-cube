@@ -376,6 +376,7 @@
       "PROGRESS": {
         "LABEL": "Subject progress",
         "TITLE": "Course completion",
+        "TOGGLE_DETAILS": "Details",
         "COMPLETED_OF_TOTAL": "Completed {{completed}} of {{total}}",
         "SUBMITTED": "Submitted",
         "OVERDUE": "Overdue",

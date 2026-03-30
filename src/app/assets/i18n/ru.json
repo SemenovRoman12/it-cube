@@ -376,6 +376,7 @@
       "PROGRESS": {
         "LABEL": "Прогресс по предмету",
         "TITLE": "Закрытие курса",
+        "TOGGLE_DETAILS": "Подробности",
         "COMPLETED_OF_TOTAL": "Выполнено {{completed}} из {{total}}",
         "SUBMITTED": "Сдано",
         "OVERDUE": "Просрочено",
