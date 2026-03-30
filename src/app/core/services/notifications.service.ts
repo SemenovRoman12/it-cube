@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { interval, Observable, Subject, Subscription, catchError, forkJoin, map, of, startWith, switchMap, takeUntil, tap } from 'rxjs';
+import { Observable, Subscription, catchError, forkJoin, map, of, startWith, switchMap, tap, timer } from 'rxjs';
 import { AuthService } from '../auth/services/auth.service';
 import { ApiService } from '../http/api.service';
 import { NotificationCreate, NotificationEntity } from '../models/notification.model';
@@ -13,7 +13,6 @@ export class NotificationsService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  private readonly destroyPolling$ = new Subject<void>();
   private pollingSubscription: Subscription | null = null;
 
   private readonly _notifications = signal<NotificationEntity[]>([]);
@@ -27,23 +26,18 @@ export class NotificationsService {
   public startPolling(intervalMs = 30000): void {
     this.stopPolling();
 
-    if (!this.canLoadNotifications()) {
+    if (!this.getCurrentUserId()) {
       return;
     }
 
-    this.loadUnreadCount().subscribe();
-
-    this.pollingSubscription = interval(intervalMs)
+    this.pollingSubscription = timer(0, intervalMs)
       .pipe(
-        startWith(0),
-        takeUntil(this.destroyPolling$),
         switchMap(() => this.loadUnreadCount()),
       )
       .subscribe();
   }
 
   public stopPolling(): void {
-    this.destroyPolling$.next();
     this.pollingSubscription?.unsubscribe();
     this.pollingSubscription = null;
   }
@@ -56,24 +50,23 @@ export class NotificationsService {
   }
 
   public getNotificationsForCurrentUser(): Observable<NotificationEntity[]> {
-    const currentUser = this.authService.user();
+    const currentUserId = this.getCurrentUserId();
 
-    if (!currentUser) {
-      this._notifications.set([]);
+    if (!currentUserId) {
+      this.setNotificationsState([]);
       return of([]);
     }
 
     this._isLoading.set(true);
 
     return this.api
-      .get<NotificationEntity[]>(`notifications?user_id=${currentUser.id}`)
+      .get<NotificationEntity[]>(`notifications?user_id=${currentUserId}`)
       .pipe(
         map((items) => this.sortNotifications(items)),
-        tap((items) => this._notifications.set(items)),
-        tap((items) => this._unreadCount.set(items.filter((item) => !item.is_read).length)),
+        tap((items) => this.setNotificationsState(items)),
         tap(() => this._isLoading.set(false)),
         catchError(() => {
-          this._notifications.set([]);
+          this.setNotificationsState([]);
           this._isLoading.set(false);
           return of([]);
         }),
@@ -81,14 +74,14 @@ export class NotificationsService {
   }
 
   public loadUnreadCount(): Observable<number> {
-    const currentUser = this.authService.user();
+    const currentUserId = this.getCurrentUserId();
 
-    if (!currentUser) {
+    if (!currentUserId) {
       this._unreadCount.set(0);
       return of(0);
     }
 
-    return this.api.get<NotificationEntity[]>(`notifications?user_id=${currentUser.id}&is_read=false`).pipe(
+    return this.api.get<NotificationEntity[]>(`notifications?user_id=${currentUserId}&is_read=false`).pipe(
       map((items) => items.length),
       tap((count) => this._unreadCount.set(count)),
       catchError(() => {
@@ -152,8 +145,13 @@ export class NotificationsService {
     });
   }
 
-  private canLoadNotifications(): boolean {
-    return !!this.authService.user();
+  private getCurrentUserId(): number | null {
+    return this.authService.user()?.id ?? null;
+  }
+
+  private setNotificationsState(items: NotificationEntity[]): void {
+    this._notifications.set(items);
+    this._unreadCount.set(items.filter((item) => !item.is_read).length);
   }
 
   private sortNotifications(items: NotificationEntity[]): NotificationEntity[] {

@@ -50,7 +50,6 @@ export class HeaderLayoutComponent {
   public ngOnInit(): void {
     if (this.currentUser()?.role === 'user') {
       this.notificationsService.startPolling();
-      this.notificationsService.loadUnreadCount().subscribe();
     }
   }
 

@@ -79,18 +79,21 @@
 
 .notifications-popover__item--unread {
   background: var(--sys-primary-container);
+  color: var(--sys-on-primary-container);
 }
 
 .notifications-popover__item:hover {
   background: var(--sys-surface-container-high);
   transform: translateY(-1px);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--sys-shadow) 8%, transparent);
+  color: var(--sys-on-surface);
 }
 
 .notifications-popover__item-action {
   appearance: none;
   border: 0;
   background: transparent;
+  color: inherit;
   width: 100%;
   max-width: 100%;
   display: block;
@@ -114,7 +117,7 @@
   height: 32px;
   padding: 0;
   line-height: 0;
-  color: var(--sys-on-surface-variant);
+  color: inherit;
 }
 
 .notifications-popover__item-main {
@@ -157,6 +160,14 @@
 .notifications-popover__item-date {
   color: var(--sys-on-surface-variant);
   font-size: 12px;
+}
+
+.notifications-popover__item--unread .notifications-popover__item-date {
+  color: var(--sys-on-primary-container);
+}
+
+.notifications-popover__item:hover .notifications-popover__item-date {
+  color: var(--sys-on-surface-variant);
 }
 
 @media (max-width: 599px) {

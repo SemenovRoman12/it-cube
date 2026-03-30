@@ -48,6 +48,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly journalApi = inject(TeacherJournalApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly lessonTitle = computed(() => this.lesson()?.title?.trim() || this.lesson()?.topic || '');
 
   public readonly lesson = signal<LessonEntity | null>(null);
   public readonly student = signal<UserEntity | null>(null);
@@ -231,9 +232,10 @@ export class TeacherLessonEvaluateComponent implements OnInit {
     oldMark: MarkValue | null,
   ) {
     const title = isUpdated ? 'Оценка изменена' : 'Новая оценка';
+    const lessonTitle = lesson.title?.trim() || lesson.topic;
     const message = isUpdated
-      ? `Ваша оценка изменена с ${oldMark ?? '—'} на ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`
-      : `Вам выставлена оценка ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`;
+      ? `Ваша оценка изменена с ${oldMark ?? '—'} на ${mark} по занятию "${lessonTitle}"`
+      : `Вам выставлена оценка ${mark} по занятию "${lessonTitle}"`;
 
     const payload: NotificationCreate = {
       user_id: student.id,
