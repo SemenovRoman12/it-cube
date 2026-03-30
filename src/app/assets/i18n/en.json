@@ -372,7 +372,16 @@
     "LESSONS": {
       "BACK_TO_SUBJECTS": "Back to subjects",
       "SUBTITLE": "List of all lessons for selected subject",
-      "EMPTY": "No lessons for this subject yet."
+      "EMPTY": "No lessons for this subject yet.",
+      "PROGRESS": {
+        "LABEL": "Subject progress",
+        "TITLE": "Course completion",
+        "TOGGLE_DETAILS": "Details",
+        "COMPLETED_OF_TOTAL": "Completed {{completed}} of {{total}}",
+        "SUBMITTED": "Submitted",
+        "OVERDUE": "Overdue",
+        "PENDING": "Not completed"
+      }
     }
   }
 }

@@ -32,10 +32,52 @@ export class StudentSubjectLessonsComponent implements OnInit {
   public readonly lessons = signal<StudentLessonEntity[]>([]);
   public readonly submissionsByLessonId = signal<Record<number, LessonSubmissionEntity | null>>({});
   public readonly isLoading = signal(false);
+  public readonly isProgressExpanded = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly displayedColumns = ['date', 'title', 'due', 'status', 'action'];
 
   public readonly subjectName = computed(() => this.route.snapshot.queryParamMap.get('name') ?? 'Предмет');
+  public readonly progress = computed(() => {
+    const lessons = this.lessons();
+
+    if (!lessons.length) {
+      return {
+        total: 0,
+        submitted: 0,
+        overdue: 0,
+        pending: 0,
+        completionPercent: 0,
+        submittedPercent: 0,
+        overduePercent: 0,
+        pendingPercent: 0,
+      };
+    }
+
+    const stats = lessons.reduce(
+      (acc, lesson) => {
+        const status = this.getLessonStatus(lesson);
+
+        acc[status] += 1;
+        return acc;
+      },
+      {
+        submitted: 0,
+        overdue: 0,
+        pending: 0,
+      } as Record<'submitted' | 'overdue' | 'pending', number>,
+    );
+
+    return {
+      total: lessons.length,
+      submitted: stats.submitted,
+      overdue: stats.overdue,
+      pending: stats.pending,
+      completionPercent: Math.round((stats.submitted / lessons.length) * 100),
+      submittedPercent: (stats.submitted / lessons.length) * 100,
+      overduePercent: (stats.overdue / lessons.length) * 100,
+      pendingPercent: (stats.pending / lessons.length) * 100,
+    };
+  });
 
   public ngOnInit(): void {
     this.loadLessons();
@@ -92,6 +134,10 @@ export class StudentSubjectLessonsComponent implements OnInit {
 
   public getLessonTitle(lesson: StudentLessonEntity): string {
     return lesson.title?.trim() || lesson.topic;
+  }
+
+  public toggleProgressExpanded(): void {
+    this.isProgressExpanded.update((value) => !value);
   }
 
   public getLessonStatus(lesson: StudentLessonEntity): 'submitted' | 'pending' | 'overdue' {

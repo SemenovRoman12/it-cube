@@ -29,6 +29,51 @@
       <p>{{ 'STUDENT.LESSONS.EMPTY' | translate }}</p>
     </div>
   } @else {
+    <div class="progress-card">
+        <button type="button" class="progress-card__compact" (click)="toggleProgressExpanded()">
+          <span class="progress-card__compact-percent">{{ progress().completionPercent }}%</span>
+
+          <div class="progress-card__compact-bar">
+            <span class="progress-card__bar-segment progress-card__bar-segment--success" [style.width.%]="progress().submittedPercent"></span>
+            <span class="progress-card__bar-segment progress-card__bar-segment--warn" [style.width.%]="progress().overduePercent"></span>
+            <span class="progress-card__bar-segment progress-card__bar-segment--neutral" [style.width.%]="progress().pendingPercent"></span>
+          </div>
+
+          <mat-icon class="progress-card__compact-icon">{{ isProgressExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
+
+        @if (isProgressExpanded()) {
+          <div class="progress-breakdown progress-breakdown--animated">
+            <div class="progress-breakdown__item progress-breakdown__item--success">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">task_alt</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.SUBMITTED' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().submitted }}</strong>
+            </div>
+
+            <div class="progress-breakdown__item progress-breakdown__item--warn">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">schedule</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.OVERDUE' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().overdue }}</strong>
+            </div>
+
+            <div class="progress-breakdown__item progress-breakdown__item--neutral">
+              <div class="progress-breakdown__main">
+                <span class="progress-breakdown__dot"></span>
+                <mat-icon class="progress-breakdown__icon">hourglass_empty</mat-icon>
+                <span class="progress-breakdown__label">{{ 'STUDENT.LESSONS.PROGRESS.PENDING' | translate }}</span>
+              </div>
+              <strong class="progress-breakdown__value">{{ progress().pending }}</strong>
+            </div>
+          </div>
+        }
+    </div>
+
     <mat-card class="lessons-card">
       <mat-card-content>
         <table mat-table [dataSource]="lessons()" class="lessons-table">
