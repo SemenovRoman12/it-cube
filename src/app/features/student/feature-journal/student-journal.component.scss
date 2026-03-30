@@ -1,0 +1,166 @@
+.student-journal {
+  display: grid;
+  gap: 24px;
+}
+
+.student-journal__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  border-radius: 20px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: none;
+}
+
+.summary-card--accent {
+  border-color: color-mix(in srgb, var(--mat-sys-primary) 30%, var(--mat-sys-outline-variant));
+  background: color-mix(in srgb, var(--mat-sys-primary-container) 30%, var(--mat-sys-surface-container-low));
+}
+
+.summary-card__label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+  font-size: 14px;
+}
+
+.summary-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.student-journal__accordion,
+.subject-panel,
+.subject-panel__table-wrap {
+  width: 100%;
+}
+
+.student-journal__accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subject-panel,
+.subject-panel.mat-expansion-panel {
+  border-radius: 20px !important;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+.subject-panel::before,
+.subject-panel.mat-expansion-panel::before,
+.subject-panel::after,
+.subject-panel.mat-expansion-panel::after {
+  display: none !important;
+}
+
+.subject-panel :is(.mat-expansion-panel-header, .mat-expansion-panel-body) {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-header,
+.subject-panel .mat-expansion-panel-content,
+.subject-panel .mat-expansion-panel-body {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.subject-panel .mat-expansion-panel-header {
+  border-bottom: none;
+}
+
+.subject-panel .mat-expansion-panel-header.mat-expanded {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-header:hover {
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 55%, transparent);
+}
+
+.subject-panel .mat-expansion-panel-content {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-body {
+  border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 75%, transparent);
+}
+
+.subject-panel__empty {
+  padding: 16px 0 4px;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}
+
+.subject-panel__table-wrap {
+  padding-top: 8px;
+}
+
+.journal-table {
+  width: 100%;
+  background: transparent;
+}
+
+.journal-table th {
+  color: var(--mat-sys-on-surface-variant);
+  border-bottom-color: var(--mat-sys-outline-variant);
+}
+
+.journal-table td {
+  color: var(--mat-sys-on-surface);
+  border-bottom-color: color-mix(in srgb, var(--mat-sys-outline-variant) 65%, transparent);
+}
+
+.journal-table__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 24%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-primary-container) 55%, transparent);
+  color: var(--mat-sys-on-primary-container);
+  font-weight: 700;
+}
+
+.journal-table__mark--empty {
+  border-color: color-mix(in srgb, var(--mat-sys-outline-variant) 90%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 90%, transparent);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.state--error,
+.state--empty {
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}
+
+@media (max-width: 768px) {
+  .student-journal__summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .journal-table {
+    min-width: 720px;
+  }
+
+  .subject-panel__table-wrap {
+    overflow-x: auto;
+  }
+}
