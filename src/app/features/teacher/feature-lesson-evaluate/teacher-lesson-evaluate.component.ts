@@ -19,6 +19,12 @@ import { JournalEntryEntity, MarkValue } from '../models/journal-entry.model';
 import { LessonEntity } from '../models/lesson.model';
 import { TeacherJournalApiService } from '../services/teacher-journal-api.service';
 
+interface JournalEntrySaveResult {
+  entry: JournalEntryEntity;
+  isUpdated: boolean;
+  oldMark: MarkValue | null;
+}
+
 @Component({
   selector: 'teacher-lesson-evaluate',
   imports: [
@@ -97,10 +103,10 @@ export class TeacherLessonEvaluateComponent implements OnInit {
         switchMap((savedSubmission) =>
           this.upsertJournalEntry(lesson.id, student.id, mark, savedSubmission.teacher_comment),
         ),
-        switchMap((entry) =>
-          this.createMarkNotification(lesson, student, mark, entry.id).pipe(
-            map(() => entry),
-            catchError(() => of(entry)),
+        switchMap((result) =>
+          this.createMarkNotification(lesson, student, mark, result.entry.id, result.isUpdated, result.oldMark).pipe(
+            map(() => result),
+            catchError(() => of(result)),
           ),
         ),
         finalize(() => this.isSaving.set(false)),
@@ -202,7 +208,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
             mark,
             comment,
             attendance: existing.attendance,
-          });
+          }).pipe(map((entry) => ({ entry, isUpdated: true, oldMark: existing.mark } satisfies JournalEntrySaveResult)));
         }
 
         return this.journalApi.createJournalEntry({
@@ -211,17 +217,29 @@ export class TeacherLessonEvaluateComponent implements OnInit {
           mark,
           attendance: 'present',
           comment,
-        });
+        }).pipe(map((entry) => ({ entry, isUpdated: false, oldMark: null } satisfies JournalEntrySaveResult)));
       }),
     );
   }
 
-  private createMarkNotification(lesson: LessonEntity, student: UserEntity, mark: MarkValue, journalEntryId: number) {
+  private createMarkNotification(
+    lesson: LessonEntity,
+    student: UserEntity,
+    mark: MarkValue,
+    journalEntryId: number,
+    isUpdated: boolean,
+    oldMark: MarkValue | null,
+  ) {
+    const title = isUpdated ? 'Оценка изменена' : 'Новая оценка';
+    const message = isUpdated
+      ? `Ваша оценка изменена с ${oldMark ?? '—'} на ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`
+      : `Вам выставлена оценка ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`;
+
     const payload: NotificationCreate = {
       user_id: student.id,
       type: 'mark_assigned',
-      title: 'Новая оценка',
-      message: `Вам выставлена оценка ${mark} по занятию "${lesson.title?.trim() || lesson.topic}"`,
+      title,
+      message,
       is_read: false,
       created_at: new Date().toISOString(),
       read_at: null,

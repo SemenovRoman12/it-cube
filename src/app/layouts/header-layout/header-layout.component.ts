@@ -1,11 +1,11 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, OnInit, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, OnInit, ViewChild, output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { NotificationsService } from '../../core/services/notifications.service';
@@ -37,6 +37,9 @@ export class HeaderLayoutComponent {
   private readonly authService = inject(AuthService);
   private readonly notificationsService = inject(NotificationsService);
   private readonly destroyRef = inject(DestroyRef);
+
+  @ViewChild(MatMenuTrigger)
+  private notificationsMenuTrigger?: MatMenuTrigger;
 
   public readonly sidenavToggle = output<void>();
   public readonly currentUser = this.authService.user;
@@ -83,8 +86,17 @@ export class HeaderLayoutComponent {
       return;
     }
 
+    this.notificationsMenuTrigger?.closeMenu();
+
     this.notificationsService
       .openNotification(notification)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  public deleteNotification(notificationId: number): void {
+    this.notificationsService
+      .deleteNotification(notificationId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }

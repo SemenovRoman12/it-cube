@@ -115,6 +115,20 @@ export class NotificationsService {
     );
   }
 
+  public deleteNotification(notificationId: number): Observable<null> {
+    return this.api.delete<null>(`notifications/${notificationId}`, null).pipe(
+      tap(() => {
+        const deletedNotification = this._notifications().find((item) => item.id === notificationId) ?? null;
+
+        this._notifications.update((items) => items.filter((item) => item.id !== notificationId));
+
+        if (deletedNotification && !deletedNotification.is_read) {
+          this._unreadCount.update((count) => Math.max(0, count - 1));
+        }
+      }),
+    );
+  }
+
   public openNotification(notification: NotificationEntity): Observable<NotificationEntity> {
     const action$ = notification.is_read ? of(notification) : this.markAsRead(notification.id);
 
