@@ -16,6 +16,7 @@
 .dark-mode-btn,
 .language-btn,
 .menu-btn,
+.notifications-btn,
 .profile-btn {
   color: var(--sys-inverse-surface);
 }
@@ -47,4 +48,17 @@
 .title-link {
   color: inherit;
   text-decoration: none;
+}
+
+:host ::ng-deep .notifications-menu.mat-mdc-menu-panel {
+  max-width: none;
+  min-width: 380px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+@media (max-width: 599px) {
+  :host ::ng-deep .notifications-menu.mat-mdc-menu-panel {
+    min-width: calc(100vw - 16px);
+  }
 }

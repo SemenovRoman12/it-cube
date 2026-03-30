@@ -1,0 +1,49 @@
+<div class="notifications-popover" (click)="$event.stopPropagation()">
+  <div class="notifications-popover__header">
+      <div class="notifications-popover__title">{{ 'NOTIFICATIONS.TITLE' | translate }}</div>
+    @if (unreadCount()) {
+      <span class="notifications-popover__counter">{{ unreadCount() }}</span>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <div class="notifications-popover__content">
+    @if (!notifications().length && !isLoading()) {
+      <div class="notifications-popover__empty">
+        <mat-icon>notifications_off</mat-icon>
+        <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
+      </div>
+    } @else {
+      @for (notification of notifications(); track notification.id) {
+        <div class="notifications-popover__item" [class.notifications-popover__item--unread]="!notification.is_read">
+          <button
+            type="button"
+            mat-icon-button
+            class="notifications-popover__delete-btn"
+            (click)="onDeleteNotification($event, notification.id)">
+            <mat-icon>close</mat-icon>
+          </button>
+
+          <button
+            type="button"
+            class="notifications-popover__item-action"
+            (click)="onOpenNotification(notification.id)">
+            <div class="notifications-popover__item-main">
+              <div class="notifications-popover__item-top">
+                <span class="notifications-popover__item-title">{{ notification.title }}</span>
+                @if (!notification.is_read) {
+                  <span class="notifications-popover__item-badge">{{ 'NOTIFICATIONS.NEW' | translate }}</span>
+                }
+              </div>
+              <span class="notifications-popover__item-message">{{ notification.message }}</span>
+              <span class="notifications-popover__item-date">{{ notification.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
+            </div>
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

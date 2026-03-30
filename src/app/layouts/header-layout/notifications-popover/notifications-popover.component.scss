@@ -1,0 +1,177 @@
+:host {
+  display: block;
+  width: min(480px, calc(100vw - 24px));
+  max-width: 100%;
+}
+
+.notifications-popover {
+  width: 100%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sys-surface);
+  color: var(--sys-on-surface);
+  overflow-x: hidden;
+}
+
+.notifications-popover__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--sys-outline-variant);
+}
+
+.notifications-popover__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.notifications-popover__subtitle {
+  margin-top: 4px;
+  color: var(--sys-on-surface-variant);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.notifications-popover__counter {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sys-primary-container);
+  color: var(--sys-primary);
+  font-weight: 700;
+}
+
+.notifications-popover__content {
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.notifications-popover__empty {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--sys-on-surface-variant);
+  text-align: center;
+}
+
+.notifications-popover__item {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.notifications-popover__item--unread {
+  background: var(--sys-primary-container);
+  color: var(--sys-on-primary-container);
+}
+
+.notifications-popover__item:hover {
+  background: var(--sys-surface-container-high);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--sys-shadow) 8%, transparent);
+  color: var(--sys-on-surface);
+}
+
+.notifications-popover__item-action {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  padding: 0;
+  padding-right: 42px;
+  border-radius: 14px;
+  text-align: left;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.notifications-popover__delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  line-height: 0;
+  color: inherit;
+}
+
+.notifications-popover__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+}
+
+.notifications-popover__item-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.notifications-popover__item-title {
+  font-weight: 700;
+}
+
+.notifications-popover__item-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--sys-error-container);
+  color: var(--sys-on-error-container);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.notifications-popover__item-message,
+.notifications-popover__item-date {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.notifications-popover__item-date {
+  color: var(--sys-on-surface-variant);
+  font-size: 12px;
+}
+
+.notifications-popover__item--unread .notifications-popover__item-date {
+  color: var(--sys-on-primary-container);
+}
+
+.notifications-popover__item:hover .notifications-popover__item-date {
+  color: var(--sys-on-surface-variant);
+}
+
+@media (max-width: 599px) {
+  :host {
+    width: calc(100vw - 16px);
+  }
+}

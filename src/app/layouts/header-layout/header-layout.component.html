@@ -12,6 +12,29 @@
     <language-toggle class="language-btn" />
     <theme-toggle class="dark-mode-btn" />
 
+    @if (currentUser()?.role === 'user') {
+      <button
+        mat-icon-button
+        class="notifications-btn"
+        [matBadge]="unreadCount()"
+        [matBadgeHidden]="!unreadCount()"
+        matBadgeColor="warn"
+        [matMenuTriggerFor]="notificationsMenu"
+        (menuOpened)="onNotificationsMenuOpened()"
+        [attr.aria-label]="'NOTIFICATIONS.OPEN' | translate">
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <mat-menu #notificationsMenu="matMenu" panelClass="notifications-menu">
+        <notifications-popover
+          [notifications]="notifications()"
+          [unreadCount]="unreadCount()"
+          [isLoading]="notificationsLoading()"
+          (notificationOpen)="openNotification($event)"
+          (notificationDelete)="deleteNotification($event)" />
+      </mat-menu>
+    }
+
     <button mat-icon-button routerLink="/profile" class="profile-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">
       <img class="profile-btn-avatar" [src]="getHeaderAvatarUrl()" [alt]="currentUser()?.full_name ?? 'avatar'"

@@ -154,6 +154,14 @@
     "SUCCESS_SAVED": "Profile has been updated",
     "ERROR_SAVE": "Failed to save profile. Please try again."
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "SUBTITLE": "New grades and other important events are shown here.",
+    "OPEN": "Open notifications",
+    "OPEN_NOTIFICATION": "Open",
+    "EMPTY": "You have no notifications yet.",
+    "NEW": "New"
+  },
   "ADMIN": {
     "HOME": {
       "TITLE": "Admin panel",

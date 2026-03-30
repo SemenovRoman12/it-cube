@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +42,7 @@ export class StudentLessonDetailsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly studentSubjectsService = inject(StudentSubjectsService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly user = this.authService.user() as UserEntity | null;
   public readonly lesson = signal<StudentLessonEntity | null>(null);
@@ -85,7 +87,9 @@ export class StudentLessonDetailsComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.loadData();
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadData());
   }
 
   public onSubmit(): void {
@@ -134,6 +138,10 @@ export class StudentLessonDetailsComponent implements OnInit {
   private loadData(): void {
     const lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
     const student = this.user;
+
+    this.lesson.set(null);
+    this.submission.set(null);
+    this.success.set(null);
 
     if (!Number.isFinite(lessonId) || !student) {
       this.error.set('Некорректные параметры страницы.');

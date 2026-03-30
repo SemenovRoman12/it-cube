@@ -7,6 +7,7 @@ import {
   LessonSubmissionEntity,
   LessonSubmissionUpdate,
 } from '../../../core/models/lesson-submission.model';
+import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
 import { JournalEntryCreate, JournalEntryEntity, JournalEntryUpdate } from '../models/journal-entry.model';
 import { LessonCreate, LessonEntity, LessonUpdate } from '../models/lesson.model';
 import { UserEntity } from '../../../core/models/user.model';
@@ -94,6 +95,10 @@ export class TeacherJournalApiService {
 
   public updateLessonSubmission(id: number, payload: LessonSubmissionUpdate): Observable<LessonSubmissionEntity> {
     return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${id}`, payload);
+  }
+
+  public createNotification(payload: NotificationCreate): Observable<NotificationEntity> {
+    return this.api.post<NotificationCreate, NotificationEntity>('notifications', payload);
   }
 }
 

@@ -13,10 +13,17 @@ import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
+import { NotificationCreate } from '../../../core/models/notification.model';
 import { UserEntity } from '../../../core/models/user.model';
 import { JournalEntryEntity, MarkValue } from '../models/journal-entry.model';
 import { LessonEntity } from '../models/lesson.model';
 import { TeacherJournalApiService } from '../services/teacher-journal-api.service';
+
+interface JournalEntrySaveResult {
+  entry: JournalEntryEntity;
+  isUpdated: boolean;
+  oldMark: MarkValue | null;
+}
 
 @Component({
   selector: 'teacher-lesson-evaluate',
@@ -41,6 +48,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly journalApi = inject(TeacherJournalApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly lessonTitle = computed(() => this.lesson()?.title?.trim() || this.lesson()?.topic || '');
 
   public readonly lesson = signal<LessonEntity | null>(null);
   public readonly student = signal<UserEntity | null>(null);
@@ -95,6 +103,12 @@ export class TeacherLessonEvaluateComponent implements OnInit {
       .pipe(
         switchMap((savedSubmission) =>
           this.upsertJournalEntry(lesson.id, student.id, mark, savedSubmission.teacher_comment),
+        ),
+        switchMap((result) =>
+          this.createMarkNotification(lesson, student, mark, result.entry.id, result.isUpdated, result.oldMark).pipe(
+            map(() => result),
+            catchError(() => of(result)),
+          ),
         ),
         finalize(() => this.isSaving.set(false)),
         catchError(() => {
@@ -195,7 +209,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
             mark,
             comment,
             attendance: existing.attendance,
-          });
+          }).pipe(map((entry) => ({ entry, isUpdated: true, oldMark: existing.mark } satisfies JournalEntrySaveResult)));
         }
 
         return this.journalApi.createJournalEntry({
@@ -204,8 +218,44 @@ export class TeacherLessonEvaluateComponent implements OnInit {
           mark,
           attendance: 'present',
           comment,
-        });
+        }).pipe(map((entry) => ({ entry, isUpdated: false, oldMark: null } satisfies JournalEntrySaveResult)));
       }),
     );
+  }
+
+  private createMarkNotification(
+    lesson: LessonEntity,
+    student: UserEntity,
+    mark: MarkValue,
+    journalEntryId: number,
+    isUpdated: boolean,
+    oldMark: MarkValue | null,
+  ) {
+    const title = isUpdated ? 'Оценка изменена' : 'Новая оценка';
+    const lessonTitle = lesson.title?.trim() || lesson.topic;
+    const message = isUpdated
+      ? `Ваша оценка изменена с ${oldMark ?? '—'} на ${mark} по занятию "${lessonTitle}"`
+      : `Вам выставлена оценка ${mark} по занятию "${lessonTitle}"`;
+
+    const payload: NotificationCreate = {
+      user_id: student.id,
+      type: 'mark_assigned',
+      title,
+      message,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      lesson_id: lesson.id,
+      subject_id: lesson.subject_id,
+      group_id: lesson.group_id,
+      teacher_id: lesson.teacher_id,
+      student_id: student.id,
+      mark,
+      entity_kind: 'journal_entry',
+      entity_id: journalEntryId,
+      link: `/student/subjects/${lesson.subject_id}/lessons/${lesson.id}`,
+    };
+
+    return this.journalApi.createNotification(payload);
   }
 }
