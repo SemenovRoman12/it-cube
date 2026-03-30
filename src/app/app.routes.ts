@@ -107,11 +107,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/student/feature-lesson-details/student-lesson-details.component').then(c => c.StudentLessonDetailsComponent),
       },
       {
-        path: 'student/notifications',
-        canActivate: [studentGuard],
-        loadComponent: () => import('./features/student/feature-notifications/student-notifications.component').then(c => c.StudentNotificationsComponent),
-      },
-      {
         path: 'student/subjects/:subjectId',
         canActivate: [studentGuard],
         loadComponent: () => import('./features/student/feature-subject-lessons/student-subject-lessons.component').then(c => c.StudentSubjectLessonsComponent),

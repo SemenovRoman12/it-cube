@@ -15,14 +15,62 @@
     @if (currentUser()?.role === 'user') {
       <button
         mat-icon-button
-        routerLink="/student/notifications"
         class="notifications-btn"
         [matBadge]="unreadCount()"
         [matBadgeHidden]="!unreadCount()"
         matBadgeColor="warn"
+        [matMenuTriggerFor]="notificationsMenu"
+        (menuOpened)="onNotificationsMenuOpened()"
         [attr.aria-label]="'NOTIFICATIONS.OPEN' | translate">
         <mat-icon>notifications</mat-icon>
       </button>
+
+      <mat-menu #notificationsMenu="matMenu" class="notifications-menu">
+        <div class="notifications-popover" (click)="$event.stopPropagation()">
+          <div class="notifications-popover__header">
+            <div>
+              <div class="notifications-popover__title">{{ 'NOTIFICATIONS.TITLE' | translate }}</div>
+              <div class="notifications-popover__subtitle">{{ 'NOTIFICATIONS.SUBTITLE' | translate }}</div>
+            </div>
+            @if (unreadCount()) {
+              <span class="notifications-popover__counter">{{ unreadCount() }}</span>
+            }
+          </div>
+
+          @if (notificationsLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+          }
+
+          <div class="notifications-popover__content">
+            @if (!notifications().length && !notificationsLoading()) {
+              <div class="notifications-popover__empty">
+                <mat-icon>notifications_off</mat-icon>
+                <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
+              </div>
+            } @else {
+              @for (notification of notifications(); track notification.id) {
+                <button
+                  mat-button
+                  type="button"
+                  class="notifications-popover__item"
+                  [class.notifications-popover__item--unread]="!notification.is_read"
+                  (click)="openNotification(notification.id)">
+                  <div class="notifications-popover__item-main">
+                    <div class="notifications-popover__item-top">
+                      <span class="notifications-popover__item-title">{{ notification.title }}</span>
+                      @if (!notification.is_read) {
+                        <span class="notifications-popover__item-badge">{{ 'NOTIFICATIONS.NEW' | translate }}</span>
+                      }
+                    </div>
+                    <span class="notifications-popover__item-message">{{ notification.message }}</span>
+                    <span class="notifications-popover__item-date">{{ notification.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
+                  </div>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </mat-menu>
     }
 
     <button mat-icon-button routerLink="/profile" class="profile-btn"
