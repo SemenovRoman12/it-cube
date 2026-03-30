@@ -11,11 +11,14 @@
 
 .summary-card {
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: none;
 }
 
 .summary-card--accent {
-  border-color: rgba(63, 81, 181, 0.28);
+  border-color: color-mix(in srgb, var(--mat-sys-primary) 30%, var(--mat-sys-outline-variant));
+  background: color-mix(in srgb, var(--mat-sys-primary-container) 30%, var(--mat-sys-surface-container-low));
 }
 
 .summary-card__label {
@@ -28,6 +31,7 @@
 .summary-card__value {
   font-size: 28px;
   font-weight: 700;
+  color: var(--mat-sys-on-surface);
 }
 
 .student-journal__accordion,
@@ -36,9 +40,58 @@
   width: 100%;
 }
 
-.subject-panel {
+.student-journal__accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subject-panel,
+.subject-panel.mat-expansion-panel {
   border-radius: 20px !important;
   overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+.subject-panel::before,
+.subject-panel.mat-expansion-panel::before,
+.subject-panel::after,
+.subject-panel.mat-expansion-panel::after {
+  display: none !important;
+}
+
+.subject-panel :is(.mat-expansion-panel-header, .mat-expansion-panel-body) {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-header,
+.subject-panel .mat-expansion-panel-content,
+.subject-panel .mat-expansion-panel-body {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.subject-panel .mat-expansion-panel-header {
+  border-bottom: none;
+}
+
+.subject-panel .mat-expansion-panel-header.mat-expanded {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-header:hover {
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 55%, transparent);
+}
+
+.subject-panel .mat-expansion-panel-content {
+  background: transparent;
+}
+
+.subject-panel .mat-expansion-panel-body {
+  border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 75%, transparent);
 }
 
 .subject-panel__empty {
@@ -46,8 +99,23 @@
   color: var(--mat-sys-on-surface-variant, #5f6368);
 }
 
+.subject-panel__table-wrap {
+  padding-top: 8px;
+}
+
 .journal-table {
   width: 100%;
+  background: transparent;
+}
+
+.journal-table th {
+  color: var(--mat-sys-on-surface-variant);
+  border-bottom-color: var(--mat-sys-outline-variant);
+}
+
+.journal-table td {
+  color: var(--mat-sys-on-surface);
+  border-bottom-color: color-mix(in srgb, var(--mat-sys-outline-variant) 65%, transparent);
 }
 
 .journal-table__mark {
@@ -58,14 +126,16 @@
   min-height: 32px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(76, 175, 80, 0.12);
-  color: #2e7d32;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 24%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-primary-container) 55%, transparent);
+  color: var(--mat-sys-on-primary-container);
   font-weight: 700;
 }
 
 .journal-table__mark--empty {
-  background: rgba(148, 163, 184, 0.12);
-  color: #64748b;
+  border-color: color-mix(in srgb, var(--mat-sys-outline-variant) 90%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 90%, transparent);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .state {
