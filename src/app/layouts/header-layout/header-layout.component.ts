@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, OnInit, ViewChild, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, OnInit, ViewChild, inject, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconButton } from '@angular/material/button';
@@ -46,11 +46,17 @@ export class HeaderLayoutComponent {
   public readonly unreadCount = this.notificationsService.unreadCount;
   public readonly notifications = this.notificationsService.notifications;
   public readonly notificationsLoading = this.notificationsService.isLoading;
+  public readonly notificationsLoadingMore = this.notificationsService.isLoadingMore;
+  public readonly notificationsHasMore = this.notificationsService.hasMore;
 
   public ngOnInit(): void {
-    if (this.currentUser()?.role === 'user') {
+    if (this.isStudent()) {
       this.notificationsService.startPolling();
     }
+  }
+
+  public isStudent(): boolean {
+    return this.currentUser()?.role === 'user';
   }
 
   public getHeaderAvatarUrl(): string {
@@ -72,10 +78,11 @@ export class HeaderLayoutComponent {
   }
 
   public onNotificationsMenuOpened(): void {
-    this.notificationsService
-      .refreshForCurrentUser()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    this.notificationsService.refreshForCurrentUser().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+  }
+
+  public loadMoreNotifications(): void {
+    this.notificationsService.loadNextPage().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   public openNotification(notificationId: number): void {
@@ -87,17 +94,11 @@ export class HeaderLayoutComponent {
 
     this.notificationsMenuTrigger?.closeMenu();
 
-    this.notificationsService
-      .openNotification(notification)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    this.notificationsService.openNotification(notification).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   public deleteNotification(notificationId: number): void {
-    this.notificationsService
-      .deleteNotification(notificationId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    this.notificationsService.deleteNotification(notificationId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
 }
