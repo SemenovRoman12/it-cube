@@ -46,6 +46,8 @@ export class HeaderLayoutComponent {
   public readonly unreadCount = this.notificationsService.unreadCount;
   public readonly notifications = this.notificationsService.notifications;
   public readonly notificationsLoading = this.notificationsService.isLoading;
+  public readonly notificationsLoadingMore = this.notificationsService.isLoadingMore;
+  public readonly notificationsHasMore = this.notificationsService.hasMore;
 
   public ngOnInit(): void {
     if (this.currentUser()?.role === 'user') {
@@ -74,6 +76,13 @@ export class HeaderLayoutComponent {
   public onNotificationsMenuOpened(): void {
     this.notificationsService
       .refreshForCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  public loadMoreNotifications(): void {
+    this.notificationsService
+      .loadNextPage()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }

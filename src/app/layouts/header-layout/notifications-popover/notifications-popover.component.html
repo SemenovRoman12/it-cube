@@ -10,7 +10,7 @@
     <mat-progress-bar mode="indeterminate" />
   }
 
-  <div class="notifications-popover__content">
+  <div class="notifications-popover__content" (scroll)="onContentScroll($event)">
     @if (!notifications().length && !isLoading()) {
       <div class="notifications-popover__empty">
         <mat-icon>notifications_off</mat-icon>
@@ -42,6 +42,18 @@
               <span class="notifications-popover__item-date">{{ notification.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
             </div>
           </button>
+        </div>
+      }
+
+      @if (isLoadingMore()) {
+        <div class="notifications-popover__loading-more">
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+      }
+
+      @if (!hasMore() && notifications().length) {
+        <div class="notifications-popover__end">
+          <span>{{ 'NOTIFICATIONS.TITLE' | translate }}</span>
         </div>
       }
     }

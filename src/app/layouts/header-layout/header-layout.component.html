@@ -30,8 +30,11 @@
           [notifications]="notifications()"
           [unreadCount]="unreadCount()"
           [isLoading]="notificationsLoading()"
+          [isLoadingMore]="notificationsLoadingMore()"
+          [hasMore]="notificationsHasMore()"
           (notificationOpen)="openNotification($event)"
-          (notificationDelete)="deleteNotification($event)" />
+          (notificationDelete)="deleteNotification($event)"
+          (loadMore)="loadMoreNotifications()" />
       </mat-menu>
     }
 

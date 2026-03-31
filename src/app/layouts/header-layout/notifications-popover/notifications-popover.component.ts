@@ -14,12 +14,17 @@ import { NotificationEntity } from '../../../core/models/notification.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationsPopoverComponent {
+  private readonly loadMoreThresholdPx = 96;
+
   public readonly notifications = input<NotificationEntity[]>([]);
   public readonly unreadCount = input(0);
   public readonly isLoading = input(false);
+  public readonly isLoadingMore = input(false);
+  public readonly hasMore = input(true);
 
   public readonly notificationOpen = output<number>();
   public readonly notificationDelete = output<number>();
+  public readonly loadMore = output<void>();
 
   public onOpenNotification(notificationId: number): void {
     this.notificationOpen.emit(notificationId);
@@ -28,6 +33,20 @@ export class NotificationsPopoverComponent {
   public onDeleteNotification(event: Event, notificationId: number): void {
     event.stopPropagation();
     this.notificationDelete.emit(notificationId);
+  }
+
+  public onContentScroll(event: Event): void {
+    const target = event.target as HTMLElement | null;
+
+    if (!target || this.isLoading() || this.isLoadingMore() || !this.hasMore()) {
+      return;
+    }
+
+    const distanceToBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+
+    if (distanceToBottom <= this.loadMoreThresholdPx) {
+      this.loadMore.emit();
+    }
   }
 }
 
