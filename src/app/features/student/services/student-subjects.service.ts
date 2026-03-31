@@ -1,4 +1,3 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from '../../../core/http/api.service';
@@ -7,10 +6,20 @@ import {
   LessonSubmissionEntity,
   LessonSubmissionUpdate,
 } from '../../../core/models/lesson-submission.model';
+import {
+  LessonSubmissionMemberCreate,
+  LessonSubmissionMemberEntity,
+  LessonSubmissionMemberStatus,
+  LessonSubmissionMemberUpdate,
+} from '../../../core/models/lesson-submission-member.model';
+import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
+import { UserEntity } from '../../../core/models/user.model';
 import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectEntity } from '../models/student-subject.model';
 
 type SortOrder = 'asc' | 'desc';
+
+type SubmissionSummaryStatus = 'pending' | 'invited' | 'submitted' | 'overdue' | 'graded';
 
 interface TeacherGroupSubjectEntity {
   id: number;
@@ -33,18 +42,26 @@ export interface StudentSubjectsPageResult {
   total: number;
 }
 
+export interface LessonSubmissionContext {
+  submission: LessonSubmissionEntity | null;
+  members: LessonSubmissionMemberEntity[];
+  acceptedMembers: LessonSubmissionMemberEntity[];
+  invitedMembers: LessonSubmissionMemberEntity[];
+  currentMember: LessonSubmissionMemberEntity | null;
+}
+
+export interface LessonSubmissionSummary {
+  context: LessonSubmissionContext | null;
+  status: SubmissionSummaryStatus;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class StudentSubjectsService {
   private readonly api = inject(ApiService);
-  private readonly http = inject(HttpClient);
 
   public getSubjectsPage(query: StudentSubjectsPageQuery): Observable<StudentSubjectsPageResult> {
-    return this.getLegacySubjectsPage(query);
-  }
-
-  private getLegacySubjectsPage(query: StudentSubjectsPageQuery): Observable<StudentSubjectsPageResult> {
     return forkJoin({
       assignments: this.api.get<TeacherGroupSubjectEntity[]>(`teacher_group_subjects?group_id=${query.groupId}`),
       subjects: this.api.get<StudentSubjectEntity[]>('subjects'),
@@ -56,6 +73,321 @@ export class StudentSubjectsService {
         return this.applyQuery(filtered, query);
       }),
     );
+  }
+
+  public getLessonsByGroupAndSubject(groupId: number, subjectId: number): Observable<StudentLessonEntity[]> {
+    return this.api.get<StudentLessonEntity[]>(`lessons?group_id=${groupId}&subject_id=${subjectId}`).pipe(
+      map((lessons) => [...lessons].sort((first, second) => second.date.localeCompare(first.date))),
+    );
+  }
+
+  public getLessonById(lessonId: number): Observable<StudentLessonEntity | null> {
+    return this.api.get<StudentLessonEntity>(`lessons/${lessonId}`).pipe(
+      map((item) => item ?? null),
+      catchError(() =>
+        this.api.get<StudentLessonEntity[]>(`lessons?id=${lessonId}`).pipe(
+          map((items) => items[0] ?? null),
+          catchError(() => of(null)),
+        ),
+      ),
+    );
+  }
+
+  public getGroupStudents(groupId: number): Observable<UserEntity[]> {
+    return this.api.get<UserEntity[]>(`users?role=user&group_id=${groupId}`);
+  }
+
+  public getSubmissionContext(lessonId: number, studentId: number): Observable<LessonSubmissionContext | null> {
+    return this.getSubmissionMembersByLesson(lessonId).pipe(
+      switchMap((members) => {
+        const currentMember = this.findCurrentMember(members, studentId);
+
+        if (!currentMember) {
+          return of(null);
+        }
+
+        return this.getSubmissionById(currentMember.submission_id).pipe(
+          map((submission) => submission ? this.buildSubmissionContext(submission, members, currentMember) : null),
+          catchError(() => of(null)),
+        );
+      }),
+    );
+  }
+
+  public getSubmissionSummary(lesson: StudentLessonEntity, studentId: number): Observable<LessonSubmissionSummary> {
+    return this.getSubmissionContext(lesson.id, studentId).pipe(
+      map((context) => ({
+        context,
+        status: this.resolveSubmissionStatus(lesson, context),
+      })),
+      catchError(() => of({
+        context: null,
+        status: this.resolveSubmissionStatus(lesson, null),
+      })),
+    );
+  }
+
+  public getStudentSubmissionMap(
+    lessonIds: number[],
+    studentId: number,
+  ): Observable<Record<number, LessonSubmissionEntity | null>> {
+    if (!lessonIds.length) {
+      return of({});
+    }
+
+    return forkJoin(
+      lessonIds.map((lessonId) =>
+        this.getSubmissionContext(lessonId, studentId).pipe(
+          map((context) => context?.submission ?? null),
+          catchError(() => of(null)),
+        ),
+      ),
+    ).pipe(
+      map((chunks) =>
+        lessonIds.reduce<Record<number, LessonSubmissionEntity | null>>((acc, lessonId, index) => {
+          acc[lessonId] = chunks[index] ?? null;
+          return acc;
+        }, {}),
+      ),
+    );
+  }
+
+  public getStudentSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
+    return this.getSubmissionContext(lessonId, studentId).pipe(map((context) => context?.submission ?? null));
+  }
+
+  public upsertStudentSubmission(
+    lessonId: number,
+    studentId: number,
+    payload: Pick<LessonSubmissionCreate, 'answer_text' | 'submitted_at' | 'status'>,
+  ): Observable<LessonSubmissionEntity> {
+    return this.getStudentSubmission(lessonId, studentId).pipe(
+      switchMap((existing) => {
+        if (existing) {
+          const patch: LessonSubmissionUpdate = {
+            answer_text: payload.answer_text,
+            submitted_at: payload.submitted_at,
+            status: payload.status,
+          };
+
+          return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${existing.id}`, patch);
+        }
+
+        return this.createSubmissionWithCreator(lessonId, studentId, {
+          answer_text: payload.answer_text,
+          submitted_at: payload.submitted_at,
+          status: payload.status,
+          is_group_submission: false,
+        });
+      }),
+    );
+  }
+
+  public saveAnswerAndInvite(
+    lesson: StudentLessonEntity,
+    student: UserEntity,
+    answerText: string,
+    status: LessonSubmissionEntity['status'],
+    invitedStudentIds: number[],
+  ): Observable<LessonSubmissionEntity> {
+    const nowIso = new Date().toISOString();
+
+    return this.getStudentSubmission(lesson.id, student.id).pipe(
+      switchMap((existingSubmission) => {
+        const save$ = existingSubmission
+          ? this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${existingSubmission.id}`, {
+              answer_text: answerText,
+              submitted_at: nowIso,
+              status,
+            } satisfies LessonSubmissionUpdate)
+          : this.createSubmissionWithCreator(lesson.id, student.id, {
+              answer_text: answerText,
+              submitted_at: nowIso,
+              status,
+              is_group_submission: invitedStudentIds.length > 0,
+            });
+
+        return save$.pipe(
+          switchMap((submission) => {
+            if (!invitedStudentIds.length) {
+              return of(submission);
+            }
+
+            return this.inviteMembersAndNotify(submission.id, lesson, student, invitedStudentIds).pipe(
+              map(() => submission),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  public createGroupSubmission(
+    lessonId: number,
+    creator: UserEntity,
+    answerText: string,
+    status: LessonSubmissionEntity['status'],
+    invitedStudentIds: number[],
+  ): Observable<LessonSubmissionEntity> {
+    return this.createSubmissionWithCreator(lessonId, creator.id, {
+      answer_text: answerText,
+      submitted_at: new Date().toISOString(),
+      status,
+      is_group_submission: invitedStudentIds.length > 0,
+    }).pipe(
+      switchMap((submission) =>
+        this.createMembersForInvitation(submission.id, lessonId, creator.id, invitedStudentIds).pipe(map(() => submission)),
+      ),
+    );
+  }
+
+  public inviteMembersAndNotify(
+    submissionId: number,
+    lesson: StudentLessonEntity,
+    creator: UserEntity,
+    invitedStudentIds: number[],
+  ): Observable<LessonSubmissionMemberEntity[]> {
+    if (!invitedStudentIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      invitedStudentIds.map((studentId) =>
+        this.inviteToSubmission(submissionId, lesson.id, creator.id, studentId).pipe(
+          switchMap((member) =>
+            this.createNotification(this.buildTeamNotification(
+              lesson,
+              creator.id,
+              studentId,
+              'submission_invited',
+              'Приглашение в совместный ответ',
+              `${creator.full_name} приглашает вас к совместному ответу по заданию.`,
+              submissionId,
+              member.id,
+            )).pipe(map(() => member)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  public acceptInvitationAndNotify(
+    lesson: StudentLessonEntity,
+    submission: LessonSubmissionEntity,
+    memberId: number,
+    actor: UserEntity,
+  ): Observable<LessonSubmissionMemberEntity> {
+    return this.respondToInvitation(memberId, 'accepted').pipe(
+      switchMap((member) =>
+        this.createNotification(this.buildTeamNotification(
+          lesson,
+          actor.id,
+          submission.created_by_student_id,
+          'submission_invite_accepted',
+          'Приглашение принято',
+          `${actor.full_name} присоединился(ась) к совместному ответу.`,
+          submission.id,
+          member.id,
+        )).pipe(map(() => member)),
+      ),
+    );
+  }
+
+  public declineInvitationAndNotify(
+    lesson: StudentLessonEntity,
+    submission: LessonSubmissionEntity,
+    memberId: number,
+    actor: UserEntity,
+  ): Observable<LessonSubmissionMemberEntity> {
+    return this.respondToInvitation(memberId, 'declined').pipe(
+      switchMap((member) =>
+        this.createNotification(this.buildTeamNotification(
+          lesson,
+          actor.id,
+          submission.created_by_student_id,
+          'submission_invite_declined',
+          'Приглашение отклонено',
+          `${actor.full_name} отклонил(а) приглашение в совместный ответ.`,
+          submission.id,
+          member.id,
+        )).pipe(map(() => member)),
+      ),
+    );
+  }
+
+  public leaveSubmissionAndNotify(
+    lesson: StudentLessonEntity,
+    submission: LessonSubmissionEntity,
+    memberId: number,
+    actor: UserEntity,
+  ): Observable<LessonSubmissionMemberEntity> {
+    return this.leaveSubmission(memberId).pipe(
+      switchMap((member) =>
+        this.createNotification(this.buildTeamNotification(
+          lesson,
+          actor.id,
+          submission.created_by_student_id,
+          'submission_member_left',
+          'Участник вышел из команды',
+          `${actor.full_name} вышел(ла) из совместного ответа.`,
+          submission.id,
+          member.id,
+        )).pipe(map(() => member)),
+      ),
+    );
+  }
+
+  public removeMemberAndNotify(
+    lesson: StudentLessonEntity,
+    submission: LessonSubmissionEntity,
+    member: LessonSubmissionMemberEntity,
+  ): Observable<LessonSubmissionMemberEntity> {
+    return this.removeSubmissionMember(member.id, member.status).pipe(
+      switchMap((updatedMember) =>
+        this.createNotification(this.buildTeamNotification(
+          lesson,
+          submission.created_by_student_id,
+          member.student_id,
+          'submission_member_left',
+          'Вы исключены из совместного ответа',
+          'Создатель удалил вас из совместного ответа по заданию.',
+          submission.id,
+          updatedMember.id,
+        )).pipe(map(() => updatedMember)),
+      ),
+    );
+  }
+
+  public getSubmissionMembersBySubmission(submissionId: number): Observable<LessonSubmissionMemberEntity[]> {
+    return this.api.get<LessonSubmissionMemberEntity[]>(`lesson_submission_members?submission_id=${submissionId}`).pipe(
+      catchError(() => of([])),
+    );
+  }
+
+  public respondToInvitation(memberId: number, status: Extract<LessonSubmissionMemberStatus, 'accepted' | 'declined'>) {
+    return this.updateSubmissionMember(memberId, {
+      status,
+      responded_at: new Date().toISOString(),
+    });
+  }
+
+  public leaveSubmission(memberId: number) {
+    return this.updateSubmissionMember(memberId, {
+      status: 'left',
+      left_at: new Date().toISOString(),
+    });
+  }
+
+  public removeSubmissionMember(memberId: number, currentStatus: LessonSubmissionMemberStatus) {
+    return this.updateSubmissionMember(memberId, {
+      status: currentStatus === 'invited' ? 'declined' : 'left',
+      responded_at: new Date().toISOString(),
+      left_at: currentStatus === 'accepted' ? new Date().toISOString() : null,
+    });
+  }
+
+  public createNotification(payload: NotificationCreate): Observable<NotificationEntity> {
+    return this.api.post<NotificationCreate, NotificationEntity>('notifications', payload);
   }
 
   private applyQuery(subjects: StudentSubjectEntity[], query: StudentSubjectsPageQuery): StudentSubjectsPageResult {
@@ -89,17 +421,17 @@ export class StudentSubjectsService {
     return { items, total };
   }
 
-  public getLessonsByGroupAndSubject(groupId: number, subjectId: number): Observable<StudentLessonEntity[]> {
-    return this.api.get<StudentLessonEntity[]>(`lessons?group_id=${groupId}&subject_id=${subjectId}`).pipe(
-      map((lessons) => [...lessons].sort((first, second) => second.date.localeCompare(first.date))),
+  private getSubmissionMembersByLesson(lessonId: number): Observable<LessonSubmissionMemberEntity[]> {
+    return this.api.get<LessonSubmissionMemberEntity[]>(`lesson_submission_members?lesson_id=${lessonId}`).pipe(
+      catchError(() => of([])),
     );
   }
 
-  public getLessonById(lessonId: number): Observable<StudentLessonEntity | null> {
-    return this.api.get<StudentLessonEntity>(`lessons/${lessonId}`).pipe(
+  private getSubmissionById(submissionId: number): Observable<LessonSubmissionEntity | null> {
+    return this.api.get<LessonSubmissionEntity>(`lesson_submissions/${submissionId}`).pipe(
       map((item) => item ?? null),
       catchError(() =>
-        this.api.get<StudentLessonEntity[]>(`lessons?id=${lessonId}`).pipe(
+        this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?id=${submissionId}`).pipe(
           map((items) => items[0] ?? null),
           catchError(() => of(null)),
         ),
@@ -107,68 +439,176 @@ export class StudentSubjectsService {
     );
   }
 
-  public getStudentSubmissionMap(
-    lessonIds: number[],
+  private updateSubmissionMember(memberId: number, payload: LessonSubmissionMemberUpdate) {
+    return this.api.patch<LessonSubmissionMemberEntity>(`lesson_submission_members/${memberId}`, payload);
+  }
+
+  private createSubmissionWithCreator(
+    lessonId: number,
     studentId: number,
-  ): Observable<Record<number, LessonSubmissionEntity | null>> {
-    if (!lessonIds.length) {
-      return of({});
-    }
+    payload: Pick<LessonSubmissionCreate, 'answer_text' | 'submitted_at' | 'status' | 'is_group_submission'>,
+  ): Observable<LessonSubmissionEntity> {
+    const createPayload: LessonSubmissionCreate = {
+      lesson_id: lessonId,
+      student_id: studentId,
+      created_by_student_id: studentId,
+      is_group_submission: payload.is_group_submission,
+      answer_text: payload.answer_text,
+      submitted_at: payload.submitted_at,
+      status: payload.status,
+      teacher_comment: '',
+      mark: null,
+    };
 
-    const requests = lessonIds.map((lessonId) =>
-      this.api
-        .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
-        .pipe(catchError(() => of([]))),
-    );
-
-    return forkJoin(requests).pipe(
-      map((chunks) =>
-        lessonIds.reduce<Record<number, LessonSubmissionEntity | null>>((acc, lessonId, index) => {
-          acc[lessonId] = chunks[index]?.[0] ?? null;
-          return acc;
-        }, {}),
+    return this.api.post<LessonSubmissionCreate, LessonSubmissionEntity>('lesson_submissions', createPayload).pipe(
+      switchMap((submission) =>
+        this.api.post<LessonSubmissionMemberCreate, LessonSubmissionMemberEntity>('lesson_submission_members', {
+          submission_id: submission.id,
+          lesson_id: lessonId,
+          student_id: studentId,
+          role: 'creator',
+          status: 'accepted',
+          invited_by_student_id: studentId,
+          invited_at: payload.submitted_at ?? new Date().toISOString(),
+          responded_at: payload.submitted_at ?? new Date().toISOString(),
+          left_at: null,
+        }).pipe(map(() => submission)),
       ),
     );
   }
 
-  public getStudentSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
-    return this.api
-      .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
-      .pipe(
-        map((items) => items[0] ?? null),
-        catchError(() => of(null)),
-      );
-  }
-
-  public upsertStudentSubmission(
+  private createMembersForInvitation(
+    submissionId: number,
     lessonId: number,
-    studentId: number,
-    payload: Pick<LessonSubmissionCreate, 'answer_text' | 'submitted_at' | 'status'>,
-  ): Observable<LessonSubmissionEntity> {
-    return this.getStudentSubmission(lessonId, studentId).pipe(
-      switchMap((existing) => {
-        if (existing) {
-          const patch: LessonSubmissionUpdate = {
-            answer_text: payload.answer_text,
-            submitted_at: payload.submitted_at,
-            status: payload.status,
-          };
-          return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${existing.id}`, patch);
-        }
+    creatorId: number,
+    invitedStudentIds: number[],
+  ): Observable<LessonSubmissionMemberEntity[]> {
+    if (!invitedStudentIds.length) {
+      return of([]);
+    }
 
-        const createPayload: LessonSubmissionCreate = {
+    const nowIso = new Date().toISOString();
+
+    return forkJoin(
+      invitedStudentIds.map((studentId) =>
+        this.api.post<LessonSubmissionMemberCreate, LessonSubmissionMemberEntity>('lesson_submission_members', {
+          submission_id: submissionId,
           lesson_id: lessonId,
           student_id: studentId,
-          answer_text: payload.answer_text,
-          submitted_at: payload.submitted_at,
-          status: payload.status,
-          teacher_comment: '',
-          mark: null,
-        };
-
-        return this.api.post<LessonSubmissionCreate, LessonSubmissionEntity>('lesson_submissions', createPayload);
-      }),
+          role: 'member',
+          status: 'invited',
+          invited_by_student_id: creatorId,
+          invited_at: nowIso,
+          responded_at: null,
+          left_at: null,
+        }),
+      ),
     );
+  }
+
+  private inviteToSubmission(submissionId: number, lessonId: number, invitedByStudentId: number, studentId: number) {
+    const nowIso = new Date().toISOString();
+    const payload: LessonSubmissionMemberCreate = {
+      submission_id: submissionId,
+      lesson_id: lessonId,
+      student_id: studentId,
+      role: 'member',
+      status: 'invited',
+      invited_by_student_id: invitedByStudentId,
+      invited_at: nowIso,
+      responded_at: null,
+      left_at: null,
+    };
+
+    return this.api.post<LessonSubmissionMemberCreate, LessonSubmissionMemberEntity>('lesson_submission_members', payload);
+  }
+
+  private findCurrentMember(
+    members: LessonSubmissionMemberEntity[],
+    studentId: number,
+  ): LessonSubmissionMemberEntity | null {
+    return members.find((member) =>
+      member.student_id === studentId && member.status !== 'declined' && member.status !== 'left') ?? null;
+  }
+
+  private buildSubmissionContext(
+    submission: LessonSubmissionEntity,
+    members: LessonSubmissionMemberEntity[],
+    currentMember: LessonSubmissionMemberEntity,
+  ): LessonSubmissionContext {
+    const submissionMembers = members.filter((member) => member.submission_id === currentMember.submission_id);
+
+    return {
+      submission,
+      members: submissionMembers,
+      acceptedMembers: submissionMembers.filter((member) => member.status === 'accepted'),
+      invitedMembers: submissionMembers.filter((member) => member.status === 'invited'),
+      currentMember,
+    };
+  }
+
+  private resolveSubmissionStatus(
+    lesson: StudentLessonEntity,
+    context: LessonSubmissionContext | null,
+  ): SubmissionSummaryStatus {
+    if (context?.submission?.mark != null) {
+      return 'graded';
+    }
+
+    if (context?.currentMember?.status === 'invited') {
+      return 'invited';
+    }
+
+    if (context?.submission?.status === 'submitted') {
+      return 'submitted';
+    }
+
+    if (context?.submission?.status === 'overdue') {
+      return 'overdue';
+    }
+
+    if (!lesson.due_at) {
+      return 'pending';
+    }
+
+    return new Date(lesson.due_at).getTime() < Date.now() ? 'overdue' : 'pending';
+  }
+
+  private buildTeamNotification(
+    lesson: StudentLessonEntity,
+    actorStudentId: number,
+    targetUserId: number,
+    type: NotificationCreate['type'],
+    title: string,
+    message: string,
+    submissionId: number,
+    submissionMemberId: number | null,
+  ): NotificationCreate {
+    return {
+      user_id: targetUserId,
+      type,
+      title,
+      message,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      lesson_id: lesson.id,
+      subject_id: lesson.subject_id,
+      group_id: lesson.group_id,
+      teacher_id: lesson.teacher_id,
+      student_id: actorStudentId,
+      submission_id: submissionId,
+      submission_member_id: submissionMemberId,
+      mark: null,
+      entity_kind: submissionMemberId ? 'lesson_submission_member' : 'lesson_submission',
+      entity_id: submissionMemberId ?? submissionId,
+      link: lessonLink(lesson.id, lesson.subject_id),
+    };
   }
 }
 
+function lessonLink(lessonId: number, subjectId?: number): string {
+  return subjectId
+    ? `/student/subjects/${subjectId}/lessons/${lessonId}`
+    : `/student/subjects/0/lessons/${lessonId}`;
+}

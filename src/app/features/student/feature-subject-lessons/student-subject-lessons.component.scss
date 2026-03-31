@@ -292,6 +292,16 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+.status-badge--invited {
+  background: color-mix(in srgb, #1565c0 15%, transparent);
+  color: #1565c0;
+}
+
+.status-badge--graded {
+  background: color-mix(in srgb, #6a1b9a 15%, transparent);
+  color: #6a1b9a;
+}
+
 @media (max-width: 768px) {
   .page { padding: 20px 16px; }
 

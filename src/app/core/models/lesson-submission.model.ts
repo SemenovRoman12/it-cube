@@ -4,6 +4,8 @@ export interface LessonSubmissionEntity {
   id: number;
   lesson_id: number;
   student_id: number;
+  created_by_student_id: number;
+  is_group_submission: boolean;
   answer_text: string;
   submitted_at: string | null;
   status: LessonSubmissionStatus;

@@ -41,10 +41,20 @@
               <tr class="submissions-table__row">
                 <td>
                   <div class="student-info">
-                    <div class="student-info__avatar">{{ row.student.full_name.charAt(0).toUpperCase() }}</div>
-                    <span class="student-info__name">{{ row.student.full_name }}</span>
-                  </div>
-                </td>
+                     <div class="student-info__avatar">{{ row.student.full_name.charAt(0).toUpperCase() }}</div>
+                     <div>
+                       <span class="student-info__name">{{ row.student.full_name }}</span>
+                       @if (row.isGroup) {
+                         <div class="student-info__meta">
+                           <span class="status-badge status-badge--success">Совместно</span>
+                           @if (row.teammates.length) {
+                             <span>С: {{ getStudentNames(row.teammates) }}</span>
+                           }
+                         </div>
+                       }
+                     </div>
+                   </div>
+                 </td>
                 <td>
                   @switch (row.status) {
                     @case ('submitted') {

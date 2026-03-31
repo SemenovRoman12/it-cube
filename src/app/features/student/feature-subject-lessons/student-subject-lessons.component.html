@@ -102,6 +102,12 @@
             <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.FIELDS.STATUS' | translate }}</th>
             <td mat-cell *matCellDef="let lesson">
               @switch (getLessonStatus(lesson)) {
+                @case ('graded') {
+                  <span class="status-badge status-badge--graded">Проверено</span>
+                }
+                @case ('invited') {
+                  <span class="status-badge status-badge--invited">Приглашение</span>
+                }
                 @case ('submitted') {
                   <span class="status-badge status-badge--success">{{ 'COMMON.STATUS.SUBMITTED' | translate }}</span>
                 }

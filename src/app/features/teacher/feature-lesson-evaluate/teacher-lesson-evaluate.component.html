@@ -20,6 +20,9 @@
       <div>
         <h1 class="page__title">{{ lessonData.title || lessonData.topic }}</h1>
         <p class="page__subtitle">{{ student()?.full_name }}</p>
+        @if (teamMembers().length > 1) {
+          <p class="page__subtitle">Совместный ответ: {{ getTeamMembersLabel() }}</p>
+        }
       </div>
     </div>
   </div>

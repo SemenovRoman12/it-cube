@@ -10,11 +10,7 @@
     </div>
   } @else if (lesson(); as lessonData) {
     <div class="page__header">
-      <a
-        mat-stroked-button
-        class="page__back-btn"
-        [routerLink]="['/student/subjects', lessonData.subject_id]"
-      >
+      <a mat-stroked-button class="page__back-btn" [routerLink]="['/student/subjects', lessonData.subject_id]">
         <mat-icon>arrow_back</mat-icon>
         {{ 'COMMON.ACTIONS.BACK' | translate }}
       </a>
@@ -48,7 +44,7 @@
     <div class="student-lesson-details__layout">
       <mat-card appearance="outlined" class="info-card">
         <mat-card-content class="info-card__content">
-          <div class="info-card__meta-list">
+          <div class="info-grid">
             <div class="meta-item">
               <span class="meta-item__label">{{ 'COMMON.FIELDS.DATE' | translate }}</span>
               <span class="meta-item__value">{{ lessonData.date }}</span>
@@ -80,26 +76,20 @@
           </div>
 
           @if (submission()?.teacher_comment || submission()?.mark != null) {
-            <div class="feedback-panel">
-              <div class="feedback-panel__header">
-                <div class="feedback-panel__title-group">
-                  <mat-icon>star</mat-icon>
-                  <span>{{ 'COMMON.FIELDS.MARK' | translate }}</span>
-                </div>
-
-                @if (submission()?.mark != null) {
+            <div class="feedback-inline">
+              @if (submission()?.mark != null) {
+                <div class="feedback-inline__mark">
+                  <span class="meta-item__label">{{ 'COMMON.FIELDS.MARK' | translate }}</span>
                   <span class="feedback-item__mark">{{ submission()?.mark }}</span>
-                }
-              </div>
+                </div>
+              }
 
-              <div class="feedback-panel__content">
-                @if (submission()?.teacher_comment) {
-                  <div class="feedback-item">
-                    <span class="feedback-item__label">{{ 'COMMON.FIELDS.COMMENT' | translate }}</span>
-                    <p class="feedback-item__text">{{ submission()?.teacher_comment }}</p>
-                  </div>
-                }
-              </div>
+              @if (submission()?.teacher_comment) {
+                <div class="feedback-inline__comment">
+                  <span class="meta-item__label">{{ 'COMMON.FIELDS.COMMENT' | translate }}</span>
+                  <p class="feedback-item__text">{{ submission()?.teacher_comment }}</p>
+                </div>
+              }
             </div>
           }
         </mat-card-content>
@@ -107,18 +97,133 @@
 
       <mat-card appearance="outlined" class="editor-card">
         <mat-card-content class="editor-card__content">
-          <div class="editor-card__header">
-            <div>
-              <h2 class="editor-card__title">{{ 'COMMON.FIELDS.ANSWER' | translate }}</h2>
-              <p class="editor-card__subtitle">Заполните ответ и сохраните изменения.</p>
-            </div>
-          </div>
-
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-lesson-details__form">
-            <mat-form-field appearance="outline" class="student-lesson-details__field">
+            <div class="editor-topbar">
+              <div>
+                <h2 class="editor-card__title">Ответ</h2>
+                <p class="editor-card__subtitle">Напишите ответ и при необходимости сдайте его совместно.</p>
+              </div>
+
+              @if (submission()?.is_group_submission) {
+                <span class="status-badge status-badge--submitted">Совместный</span>
+              } @else {
+                <span class="status-badge status-badge--pending">Индивидуальный</span>
+              }
+            </div>
+
+            <div class="flat-section flat-section--inline">
+              <div class="flat-section__header flat-section__header--inline">
+                <div class="flat-section__header-main">
+                  <h3 class="flat-section__title">Совместный ответ</h3>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="help-button"
+                    [matTooltip]="collaborationHelpTooltip"
+                    matTooltipPosition="above"
+                    matTooltipClass="student-help-tooltip"
+                    aria-label="Как работает совместный ответ"
+                  >
+                    <mat-icon>help_outline</mat-icon>
+                  </button>
+                </div>
+
+                @if (canLeaveSubmission()) {
+                  <button mat-stroked-button color="warn" type="button" (click)="leaveSubmission()" [disabled]="isSaving()">
+                    <mat-icon>logout</mat-icon>
+                    @if (currentMember()?.role === 'creator') {
+                      Расформировать группу
+                    } @else {
+                      Выйти из команды
+                    }
+                  </button>
+                }
+              </div>
+
+              @if (acceptedMembers().length) {
+                <div class="team-panel__chips">
+                  @for (member of acceptedMembers(); track member.id) {
+                    <span class="team-chip" [class.team-chip--removable]="canRemoveMember(member)">
+                      {{ getStudentName(member.student_id) }}
+                      @if (member.role === 'creator') {
+                        <strong>создатель</strong>
+                      }
+
+                      @if (canRemoveMember(member)) {
+                        <button
+                          type="button"
+                          mat-icon-button
+                          class="team-chip__remove"
+                          (click)="confirmRemoveMember(member)"
+                          aria-label="Удалить участника"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                    </span>
+                  }
+                </div>
+              }
+
+              @if (canManageMembers()) {
+                <mat-form-field appearance="outline" class="student-lesson-details__field">
+                  <mat-label>С кем ответить</mat-label>
+                  <mat-select [formControl]="form.controls.invited_student_ids" multiple>
+                    @for (classmate of availableClassmates(); track classmate.id) {
+                      <mat-option [value]="classmate.id">{{ classmate.full_name }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-hint>Приглашения отправятся после сохранения ответа.</mat-hint>
+                </mat-form-field>
+              }
+
+              @if (currentMember()?.status === 'invited') {
+                <div class="action-row">
+                  <button mat-raised-button color="primary" type="button" (click)="acceptInvitation()" [disabled]="isSaving()">
+                    <mat-icon>done</mat-icon>
+                    Принять приглашение
+                  </button>
+
+                  <button mat-stroked-button type="button" (click)="declineInvitation()" [disabled]="isSaving()">
+                    <mat-icon>close</mat-icon>
+                    Отклонить
+                  </button>
+                </div>
+              }
+
+              @if (invitedMembers().length) {
+                <div class="workspace-subsection">
+                  <span class="workspace-subsection__label">Ожидают подтверждения</span>
+                  <div class="team-panel__chips team-panel__chips--secondary">
+                    @for (member of invitedMembers(); track member.id) {
+                      <span class="team-chip team-chip--muted">{{ getStudentName(member.student_id) }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+            </div>
+
+            <mat-form-field appearance="outline" class="student-lesson-details__field student-lesson-details__field--editor">
               <mat-label>{{ 'COMMON.FIELDS.ANSWER' | translate }}</mat-label>
-              <textarea matInput rows="12" formControlName="answer_text"></textarea>
+              <textarea matInput rows="14" formControlName="answer_text" [readonly]="!canEdit()"></textarea>
             </mat-form-field>
+
+            @if (!canEdit()) {
+              <div class="form-message form-message--info">
+                <mat-icon>info</mat-icon>
+                <span>
+                  @if (currentMember()?.status === 'invited') {
+                    Сначала примите приглашение, чтобы редактировать общий ответ.
+                  } @else if (submission()?.mark != null) {
+                    Ответ уже оценён, редактирование отключено.
+                  } @else {
+                    Редактирование сейчас недоступно.
+                  }
+                </span>
+              </div>
+            }
 
             @if (success(); as successText) {
               <div class="form-message form-message--success">
@@ -127,8 +232,10 @@
               </div>
             }
 
-            <div class="student-lesson-details__actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+            <div class="student-lesson-details__actions student-lesson-details__actions--between">
+              <span class="hint-text">После сохранения изменения будут видны всем принятым участникам.</span>
+
+              <button mat-raised-button color="primary" type="submit" [disabled]="isSaving() || !canEdit()">
                 <mat-icon>save</mat-icon>
                 {{ 'COMMON.ACTIONS.SAVE' | translate }}
               </button>

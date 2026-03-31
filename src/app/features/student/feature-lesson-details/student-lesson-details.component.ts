@@ -9,11 +9,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
+import { LessonSubmissionMemberEntity } from '../../../core/models/lesson-submission-member.model';
+import { ConfirmDialogComponent } from '../../../core/ui/components/confirm-dialog/confirm-dialog.component';
 import { UserEntity } from '../../../core/models/user.model';
 import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectsService } from '../services/student-subjects.service';
@@ -29,6 +34,8 @@ import { StudentSubjectsService } from '../services/student-subjects.service';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
     MatProgressBarModule,
     TranslateModule,
     DatePipe,
@@ -43,17 +50,82 @@ export class StudentLessonDetailsComponent implements OnInit {
   private readonly studentSubjectsService = inject(StudentSubjectsService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   public readonly user = this.authService.user() as UserEntity | null;
   public readonly lesson = signal<StudentLessonEntity | null>(null);
   public readonly submission = signal<LessonSubmissionEntity | null>(null);
+  public readonly members = signal<LessonSubmissionMemberEntity[]>([]);
+  public readonly classmates = signal<UserEntity[]>([]);
   public readonly isLoading = signal(false);
   public readonly isSaving = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly success = signal<string | null>(null);
+  public readonly collaborationHelpTooltip = [
+    '1. Выберите одногруппников.',
+    '2. Сохраните ответ.',
+    '3. Приглашение отправится автоматически.',
+    '4. После принятия вы будете работать с одним общим ответом.',
+  ].join('\n');
 
   public readonly form = this.formBuilder.group({
     answer_text: this.formBuilder.nonNullable.control('', [Validators.required, Validators.minLength(3)]),
+    invited_student_ids: this.formBuilder.nonNullable.control<number[]>([]),
+  });
+
+  public readonly currentMember = computed(() => {
+    const studentId = this.user?.id ?? null;
+    if (!studentId) {
+      return null;
+    }
+
+    return this.members().find((member) => member.student_id === studentId && member.status !== 'declined') ?? null;
+  });
+
+  public readonly acceptedMembers = computed(() => this.members().filter((member) => member.status === 'accepted'));
+  public readonly invitedMembers = computed(() => this.members().filter((member) => member.status === 'invited'));
+  public readonly canEdit = computed(() => {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+
+    if (!submission) {
+      return true;
+    }
+
+    return currentMember?.status === 'accepted' && submission?.mark == null;
+  });
+
+  public readonly canManageMembers = computed(() => {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+
+    if (!submission) {
+      return true;
+    }
+
+    return currentMember?.role === 'creator' && currentMember.status === 'accepted' && submission?.mark == null;
+  });
+
+  public readonly availableClassmates = computed(() => {
+    const occupiedIds = new Set(this.members().map((member) => member.student_id));
+    const currentUserId = this.user?.id ?? null;
+
+    return this.classmates().filter((student) => student.id !== currentUserId && !occupiedIds.has(student.id));
+  });
+
+  public readonly canLeaveSubmission = computed(() => {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+
+    if (!currentMember || !submission || currentMember.status !== 'accepted' || submission.mark != null) {
+      return false;
+    }
+
+    if (currentMember.role !== 'creator') {
+      return true;
+    }
+
+    return this.acceptedMembers().length === 1;
   });
 
   public readonly status = computed(() => {
@@ -112,12 +184,7 @@ export class StudentLessonDetailsComponent implements OnInit {
     this.error.set(null);
     this.success.set(null);
 
-    this.studentSubjectsService
-      .upsertStudentSubmission(lesson.id, student.id, {
-        answer_text: this.form.controls.answer_text.value.trim(),
-        submitted_at: nowIso,
-        status,
-      })
+    this.saveSubmission(lesson, student, status)
       .pipe(
         finalize(() => this.isSaving.set(false)),
         catchError(() => {
@@ -131,7 +198,180 @@ export class StudentLessonDetailsComponent implements OnInit {
         }
 
         this.submission.set(saved);
+        this.form.controls.invited_student_ids.setValue([]);
         this.success.set('Ответ сохранён.');
+        this.reloadSubmissionContext();
+      });
+  }
+
+  public getStudentName(studentId: number): string {
+    return this.classmates().find((student) => student.id === studentId)?.full_name
+      ?? (this.user?.id === studentId ? this.user.full_name : `ID ${studentId}`);
+  }
+
+  public canRemoveMember(member: LessonSubmissionMemberEntity): boolean {
+    const currentMember = this.currentMember();
+
+    return !!currentMember
+      && currentMember.role === 'creator'
+      && currentMember.status === 'accepted'
+      && member.student_id !== currentMember.student_id
+      && member.role !== 'creator'
+      && this.submission()?.mark == null;
+  }
+
+  public confirmRemoveMember(member: LessonSubmissionMemberEntity): void {
+    const studentName = this.getStudentName(member.student_id);
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Удалить участника',
+        message: `Вы уверены, что хотите удалить ${studentName} из совместного ответа?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        variant: 'warn',
+      },
+    }).afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.removeMember(member);
+      });
+  }
+
+  public acceptInvitation(): void {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+    const student = this.user;
+
+    if (!currentMember || !submission || !student || currentMember.status !== 'invited' || submission.mark != null) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    this.studentSubjectsService
+      .acceptInvitationAndNotify(lessonToStudentLesson(submission, this.lesson()), submission, currentMember.id, student)
+      .pipe(
+        finalize(() => this.isSaving.set(false)),
+        catchError(() => {
+          this.error.set('Не удалось принять приглашение.');
+          return of(null);
+        }),
+      )
+      .subscribe((member) => {
+        if (!member) {
+          return;
+        }
+
+        this.success.set('Вы присоединились к совместному ответу.');
+        this.reloadSubmissionContext();
+      });
+  }
+
+  public declineInvitation(): void {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+    const student = this.user;
+
+    if (!currentMember || !submission || !student || currentMember.status !== 'invited' || submission.mark != null) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    this.studentSubjectsService
+      .declineInvitationAndNotify(lessonToStudentLesson(submission, this.lesson()), submission, currentMember.id, student)
+      .pipe(
+        finalize(() => this.isSaving.set(false)),
+        catchError(() => {
+          this.error.set('Не удалось отклонить приглашение.');
+          return of(null);
+        }),
+      )
+      .subscribe((member) => {
+        if (!member) {
+          return;
+        }
+
+        this.submission.set(null);
+        this.form.patchValue({ answer_text: '' });
+        this.success.set('Приглашение отклонено.');
+        this.reloadSubmissionContext();
+      });
+  }
+
+  public leaveSubmission(): void {
+    const currentMember = this.currentMember();
+    const submission = this.submission();
+    const student = this.user;
+
+    if (!currentMember || !submission || !student || !this.canLeaveSubmission()) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    this.studentSubjectsService
+      .leaveSubmissionAndNotify(lessonToStudentLesson(submission, this.lesson()), submission, currentMember.id, student)
+      .pipe(
+        finalize(() => this.isSaving.set(false)),
+        catchError(() => {
+          this.error.set('Не удалось выйти из команды.');
+          return of(null);
+        }),
+      )
+      .subscribe((member) => {
+        if (!member) {
+          return;
+        }
+
+        this.submission.set(null);
+        this.form.patchValue({ answer_text: '' });
+        this.success.set('Вы вышли из совместного ответа.');
+        this.reloadSubmissionContext();
+      });
+  }
+
+  private removeMember(member: LessonSubmissionMemberEntity): void {
+    const submission = this.submission();
+    const student = this.user;
+
+    if (!submission || !student || !this.canRemoveMember(member)) {
+      return;
+    }
+
+    const studentName = this.getStudentName(member.student_id);
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    this.studentSubjectsService
+      .removeMemberAndNotify(lessonToStudentLesson(submission, this.lesson()), submission, member)
+      .pipe(
+        finalize(() => this.isSaving.set(false)),
+        catchError(() => {
+          this.error.set('Не удалось удалить участника.');
+          return of(null);
+        }),
+      )
+      .subscribe((updatedMember) => {
+        if (!updatedMember) {
+          return;
+        }
+
+        this.success.set(`Участник ${studentName} удалён из совместного ответа.`);
+        this.reloadSubmissionContext();
       });
   }
 
@@ -153,24 +393,66 @@ export class StudentLessonDetailsComponent implements OnInit {
 
     forkJoin({
       lesson: this.studentSubjectsService.getLessonById(lessonId),
-      submission: this.studentSubjectsService.getStudentSubmission(lessonId, student.id),
+      submissionContext: this.studentSubjectsService.getSubmissionContext(lessonId, student.id),
+      classmates: this.studentSubjectsService.getGroupStudents(student.group_id ?? 0),
     })
       .pipe(
         finalize(() => this.isLoading.set(false)),
         catchError(() => {
           this.error.set('Не удалось загрузить данные задания.');
-          return of({ lesson: null, submission: null });
+          return of({ lesson: null, submissionContext: null, classmates: [] as UserEntity[] });
         }),
       )
-      .subscribe(({ lesson, submission }) => {
+      .subscribe(({ lesson, submissionContext, classmates }) => {
         if (!lesson) {
           this.error.set('Задание не найдено.');
           return;
         }
 
         this.lesson.set(lesson);
-        this.submission.set(submission);
-        this.form.patchValue({ answer_text: submission?.answer_text ?? '' });
+        this.classmates.set(classmates);
+        this.submission.set(submissionContext?.submission ?? null);
+        this.members.set(submissionContext?.members ?? []);
+        this.form.patchValue({ answer_text: submissionContext?.submission?.answer_text ?? '' });
       });
   }
+
+  private saveSubmission(lesson: StudentLessonEntity, student: UserEntity, status: LessonSubmissionEntity['status']) {
+    const answerText = this.form.controls.answer_text.value.trim();
+    const invitedStudentIds = this.form.controls.invited_student_ids.value;
+
+    return this.studentSubjectsService.saveAnswerAndInvite(lesson, student, answerText, status, invitedStudentIds);
+  }
+
+  private reloadSubmissionContext(): void {
+    const lesson = this.lesson();
+    const student = this.user;
+
+    if (!lesson || !student) {
+      return;
+    }
+
+    this.studentSubjectsService
+      .getSubmissionContext(lesson.id, student.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((context) => {
+        this.submission.set(context?.submission ?? null);
+        this.members.set(context?.members ?? []);
+        this.form.patchValue({ answer_text: context?.submission?.answer_text ?? this.form.controls.answer_text.value });
+      });
+  }
+}
+
+function lessonToStudentLesson(
+  submission: LessonSubmissionEntity,
+  lesson: StudentLessonEntity | null,
+): StudentLessonEntity {
+  return lesson ?? {
+    id: submission.lesson_id,
+    teacher_id: 0,
+    group_id: 0,
+    subject_id: 0,
+    date: '',
+    topic: '',
+  };
 }
