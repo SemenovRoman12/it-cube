@@ -1,4 +1,10 @@
-export type NotificationType = 'mark_assigned';
+export type NotificationType =
+  | 'mark_assigned'
+  | 'submission_invited'
+  | 'submission_invite_accepted'
+  | 'submission_invite_declined'
+  | 'submission_member_left'
+  | 'submission_role_transferred';
 
 export interface NotificationEntity {
   id: number;
@@ -14,8 +20,10 @@ export interface NotificationEntity {
   group_id: number | null;
   teacher_id: number | null;
   student_id: number | null;
+  submission_id: number | null;
+  submission_member_id: number | null;
   mark: number | null;
-  entity_kind: 'journal_entry' | 'lesson_submission' | null;
+  entity_kind: 'journal_entry' | 'lesson_submission' | 'lesson_submission_member' | null;
   entity_id: number | null;
   link: string | null;
 }

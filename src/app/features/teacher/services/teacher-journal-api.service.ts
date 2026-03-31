@@ -7,6 +7,7 @@ import {
   LessonSubmissionEntity,
   LessonSubmissionUpdate,
 } from '../../../core/models/lesson-submission.model';
+import { LessonSubmissionMemberEntity } from '../../../core/models/lesson-submission-member.model';
 import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
 import { JournalEntryCreate, JournalEntryEntity, JournalEntryUpdate } from '../models/journal-entry.model';
 import { LessonCreate, LessonEntity, LessonUpdate } from '../models/lesson.model';
@@ -83,10 +84,18 @@ export class TeacherJournalApiService {
     return this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}`);
   }
 
+  public getLessonSubmissionMembersByLesson(lessonId: number): Observable<LessonSubmissionMemberEntity[]> {
+    return this.api.get<LessonSubmissionMemberEntity[]>(`lesson_submission_members?lesson_id=${lessonId}`);
+  }
+
   public getLessonSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
     return this.api
       .get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}&student_id=${studentId}`)
       .pipe(map((items) => items[0] ?? null));
+  }
+
+  public getLessonSubmissionById(submissionId: number): Observable<LessonSubmissionEntity | null> {
+    return this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?id=${submissionId}`).pipe(map((items) => items[0] ?? null));
   }
 
   public createLessonSubmission(payload: LessonSubmissionCreate): Observable<LessonSubmissionEntity> {

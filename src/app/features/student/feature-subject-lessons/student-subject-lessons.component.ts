@@ -7,15 +7,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
-import { catchError, finalize, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
 import { UserEntity } from '../../../core/models/user.model';
 import { StudentLessonEntity } from '../models/student-lesson.model';
-import { StudentSubjectsService } from '../services/student-subjects.service';
+import { LessonSubmissionSummary, StudentSubjectsService } from '../services/student-subjects.service';
 import { TranslateModule } from '@ngx-translate/core';
 
-type LessonStatus = 'submitted' | 'pending' | 'overdue';
+type LessonStatus = 'submitted' | 'pending' | 'overdue' | 'invited' | 'graded';
 
 interface SubjectProgress {
   total: number;
@@ -44,6 +44,7 @@ export class StudentSubjectLessonsComponent implements OnInit {
   public readonly user = this.authService.user() as UserEntity | null;
   public readonly lessons = signal<StudentLessonEntity[]>([]);
   public readonly submissionsByLessonId = signal<Record<number, LessonSubmissionEntity | null>>({});
+  public readonly lessonSummaries = signal<Record<number, LessonSubmissionSummary>>({});
   public readonly isLoading = signal(false);
   public readonly isProgressExpanded = signal(false);
   public readonly error = signal<string | null>(null);
@@ -76,6 +77,8 @@ export class StudentSubjectLessonsComponent implements OnInit {
         submitted: 0,
         overdue: 0,
         pending: 0,
+        invited: 0,
+        graded: 0,
       },
     );
 
@@ -87,10 +90,10 @@ export class StudentSubjectLessonsComponent implements OnInit {
       submitted: stats.submitted,
       overdue: stats.overdue,
       pending: stats.pending,
-      completionPercent: toPercent(stats.submitted),
-      submittedPercent: toPercent(stats.submitted),
+      completionPercent: toPercent(stats.submitted + stats.graded),
+      submittedPercent: toPercent(stats.submitted + stats.graded),
       overduePercent: toPercent(stats.overdue),
-      pendingPercent: toPercent(stats.pending),
+      pendingPercent: toPercent(stats.pending + stats.invited),
     };
   });
 
@@ -122,28 +125,43 @@ export class StudentSubjectLessonsComponent implements OnInit {
           const sorted = [...lessons];
           this.lessons.set(sorted);
 
-          return this.studentSubjectsService
-            .getStudentSubmissionMap(
-              sorted.map((lesson) => lesson.id),
-              this.user!.id,
-            )
-            .pipe(
-              catchError(() => of({})),
-              switchMap((submissionMap) => of({ lessons: sorted, submissionMap })),
-            );
+          return forkJoin(
+            sorted.map((lesson) => this.studentSubjectsService.getSubmissionSummary(lesson, this.user!.id)),
+          ).pipe(
+            catchError(() => of([] as LessonSubmissionSummary[])),
+            switchMap((summaries) => {
+              const summaryMap = sorted.reduce<Record<number, LessonSubmissionSummary>>((acc, lesson, index) => {
+                acc[lesson.id] = summaries[index] ?? { context: null, status: this.getFallbackStatus(lesson) };
+                return acc;
+              }, {});
+
+              const submissionMap = Object.entries(summaryMap).reduce<Record<number, LessonSubmissionEntity | null>>((acc, [lessonId, summary]) => {
+                acc[Number(lessonId)] = summary.context?.submission ?? null;
+                return acc;
+              }, {});
+
+              return of({ lessons: sorted, submissionMap, summaryMap });
+            }),
+          );
         }),
         catchError(() => {
           this.error.set('Не удалось загрузить уроки предмета.');
           this.lessons.set([]);
           this.submissionsByLessonId.set({});
-          return of({ lessons: [], submissionMap: {} as Record<number, LessonSubmissionEntity | null> });
+          this.lessonSummaries.set({});
+          return of({
+            lessons: [],
+            submissionMap: {} as Record<number, LessonSubmissionEntity | null>,
+            summaryMap: {} as Record<number, LessonSubmissionSummary>,
+          });
         }),
         finalize(() => this.isLoading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ lessons, submissionMap }) => {
+      .subscribe(({ lessons, submissionMap, summaryMap }) => {
         this.lessons.set(lessons);
         this.submissionsByLessonId.set(submissionMap);
+        this.lessonSummaries.set(summaryMap);
       });
   }
 
@@ -156,16 +174,10 @@ export class StudentSubjectLessonsComponent implements OnInit {
   }
 
   public getLessonStatus(lesson: StudentLessonEntity): LessonStatus {
-    const submission = this.submissionsByLessonId()[lesson.id];
+    return this.lessonSummaries()[lesson.id]?.status ?? this.getFallbackStatus(lesson);
+  }
 
-    if (submission?.status === 'submitted') {
-      return 'submitted';
-    }
-
-    if (submission?.status === 'overdue') {
-      return 'overdue';
-    }
-
+  private getFallbackStatus(lesson: StudentLessonEntity): LessonStatus {
     if (!lesson.due_at) {
       return 'pending';
     }
