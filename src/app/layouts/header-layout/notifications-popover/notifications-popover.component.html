@@ -11,7 +11,7 @@
   }
 
   <div class="notifications-popover__content" (scroll)="onContentScroll($event)">
-    @if (!notifications().length && !isLoading()) {
+    @if (showEmptyState()) {
       <div class="notifications-popover__empty">
         <mat-icon>notifications_off</mat-icon>
         <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
@@ -51,9 +51,9 @@
         </div>
       }
 
-      @if (!hasMore() && notifications().length) {
+      @if (showListEnd()) {
         <div class="notifications-popover__end">
-          <span>{{ 'NOTIFICATIONS.TITLE' | translate }}</span>
+          <span>Все уведомления загружены</span>
         </div>
       }
     }

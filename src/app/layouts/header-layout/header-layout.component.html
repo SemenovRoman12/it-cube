@@ -12,7 +12,7 @@
     <language-toggle class="language-btn" />
     <theme-toggle class="dark-mode-btn" />
 
-    @if (currentUser()?.role === 'user') {
+    @if (isStudent()) {
       <button
         mat-icon-button
         class="notifications-btn"

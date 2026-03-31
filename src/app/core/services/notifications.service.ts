@@ -1,13 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, Subscription, catchError, forkJoin, map, of, startWith, switchMap, tap, timer } from 'rxjs';
+import { Observable, Subscription, catchError, finalize, forkJoin, map, of, switchMap, tap, timer } from 'rxjs';
 import { AuthService } from '../auth/services/auth.service';
 import { API_URL } from '../http/api-url.token';
 import { ApiService } from '../http/api.service';
 import { NotificationCreate, NotificationEntity } from '../models/notification.model';
 
 const NOTIFICATIONS_PAGE_SIZE = 4;
+const NOTIFICATIONS_POLLING_INTERVAL_MS = 30000;
 
 interface MokkyPageMeta {
   total_items: number;
@@ -47,7 +48,7 @@ export class NotificationsService {
   public readonly unreadCount = computed(() => this._unreadCount());
   public readonly hasMore = this._hasMore.asReadonly();
 
-  public startPolling(intervalMs = 30000): void {
+  public startPolling(intervalMs = NOTIFICATIONS_POLLING_INTERVAL_MS): void {
     this.stopPolling();
 
     if (!this.getCurrentUserId()) {
@@ -68,21 +69,15 @@ export class NotificationsService {
 
   public resetState(): void {
     this.stopPolling();
-    this._notifications.set([]);
+    this.resetPaginationState();
     this._unreadCount.set(0);
-    this._isLoading.set(false);
-    this._isLoadingMore.set(false);
-    this._currentPage.set(0);
-    this._hasMore.set(true);
   }
 
   public loadFirstPage(): Observable<NotificationEntity[]> {
     const currentUserId = this.getCurrentUserId();
 
     if (!currentUserId) {
-      this.setNotificationsState([]);
-      this._currentPage.set(0);
-      this._hasMore.set(false);
+      this.handleEmptyUserState();
       return of([]);
     }
 
@@ -96,19 +91,12 @@ export class NotificationsService {
 
     return this.fetchNotificationsPage(currentUserId, 1)
       .pipe(
-        tap((items) => {
-          this.setNotificationsState(items);
-          this._currentPage.set(items.length ? 1 : 0);
-          this._hasMore.set(items.length === NOTIFICATIONS_PAGE_SIZE);
-        }),
-        tap(() => this._isLoading.set(false)),
+        tap((items) => this.applyFirstPage(items)),
         catchError(() => {
-          this.setNotificationsState([]);
-          this._isLoading.set(false);
-          this._currentPage.set(0);
-          this._hasMore.set(false);
+          this.handleLoadFirstPageError();
           return of([]);
         }),
+        finalize(() => this._isLoading.set(false)),
       );
   }
 
@@ -124,18 +112,11 @@ export class NotificationsService {
     this._isLoadingMore.set(true);
 
     return this.fetchNotificationsPage(currentUserId, nextPage).pipe(
-      tap((items) => {
-        const mergedItems = this.mergeNotifications(this._notifications(), items);
-
-        this._notifications.set(mergedItems);
-        this._currentPage.set(nextPage);
-        this._hasMore.set(items.length === NOTIFICATIONS_PAGE_SIZE);
-      }),
-      tap(() => this._isLoadingMore.set(false)),
+      tap((items) => this.applyNextPage(nextPage, items)),
       catchError(() => {
-        this._isLoadingMore.set(false);
         return of(this._notifications());
       }),
+      finalize(() => this._isLoadingMore.set(false)),
     );
   }
 
@@ -162,29 +143,13 @@ export class NotificationsService {
       is_read: true,
       read_at: new Date().toISOString(),
     }).pipe(
-      tap((updated) => {
-        this._notifications.update((items) =>
-          items.map((item) => item.id === notificationId ? updated : item),
-        );
-        this._unreadCount.update((count) => Math.max(0, count - 1));
-      }),
-      tap(() => {
-        this._notifications.update((items) => this.sortNotifications(items));
-      }),
+      tap((updated) => this.applyUpdatedNotification(notificationId, updated)),
     );
   }
 
   public deleteNotification(notificationId: number): Observable<null> {
     return this.api.delete<null>(`notifications/${notificationId}`, null).pipe(
-      tap(() => {
-        const deletedNotification = this._notifications().find((item) => item.id === notificationId) ?? null;
-
-        this._notifications.update((items) => items.filter((item) => item.id !== notificationId));
-
-        if (deletedNotification && !deletedNotification.is_read) {
-          this._unreadCount.update((count) => Math.max(0, count - 1));
-        }
-      }),
+      tap(() => this.removeNotificationFromState(notificationId)),
     );
   }
 
@@ -215,9 +180,63 @@ export class NotificationsService {
     return this.authService.user()?.id ?? null;
   }
 
+  private handleEmptyUserState(): void {
+    this.setNotificationsState([]);
+    this._currentPage.set(0);
+    this._hasMore.set(false);
+  }
+
+  private handleLoadFirstPageError(): void {
+    this.setNotificationsState([]);
+    this._currentPage.set(0);
+    this._hasMore.set(false);
+  }
+
+  private resetPaginationState(): void {
+    this._notifications.set([]);
+    this._isLoading.set(false);
+    this._isLoadingMore.set(false);
+    this._currentPage.set(0);
+    this._hasMore.set(true);
+  }
+
+  private applyFirstPage(items: NotificationEntity[]): void {
+    this.setNotificationsState(items);
+    this._currentPage.set(items.length ? 1 : 0);
+    this._hasMore.set(this.hasNextPage(items.length));
+  }
+
+  private applyNextPage(nextPage: number, items: NotificationEntity[]): void {
+    this._notifications.set(this.mergeNotifications(this._notifications(), items));
+    this._currentPage.set(nextPage);
+    this._hasMore.set(this.hasNextPage(items.length));
+  }
+
+  private applyUpdatedNotification(notificationId: number, updatedNotification: NotificationEntity): void {
+    this._notifications.update((items) => this.sortNotifications(
+      items.map((item) => item.id === notificationId ? updatedNotification : item),
+    ));
+
+    this._unreadCount.update((count) => Math.max(0, count - 1));
+  }
+
+  private removeNotificationFromState(notificationId: number): void {
+    const deletedNotification = this._notifications().find((item) => item.id === notificationId);
+
+    this._notifications.update((items) => items.filter((item) => item.id !== notificationId));
+
+    if (deletedNotification && !deletedNotification.is_read) {
+      this._unreadCount.update((count) => Math.max(0, count - 1));
+    }
+  }
+
   private setNotificationsState(items: NotificationEntity[]): void {
     this._notifications.set(items);
     this._unreadCount.set(items.filter((item) => !item.is_read).length);
+  }
+
+  private hasNextPage(itemsCount: number): boolean {
+    return itemsCount === NOTIFICATIONS_PAGE_SIZE;
   }
 
   private fetchNotificationsPage(currentUserId: number, page: number): Observable<NotificationEntity[]> {
