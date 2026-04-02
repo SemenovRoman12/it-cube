@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from '../../../core/http/api.service';
+import { LessonFileCreate, LessonFileEntity } from '../../../core/models/lesson-file.model';
 import {
   LessonSubmissionCreate,
   LessonSubmissionEntity,
@@ -14,6 +15,7 @@ import {
 } from '../../../core/models/lesson-submission-member.model';
 import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
 import { UserEntity } from '../../../core/models/user.model';
+import { FileStorageService } from '../../../core/services/file-storage.service';
 import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectEntity } from '../models/student-subject.model';
 
@@ -60,6 +62,7 @@ export interface LessonSubmissionSummary {
 })
 export class StudentSubjectsService {
   private readonly api = inject(ApiService);
+  private readonly fileStorage = inject(FileStorageService);
 
   public getSubjectsPage(query: StudentSubjectsPageQuery): Observable<StudentSubjectsPageResult> {
     return forkJoin({
@@ -156,30 +159,43 @@ export class StudentSubjectsService {
     return this.getSubmissionContext(lessonId, studentId).pipe(map((context) => context?.submission ?? null));
   }
 
-  public upsertStudentSubmission(
+  public getLessonFilesByLesson(lessonId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?lesson_id=${lessonId}&owner_type=teacher_assignment`).pipe(
+      catchError(() => of([])),
+    );
+  }
+
+  public getLessonFilesBySubmission(submissionId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?submission_id=${submissionId}&owner_type=student_submission`).pipe(
+      catchError(() => of([])),
+    );
+  }
+
+  public saveSubmissionFiles(
     lessonId: number,
-    studentId: number,
-    payload: Pick<LessonSubmissionCreate, 'answer_text' | 'submitted_at' | 'status'>,
-  ): Observable<LessonSubmissionEntity> {
-    return this.getStudentSubmission(lessonId, studentId).pipe(
-      switchMap((existing) => {
-        if (existing) {
-          const patch: LessonSubmissionUpdate = {
-            answer_text: payload.answer_text,
-            submitted_at: payload.submitted_at,
-            status: payload.status,
-          };
+    submissionId: number,
+    uploadedByUserId: number,
+    files: File[],
+  ): Observable<LessonFileEntity[]> {
+    if (!files.length) {
+      return of([]);
+    }
 
-          return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${existing.id}`, patch);
-        }
+    return forkJoin(
+      files.map((file) =>
+        from(this.fileStorage.uploadSubmissionFile(submissionId, file)).pipe(
+          switchMap((stored) => this.api.post<LessonFileCreate, LessonFileEntity>(
+            'lesson_files',
+            this.buildSubmissionFilePayload(lessonId, submissionId, uploadedByUserId, stored),
+          )),
+        ),
+      ),
+    );
+  }
 
-        return this.createSubmissionWithCreator(lessonId, studentId, {
-          answer_text: payload.answer_text,
-          submitted_at: payload.submitted_at,
-          status: payload.status,
-          is_group_submission: false,
-        });
-      }),
+  public removeLessonFile(file: LessonFileEntity): Observable<void> {
+    return from(this.fileStorage.removeFile(file.storage_path)).pipe(
+      switchMap(() => this.api.delete<void>(`lesson_files/${file.id}`, undefined as void)),
     );
   }
 
@@ -219,25 +235,6 @@ export class StudentSubjectsService {
           }),
         );
       }),
-    );
-  }
-
-  public createGroupSubmission(
-    lessonId: number,
-    creator: UserEntity,
-    answerText: string,
-    status: LessonSubmissionEntity['status'],
-    invitedStudentIds: number[],
-  ): Observable<LessonSubmissionEntity> {
-    return this.createSubmissionWithCreator(lessonId, creator.id, {
-      answer_text: answerText,
-      submitted_at: new Date().toISOString(),
-      status,
-      is_group_submission: invitedStudentIds.length > 0,
-    }).pipe(
-      switchMap((submission) =>
-        this.createMembersForInvitation(submission.id, lessonId, creator.id, invitedStudentIds).pipe(map(() => submission)),
-      ),
     );
   }
 
@@ -477,35 +474,6 @@ export class StudentSubjectsService {
     );
   }
 
-  private createMembersForInvitation(
-    submissionId: number,
-    lessonId: number,
-    creatorId: number,
-    invitedStudentIds: number[],
-  ): Observable<LessonSubmissionMemberEntity[]> {
-    if (!invitedStudentIds.length) {
-      return of([]);
-    }
-
-    const nowIso = new Date().toISOString();
-
-    return forkJoin(
-      invitedStudentIds.map((studentId) =>
-        this.api.post<LessonSubmissionMemberCreate, LessonSubmissionMemberEntity>('lesson_submission_members', {
-          submission_id: submissionId,
-          lesson_id: lessonId,
-          student_id: studentId,
-          role: 'member',
-          status: 'invited',
-          invited_by_student_id: creatorId,
-          invited_at: nowIso,
-          responded_at: null,
-          left_at: null,
-        }),
-      ),
-    );
-  }
-
   private inviteToSubmission(submissionId: number, lessonId: number, invitedByStudentId: number, studentId: number) {
     const nowIso = new Date().toISOString();
     const payload: LessonSubmissionMemberCreate = {
@@ -521,6 +489,26 @@ export class StudentSubjectsService {
     };
 
     return this.api.post<LessonSubmissionMemberCreate, LessonSubmissionMemberEntity>('lesson_submission_members', payload);
+  }
+
+  private buildSubmissionFilePayload(
+    lessonId: number,
+    submissionId: number,
+    uploadedByUserId: number,
+    stored: Awaited<ReturnType<FileStorageService['uploadSubmissionFile']>>,
+  ): LessonFileCreate {
+    return {
+      lesson_id: lessonId,
+      submission_id: submissionId,
+      owner_type: 'student_submission',
+      uploaded_by_user_id: uploadedByUserId,
+      file_name: stored.fileName,
+      file_url: stored.fileUrl,
+      storage_path: stored.storagePath,
+      mime_type: stored.mimeType,
+      size_bytes: stored.sizeBytes,
+      created_at: new Date().toISOString(),
+    };
   }
 
   private findCurrentMember(

@@ -39,6 +39,23 @@
       } @else {
       <p class="answer-card__empty">{{ 'TEACHER.SUBJECTS_FEATURE.EVALUATE_NO_ANSWER' | translate }}</p>
       }
+
+      <div class="answer-card__files">
+        <strong>Файлы ответа</strong>
+
+        @if (submissionFiles().length) {
+          <div class="answer-card__file-list">
+            @for (file of submissionFiles(); track file.id) {
+              <a class="answer-card__file-item" [href]="file.file_url" target="_blank" rel="noopener noreferrer">
+                <mat-icon>attach_file</mat-icon>
+                <span>{{ file.file_name }}</span>
+              </a>
+            }
+          </div>
+        } @else {
+          <p class="answer-card__empty">Файлы ответа не загружены.</p>
+        }
+      </div>
     </mat-card-content>
   </mat-card>
 

@@ -92,6 +92,23 @@
               }
             </div>
           }
+
+          <div class="attachment-section">
+            <span class="meta-item__label">Файлы задания</span>
+
+            @if (assignmentFiles().length) {
+              <div class="attachment-list">
+                @for (file of assignmentFiles(); track file.id) {
+                  <a class="attachment-item" [href]="file.file_url" target="_blank" rel="noopener noreferrer">
+                    <mat-icon>attach_file</mat-icon>
+                    <span>{{ file.file_name }}</span>
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="attachment-empty">Файлы к заданию не прикреплены.</p>
+            }
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -101,10 +118,10 @@
             <div class="editor-topbar">
               <div>
                 <h2 class="editor-card__title">Ответ</h2>
-                <p class="editor-card__subtitle">Напишите ответ и при необходимости сдайте его совместно.</p>
+                <p class="editor-card__subtitle">{{ answerSubtitle() }}</p>
               </div>
 
-              @if (submission()?.is_group_submission) {
+              @if (isGroupSubmissionUi()) {
                 <span class="status-badge status-badge--submitted">Совместный</span>
               } @else {
                 <span class="status-badge status-badge--pending">Индивидуальный</span>
@@ -114,7 +131,13 @@
             <div class="flat-section flat-section--inline">
               <div class="flat-section__header flat-section__header--inline">
                 <div class="flat-section__header-main">
-                  <h3 class="flat-section__title">Совместный ответ</h3>
+                  <h3 class="flat-section__title">
+                    @if (isGroupSubmissionUi()) {
+                      Совместный ответ
+                    } @else {
+                      Ответить совместно
+                    }
+                  </h3>
 
                   <button
                     type="button"
@@ -202,13 +225,82 @@
                   </div>
                 </div>
               }
-
             </div>
 
             <mat-form-field appearance="outline" class="student-lesson-details__field student-lesson-details__field--editor">
               <mat-label>{{ 'COMMON.FIELDS.ANSWER' | translate }}</mat-label>
               <textarea matInput rows="14" formControlName="answer_text" [readonly]="!canEdit()"></textarea>
             </mat-form-field>
+
+            <div class="attachment-section attachment-section--editor">
+              <div class="flat-section__header">
+                <div>
+                  <h3 class="flat-section__title">Файлы ответа</h3>
+                  <p class="editor-card__subtitle">Файлы будут видны учителю и всем участникам команды.</p>
+                </div>
+
+              </div>
+
+              @if (canManageFiles()) {
+                <div
+                  class="attachment-dropzone"
+                  [class.attachment-dropzone--active]="isFileDragOver()"
+                  tabindex="0"
+                  role="button"
+                  (dragover)="onFileDragOver($event)"
+                  (dragleave)="onFileDragLeave($event)"
+                  (drop)="onFileDrop($event)"
+                  (click)="submissionFileInput.click()"
+                  (keydown.enter)="submissionFileInput.click()"
+                  (keydown.space)="$event.preventDefault(); submissionFileInput.click()"
+                >
+                  <input #submissionFileInput type="file" multiple hidden (change)="onFilesSelected($event)" />
+                  <mat-icon>upload_file</mat-icon>
+                  <div class="attachment-dropzone__text">
+                    <strong>Перетащите файлы сюда</strong>
+                    <span>или нажмите сюда для выбора файлов</span>
+                  </div>
+                </div>
+              }
+
+              @if (pendingFiles().length) {
+                <div class="attachment-list attachment-list--pending">
+                  @for (file of pendingFiles(); track file.name + file.size + $index) {
+                    <div class="attachment-item attachment-item--mutable">
+                      <div class="attachment-item__main">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ file.name }}</span>
+                      </div>
+
+                      <button mat-icon-button type="button" (click)="removePendingFile($index)" [disabled]="isSaving()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (submissionFiles().length) {
+                <div class="attachment-list">
+                  @for (file of submissionFiles(); track file.id) {
+                    <div class="attachment-item attachment-item--mutable">
+                      <a class="attachment-item__main" [href]="file.file_url" target="_blank" rel="noopener noreferrer">
+                        <mat-icon>description</mat-icon>
+                        <span>{{ file.file_name }}</span>
+                      </a>
+
+                      @if (canManageFiles()) {
+                        <button mat-icon-button type="button" (click)="removeUploadedFile(file)" [disabled]="isSaving()">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else if (!pendingFiles().length) {
+                <p class="attachment-empty">Файлы ответа пока не добавлены.</p>
+              }
+            </div>
 
             @if (!canEdit()) {
               <div class="form-message form-message--info">

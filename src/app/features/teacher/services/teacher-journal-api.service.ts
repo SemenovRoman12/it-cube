@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../../core/http/api.service';
+import { LessonFileCreate, LessonFileEntity } from '../../../core/models/lesson-file.model';
 import {
   LessonSubmissionCreate,
   LessonSubmissionEntity,
@@ -55,6 +56,11 @@ export class TeacherJournalApiService {
     return this.api.patch<LessonEntity>(`lessons/${id}`, payload as Partial<LessonEntity>);
   }
 
+  /** Удаляет урок. Используется для отката, если связанное создание файлов завершилось ошибкой. */
+  public deleteLesson(id: number): Observable<void> {
+    return this.api.delete<void>(`lessons/${id}`, undefined as void);
+  }
+
   /** Загружает записи журнала для одного урока. */
   public getJournalEntriesByLesson(lessonId: number): Observable<JournalEntryEntity[]> {
     return this.api.get<JournalEntryEntity[]>(`journal_entries?lesson_id=${lessonId}`);
@@ -84,6 +90,14 @@ export class TeacherJournalApiService {
     return this.api.get<LessonSubmissionEntity[]>(`lesson_submissions?lesson_id=${lessonId}`);
   }
 
+  public getLessonFilesByLesson(lessonId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?lesson_id=${lessonId}&owner_type=teacher_assignment`);
+  }
+
+  public getLessonFilesBySubmission(submissionId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?submission_id=${submissionId}&owner_type=student_submission`);
+  }
+
   public getLessonSubmissionMembersByLesson(lessonId: number): Observable<LessonSubmissionMemberEntity[]> {
     return this.api.get<LessonSubmissionMemberEntity[]>(`lesson_submission_members?lesson_id=${lessonId}`);
   }
@@ -104,6 +118,14 @@ export class TeacherJournalApiService {
 
   public updateLessonSubmission(id: number, payload: LessonSubmissionUpdate): Observable<LessonSubmissionEntity> {
     return this.api.patch<LessonSubmissionEntity>(`lesson_submissions/${id}`, payload);
+  }
+
+  public createLessonFile(payload: LessonFileCreate): Observable<LessonFileEntity> {
+    return this.api.post<LessonFileCreate, LessonFileEntity>('lesson_files', payload);
+  }
+
+  public deleteLessonFile(id: number): Observable<void> {
+    return this.api.delete<void>(`lesson_files/${id}`, undefined as void);
   }
 
   public createNotification(payload: NotificationCreate): Observable<NotificationEntity> {

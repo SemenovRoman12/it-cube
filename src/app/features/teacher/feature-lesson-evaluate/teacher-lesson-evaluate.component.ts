@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { catchError, finalize, map } from 'rxjs/operators';
+import { LessonFileEntity } from '../../../core/models/lesson-file.model';
 import { LessonSubmissionMemberEntity } from '../../../core/models/lesson-submission-member.model';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
 import { NotificationCreate } from '../../../core/models/notification.model';
@@ -54,6 +55,7 @@ export class TeacherLessonEvaluateComponent implements OnInit {
   public readonly lesson = signal<LessonEntity | null>(null);
   public readonly student = signal<UserEntity | null>(null);
   public readonly submission = signal<LessonSubmissionEntity | null>(null);
+  public readonly submissionFiles = signal<LessonFileEntity[]>([]);
   public readonly teamMembers = signal<UserEntity[]>([]);
   public readonly isLoading = signal(false);
   public readonly isSaving = signal(false);
@@ -192,6 +194,14 @@ export class TeacherLessonEvaluateComponent implements OnInit {
           mark: submission?.mark ?? entry?.mark ?? null,
           teacher_comment: submission?.teacher_comment ?? entry?.comment ?? '',
         });
+
+        if (submission?.id) {
+          this.journalApi.getLessonFilesBySubmission(submission.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((files) => this.submissionFiles.set(files));
+        } else {
+          this.submissionFiles.set([]);
+        }
       });
   }
 

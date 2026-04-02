@@ -10,9 +10,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { catchError, finalize, of } from 'rxjs';
+import { catchError, finalize, forkJoin, from, of, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { FileStorageService } from '../../../../core/services/file-storage.service';
 import { TeacherJournalApiService } from '../../services/teacher-journal-api.service';
 
 @Component({
@@ -28,6 +30,7 @@ import { TeacherJournalApiService } from '../../services/teacher-journal-api.ser
     MatIconModule,
     MatInputModule,
     MatNativeDateModule,
+    MatProgressBarModule,
     TranslateModule,
   ],
   templateUrl: './teacher-subject-lesson-create.component.html',
@@ -39,11 +42,14 @@ export class TeacherSubjectLessonCreateComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly journalApi = inject(TeacherJournalApiService);
+  private readonly fileStorage = inject(FileStorageService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly isCreating = signal(false);
   public readonly error = signal<string | null>(null);
+  public readonly selectedFiles = signal<File[]>([]);
+  public readonly isDragOver = signal(false);
   public readonly today = new Date();
 
   public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
@@ -72,35 +78,25 @@ export class TeacherSubjectLessonCreateComponent {
     }
 
     const value = this.form.getRawValue();
-    const nowIso = new Date().toISOString();
-    const lessonDate = this.toIsoDate(this.today);
 
     if (!value.due_date) {
       this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_DEADLINE_REQUIRED');
       return;
     }
 
-    const dueAt = new Date(value.due_date);
-    dueAt.setHours(23, 59, 0, 0);
+    const invalidFile = this.fileStorage.validateFiles(this.selectedFiles());
+    if (invalidFile) {
+      this.error.set(invalidFile);
+      return;
+    }
 
     this.isCreating.set(true);
     this.error.set(null);
 
     this.journalApi
-      .createLesson({
-        teacher_id: teacherId,
-        group_id: this.groupId,
-        subject_id: this.subjectId,
-        date: lessonDate,
-        topic: value.title,
-        lesson_type: 'assignment',
-        title: value.title,
-        description: value.description,
-        due_at: dueAt.toISOString(),
-        created_at: nowIso,
-        updated_at: nowIso,
-      })
+      .createLesson(this.buildLessonPayload(teacherId, value.title, value.description, value.due_date))
       .pipe(
+        switchMap((created) => this.uploadLessonFilesOrRollback(created, teacherId)),
         finalize(() => this.isCreating.set(false)),
         catchError(() => {
           this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_ERROR');
@@ -110,9 +106,36 @@ export class TeacherSubjectLessonCreateComponent {
       )
       .subscribe((created) => {
         if (created) {
+          this.selectedFiles.set([]);
           this.router.navigate(this.backRoute);
         }
       });
+  }
+
+  public onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  public onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  public onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+  }
+
+  public onDropFiles(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+    this.addFiles(Array.from(event.dataTransfer?.files ?? []));
+  }
+
+  public removeSelectedFile(index: number): void {
+    this.selectedFiles.set(this.selectedFiles().filter((_, currentIndex) => currentIndex !== index));
   }
 
   private toIsoDate(date: Date): string {
@@ -120,5 +143,72 @@ export class TeacherSubjectLessonCreateComponent {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private buildLessonPayload(teacherId: number, title: string, description: string, dueDate: Date) {
+    const nowIso = new Date().toISOString();
+    const dueAt = new Date(dueDate);
+    dueAt.setHours(23, 59, 0, 0);
+
+    return {
+      teacher_id: teacherId,
+      group_id: this.groupId,
+      subject_id: this.subjectId,
+      date: this.toIsoDate(this.today),
+      topic: title,
+      lesson_type: 'assignment' as const,
+      title,
+      description,
+      due_at: dueAt.toISOString(),
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+  }
+
+  private uploadLessonFilesOrRollback(createdLesson: { id: number }, teacherId: number) {
+    const lessonId = createdLesson.id;
+    const files = this.selectedFiles();
+    if (!files.length) {
+      return of(createdLesson);
+    }
+
+    return forkJoin(
+      files.map((file) =>
+        from(this.fileStorage.uploadAssignmentFile(lessonId, file)).pipe(
+          switchMap((stored) =>
+            this.journalApi.createLessonFile({
+              lesson_id: lessonId,
+              submission_id: null,
+              owner_type: 'teacher_assignment',
+              uploaded_by_user_id: teacherId,
+              file_name: stored.fileName,
+              file_url: stored.fileUrl,
+              storage_path: stored.storagePath,
+              mime_type: stored.mimeType,
+              size_bytes: stored.sizeBytes,
+              created_at: new Date().toISOString(),
+            }),
+          ),
+        ),
+      ),
+    ).pipe(
+      switchMap(() => of(createdLesson)),
+      catchError((error) => this.rollbackLessonCreation(lessonId, error)),
+    );
+  }
+
+  private rollbackLessonCreation(lessonId: number, originalError: unknown) {
+    return this.journalApi.deleteLesson(lessonId).pipe(
+      switchMap(() => throwError(() => originalError)),
+      catchError(() => throwError(() => originalError)),
+    );
+  }
+
+  private addFiles(files: File[]): void {
+    if (!files.length) {
+      return;
+    }
+
+    this.selectedFiles.set([...this.selectedFiles(), ...files]);
   }
 }

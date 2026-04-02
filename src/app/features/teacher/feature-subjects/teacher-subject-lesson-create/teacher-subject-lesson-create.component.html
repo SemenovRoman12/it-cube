@@ -49,6 +49,54 @@
           }
         </mat-form-field>
 
+        <div class="lesson-files">
+          <div class="lesson-files__header">
+            <h3 class="lesson-files__title">Файлы задания</h3>
+            <p class="lesson-files__hint">Можно приложить архивы, документы, изображения и исходники до 50 МБ.</p>
+          </div>
+
+          <input #fileInput type="file" multiple hidden (change)="onFilesSelected($event)" />
+
+          <div
+            class="lesson-files__dropzone"
+            [class.lesson-files__dropzone--active]="isDragOver()"
+            tabindex="0"
+            role="button"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDropFiles($event)"
+            (click)="fileInput.click()"
+            (keydown.enter)="fileInput.click()"
+            (keydown.space)="$event.preventDefault(); fileInput.click()"
+          >
+            <mat-icon>upload_file</mat-icon>
+            <div class="lesson-files__dropzone-text">
+              <strong>Перетащите файлы сюда</strong>
+              <span>или нажмите сюда для выбора файлов</span>
+            </div>
+          </div>
+
+          @if (selectedFiles().length) {
+            <div class="file-list">
+              @for (file of selectedFiles(); track file.name + file.size + $index) {
+                <div class="file-item">
+                  <div class="file-item__meta">
+                    <mat-icon>description</mat-icon>
+                    <div>
+                      <div class="file-item__name">{{ file.name }}</div>
+                      <div class="file-item__size">{{ (file.size / 1024 / 1024).toFixed(2) }} МБ</div>
+                    </div>
+                  </div>
+
+                  <button mat-icon-button type="button" (click)="removeSelectedFile($index)" aria-label="Удалить файл">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         @if (error(); as errKey) {
         <div class="lesson-form__error">
           <mat-icon>error_outline</mat-icon>

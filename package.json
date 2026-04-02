@@ -33,6 +33,7 @@
     "@angular/router": "^21.1.0",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
+    "@supabase/supabase-js": "^2.101.1",
     "ag-grid-angular": "^35.1.0",
     "ag-grid-community": "^35.1.0",
     "bootstrap": "^5.3.8",
