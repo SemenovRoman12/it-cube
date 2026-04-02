@@ -35,8 +35,13 @@
           (notificationOpen)="openNotification($event)"
           (notificationDelete)="deleteNotification($event)"
           (loadMore)="loadMoreNotifications()" />
-      </mat-menu>
+        </mat-menu>
     }
+
+    <button mat-icon-button routerLink="/storage" class="storage-btn"
+      [attr.aria-label]="'PERSONAL_STORAGE.OPEN' | translate">
+      <mat-icon>folder</mat-icon>
+    </button>
 
     <button mat-icon-button routerLink="/profile" class="profile-btn"
       [attr.aria-label]="'COMMON.ACCESSIBILITY.OPEN_PROFILE' | translate">

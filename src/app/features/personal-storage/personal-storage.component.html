@@ -1,0 +1,106 @@
+<div class="storage-page">
+  <div class="storage-page__header">
+    <a mat-stroked-button routerLink="/profile" class="storage-page__back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'PERSONAL_STORAGE.BACK' | translate }}
+    </a>
+
+    <div class="storage-page__title-block">
+      <mat-icon class="storage-page__title-icon">folder</mat-icon>
+      <div>
+        <h1 class="storage-page__title">{{ 'PERSONAL_STORAGE.TITLE' | translate }}</h1>
+        <p class="storage-page__subtitle">{{ 'PERSONAL_STORAGE.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <mat-card class="storage-summary">
+    <mat-card-content>
+      <div class="storage-summary__top">
+        <div>
+          <p class="storage-summary__label">{{ 'PERSONAL_STORAGE.USAGE' | translate }}</p>
+          <strong class="storage-summary__value">
+            {{ formatBytes(usedBytes()) }} / {{ formatBytes(limitBytes) }}
+          </strong>
+          <p class="storage-summary__hint">
+            {{ 'PERSONAL_STORAGE.REMAINING' | translate:{ size: formatBytes(remainingBytes()) } }}
+          </p>
+        </div>
+
+        <input #fileInput type="file" multiple class="storage-summary__file-input" (change)="onFilesSelected($event)" />
+        <button type="button" mat-stroked-button class="storage-summary__upload-btn" (click)="fileInput.click()">
+          <mat-icon>upload_file</mat-icon>
+          {{ 'PERSONAL_STORAGE.UPLOAD' | translate }}
+        </button>
+      </div>
+
+      <mat-progress-bar mode="determinate" [value]="usedPercent()" />
+    </mat-card-content>
+  </mat-card>
+
+  @if (isUploading()) {
+    <div class="storage-state storage-state--loading">
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  }
+
+  @if (error(); as errorText) {
+    <div class="storage-state storage-state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorText | translate }}</p>
+    </div>
+  }
+
+  @if (success(); as successText) {
+    <div class="storage-state storage-state--success">
+      <mat-icon>check_circle</mat-icon>
+      <p>{{ successText | translate }}</p>
+    </div>
+  }
+
+  <mat-card class="storage-files">
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="storage-state storage-state--loading">
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+      } @else if (!files().length) {
+        <div class="storage-state storage-state--empty">
+          <mat-icon>folder_off</mat-icon>
+          <p>{{ 'PERSONAL_STORAGE.EMPTY' | translate }}</p>
+        </div>
+      } @else {
+        <div class="storage-file-list">
+          @for (file of files(); track file.id) {
+            <div class="storage-file-item">
+              <div class="storage-file-item__meta">
+                <mat-icon class="storage-file-item__icon">description</mat-icon>
+                <div class="storage-file-item__content">
+                  <div class="storage-file-item__name">{{ file.file_name }}</div>
+                  <div class="storage-file-item__details">
+                    <span>{{ formatBytes(file.size_bytes) }}</span>
+                    <span>•</span>
+                    <span>{{ file.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="storage-file-item__actions">
+                <button mat-stroked-button type="button" (click)="downloadFile(file)">
+                  <mat-icon>download</mat-icon>
+                  {{ 'PERSONAL_STORAGE.DOWNLOAD' | translate }}
+                </button>
+
+                <button mat-stroked-button type="button" color="warn" [disabled]="isDeleting(file.id)" (click)="deleteFile(file)">
+                  <mat-icon>delete</mat-icon>
+                  {{ 'COMMON.ACTIONS.DELETE' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+
