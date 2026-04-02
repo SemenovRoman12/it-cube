@@ -56,9 +56,12 @@ export class PersonalStorageService {
     );
   }
 
-  public deleteUserFile(file: PersonalFileEntity): Observable<void> {
-    return from(this.fileStorage.removeFile(file.storage_path)).pipe(
-      switchMap(() => this.api.delete<void>(`personal_files/${file.id}`, undefined as void)),
+  public deleteUserFile(file: PersonalFileEntity): Observable<boolean> {
+    return this.api.delete<null>(`personal_files/${file.id}`, null).pipe(
+      switchMap(() => from(this.fileStorage.removeFile(file.storage_path)).pipe(
+        catchError(() => of(undefined)),
+      )),
+      map(() => true),
     );
   }
 }

@@ -108,15 +108,11 @@ export class PersonalStorageComponent {
         finalize(() => this.deletingFileId.set(null)),
         catchError(() => {
           this.error.set('PERSONAL_STORAGE.ERROR_DELETE');
-          return of(null);
+          return of(false);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((result) => {
-        if (result === null) {
-          return;
-        }
-
+      .subscribe(() => {
         this.files.update((items) => items.filter((item) => item.id !== file.id));
         this.success.set('PERSONAL_STORAGE.SUCCESS_DELETE');
       });
