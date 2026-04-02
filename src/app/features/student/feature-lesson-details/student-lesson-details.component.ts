@@ -15,7 +15,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
+import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { LessonFileEntity } from '../../../core/models/lesson-file.model';
+import { FileStorageService } from '../../../core/services/file-storage.service';
 import { LessonSubmissionEntity } from '../../../core/models/lesson-submission.model';
 import { LessonSubmissionMemberEntity } from '../../../core/models/lesson-submission-member.model';
 import { ConfirmDialogComponent } from '../../../core/ui/components/confirm-dialog/confirm-dialog.component';
@@ -48,6 +51,7 @@ export class StudentLessonDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly studentSubjectsService = inject(StudentSubjectsService);
+  private readonly fileStorage = inject(FileStorageService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
@@ -57,6 +61,9 @@ export class StudentLessonDetailsComponent implements OnInit {
   public readonly submission = signal<LessonSubmissionEntity | null>(null);
   public readonly members = signal<LessonSubmissionMemberEntity[]>([]);
   public readonly classmates = signal<UserEntity[]>([]);
+  public readonly assignmentFiles = signal<LessonFileEntity[]>([]);
+  public readonly submissionFiles = signal<LessonFileEntity[]>([]);
+  public readonly pendingFiles = signal<File[]>([]);
   public readonly isLoading = signal(false);
   public readonly isSaving = signal(false);
   public readonly error = signal<string | null>(null);
@@ -146,6 +153,8 @@ export class StudentLessonDetailsComponent implements OnInit {
     return new Date(dueAt).getTime() < Date.now() ? 'overdue' : 'pending';
   });
 
+  public readonly canManageFiles = computed(() => this.canEdit());
+
   public getLessonTitle(lesson: StudentLessonEntity): string {
     return (lesson as StudentLessonEntity & { title?: string }).title || lesson.topic;
   }
@@ -177,8 +186,13 @@ export class StudentLessonDetailsComponent implements OnInit {
     }
 
     const dueAt = lesson.due_at;
-    const nowIso = new Date().toISOString();
     const status = dueAt && new Date(dueAt).getTime() < Date.now() ? 'overdue' : 'submitted';
+
+    const invalidFile = this.pendingFiles().map((file) => this.fileStorage.validateFile(file)).find((message) => !!message);
+    if (invalidFile) {
+      this.error.set(invalidFile);
+      return;
+    }
 
     this.isSaving.set(true);
     this.error.set(null);
@@ -207,6 +221,43 @@ export class StudentLessonDetailsComponent implements OnInit {
   public getStudentName(studentId: number): string {
     return this.classmates().find((student) => student.id === studentId)?.full_name
       ?? (this.user?.id === studentId ? this.user.full_name : `ID ${studentId}`);
+  }
+
+  public onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const nextFiles = Array.from(input.files ?? []);
+    this.pendingFiles.set([...this.pendingFiles(), ...nextFiles]);
+  }
+
+  public removePendingFile(index: number): void {
+    this.pendingFiles.set(this.pendingFiles().filter((_, currentIndex) => currentIndex !== index));
+  }
+
+  public removeUploadedFile(file: LessonFileEntity): void {
+    if (!this.canManageFiles()) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    this.success.set(null);
+
+    this.studentSubjectsService.removeLessonFile(file)
+      .pipe(
+        finalize(() => this.isSaving.set(false)),
+        catchError(() => {
+          this.error.set('Не удалось удалить файл ответа.');
+          return of(null);
+        }),
+      )
+      .subscribe((result) => {
+        if (result === null) {
+          return;
+        }
+
+        this.submissionFiles.set(this.submissionFiles().filter((item) => item.id !== file.id));
+        this.success.set('Файл ответа удалён.');
+      });
   }
 
   public canRemoveMember(member: LessonSubmissionMemberEntity): boolean {
@@ -382,6 +433,9 @@ export class StudentLessonDetailsComponent implements OnInit {
     this.lesson.set(null);
     this.submission.set(null);
     this.success.set(null);
+    this.pendingFiles.set([]);
+    this.assignmentFiles.set([]);
+    this.submissionFiles.set([]);
 
     if (!Number.isFinite(lessonId) || !student) {
       this.error.set('Некорректные параметры страницы.');
@@ -395,15 +449,16 @@ export class StudentLessonDetailsComponent implements OnInit {
       lesson: this.studentSubjectsService.getLessonById(lessonId),
       submissionContext: this.studentSubjectsService.getSubmissionContext(lessonId, student.id),
       classmates: this.studentSubjectsService.getGroupStudents(student.group_id ?? 0),
+      assignmentFiles: this.studentSubjectsService.getLessonFilesByLesson(lessonId),
     })
       .pipe(
         finalize(() => this.isLoading.set(false)),
         catchError(() => {
           this.error.set('Не удалось загрузить данные задания.');
-          return of({ lesson: null, submissionContext: null, classmates: [] as UserEntity[] });
+          return of({ lesson: null, submissionContext: null, classmates: [] as UserEntity[], assignmentFiles: [] as LessonFileEntity[] });
         }),
       )
-      .subscribe(({ lesson, submissionContext, classmates }) => {
+      .subscribe(({ lesson, submissionContext, classmates, assignmentFiles }) => {
         if (!lesson) {
           this.error.set('Задание не найдено.');
           return;
@@ -411,9 +466,16 @@ export class StudentLessonDetailsComponent implements OnInit {
 
         this.lesson.set(lesson);
         this.classmates.set(classmates);
+        this.assignmentFiles.set(assignmentFiles);
         this.submission.set(submissionContext?.submission ?? null);
         this.members.set(submissionContext?.members ?? []);
         this.form.patchValue({ answer_text: submissionContext?.submission?.answer_text ?? '' });
+
+        if (submissionContext?.submission?.id) {
+          this.studentSubjectsService.getLessonFilesBySubmission(submissionContext.submission.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((files) => this.submissionFiles.set(files));
+        }
       });
   }
 
@@ -421,7 +483,22 @@ export class StudentLessonDetailsComponent implements OnInit {
     const answerText = this.form.controls.answer_text.value.trim();
     const invitedStudentIds = this.form.controls.invited_student_ids.value;
 
-    return this.studentSubjectsService.saveAnswerAndInvite(lesson, student, answerText, status, invitedStudentIds);
+    return this.studentSubjectsService.saveAnswerAndInvite(lesson, student, answerText, status, invitedStudentIds).pipe(
+      switchMap((savedSubmission) => {
+        const files = this.pendingFiles();
+        if (!files.length) {
+          return of(savedSubmission);
+        }
+
+        return this.studentSubjectsService.saveSubmissionFiles(lesson.id, savedSubmission.id, student.id, files).pipe(
+          map((savedFiles) => {
+            this.submissionFiles.set([...this.submissionFiles(), ...savedFiles]);
+            this.pendingFiles.set([]);
+            return savedSubmission;
+          }),
+        );
+      }),
+    );
   }
 
   private reloadSubmissionContext(): void {
@@ -439,6 +516,15 @@ export class StudentLessonDetailsComponent implements OnInit {
         this.submission.set(context?.submission ?? null);
         this.members.set(context?.members ?? []);
         this.form.patchValue({ answer_text: context?.submission?.answer_text ?? this.form.controls.answer_text.value });
+
+        if (!context?.submission?.id) {
+          this.submissionFiles.set([]);
+          return;
+        }
+
+        this.studentSubjectsService.getLessonFilesBySubmission(context.submission.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((files) => this.submissionFiles.set(files));
       });
   }
 }

@@ -81,3 +81,64 @@
   gap: 12px;
   margin-top: 8px;
 }
+
+.lesson-files {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px dashed var(--mat-sys-outline);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.lesson-files__header {
+  display: grid;
+  gap: 4px;
+}
+
+.lesson-files__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lesson-files__hint,
+.file-item__size {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.lesson-files__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.file-list {
+  display: grid;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.file-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.file-item__name {
+  font-weight: 600;
+  word-break: break-word;
+}

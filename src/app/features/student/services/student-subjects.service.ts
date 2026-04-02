@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
 import { ApiService } from '../../../core/http/api.service';
+import { LessonFileCreate, LessonFileEntity } from '../../../core/models/lesson-file.model';
 import {
   LessonSubmissionCreate,
   LessonSubmissionEntity,
@@ -14,6 +15,7 @@ import {
 } from '../../../core/models/lesson-submission-member.model';
 import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
 import { UserEntity } from '../../../core/models/user.model';
+import { FileStorageService } from '../../../core/services/file-storage.service';
 import { StudentLessonEntity } from '../models/student-lesson.model';
 import { StudentSubjectEntity } from '../models/student-subject.model';
 
@@ -60,6 +62,7 @@ export interface LessonSubmissionSummary {
 })
 export class StudentSubjectsService {
   private readonly api = inject(ApiService);
+  private readonly fileStorage = inject(FileStorageService);
 
   public getSubjectsPage(query: StudentSubjectsPageQuery): Observable<StudentSubjectsPageResult> {
     return forkJoin({
@@ -154,6 +157,58 @@ export class StudentSubjectsService {
 
   public getStudentSubmission(lessonId: number, studentId: number): Observable<LessonSubmissionEntity | null> {
     return this.getSubmissionContext(lessonId, studentId).pipe(map((context) => context?.submission ?? null));
+  }
+
+  public getLessonFilesByLesson(lessonId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?lesson_id=${lessonId}&owner_type=teacher_assignment`).pipe(
+      catchError(() => of([])),
+    );
+  }
+
+  public getLessonFilesBySubmission(submissionId: number): Observable<LessonFileEntity[]> {
+    return this.api.get<LessonFileEntity[]>(`lesson_files?submission_id=${submissionId}&owner_type=student_submission`).pipe(
+      catchError(() => of([])),
+    );
+  }
+
+  public saveSubmissionFiles(
+    lessonId: number,
+    submissionId: number,
+    uploadedByUserId: number,
+    files: File[],
+  ): Observable<LessonFileEntity[]> {
+    if (!files.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      files.map((file) =>
+        from(this.fileStorage.uploadSubmissionFile(submissionId, file)).pipe(
+          switchMap((stored) => {
+            const payload: LessonFileCreate = {
+              lesson_id: lessonId,
+              submission_id: submissionId,
+              owner_type: 'student_submission',
+              uploaded_by_user_id: uploadedByUserId,
+              file_name: stored.fileName,
+              file_url: stored.fileUrl,
+              storage_path: stored.storagePath,
+              mime_type: stored.mimeType,
+              size_bytes: stored.sizeBytes,
+              created_at: new Date().toISOString(),
+            };
+
+            return this.api.post<LessonFileCreate, LessonFileEntity>('lesson_files', payload);
+          }),
+        ),
+      ),
+    );
+  }
+
+  public removeLessonFile(file: LessonFileEntity): Observable<void> {
+    return from(this.fileStorage.removeFile(file.storage_path)).pipe(
+      switchMap(() => this.api.delete<void>(`lesson_files/${file.id}`, undefined as void)),
+    );
   }
 
   public upsertStudentSubmission(

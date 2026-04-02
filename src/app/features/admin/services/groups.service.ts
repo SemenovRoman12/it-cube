@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ApiService } from '../../../core/http/api.service';
 import { API_URL } from '../../../core/http/api-url.token';
 import { GroupEntity } from '../../../core/models/group.model';
@@ -73,6 +73,20 @@ export class GroupsService {
         items: response.items ?? [],
         total: response.meta?.total_items ?? response.items?.length ?? 0,
       })),
+      catchError(() =>
+        this.getGroups().pipe(
+          map((groups) => {
+            const filtered = this.applyFilters(groups, query.filters);
+            const sorted = this.applySorting(filtered, query.sortBy, query.order);
+            const start = (query.page - 1) * query.limit;
+
+            return {
+              items: sorted.slice(start, start + query.limit),
+              total: sorted.length,
+            };
+          }),
+        ),
+      ),
     );
   }
 
@@ -109,6 +123,41 @@ export class GroupsService {
       `teacher_group_subjects/${assignmentId}`,
       {} as TeacherGroupSubjectEntity,
     );
+  }
+
+  private applyFilters(items: GroupEntity[], filters?: Record<string, string | number>): GroupEntity[] {
+    if (!filters || !Object.keys(filters).length) {
+      return items;
+    }
+
+    return items.filter((group) => {
+      return Object.entries(filters).every(([key, value]) => {
+        if (key === 'id' && typeof value === 'number') {
+          return group.id === value;
+        }
+
+        if (key === 'name' && typeof value === 'string') {
+          const search = value.replace(/\*/g, '').toLowerCase();
+          return group.name.toLowerCase().includes(search);
+        }
+
+        return true;
+      });
+    });
+  }
+
+  private applySorting(items: GroupEntity[], sortBy?: string, order: 'asc' | 'desc' = 'asc'): GroupEntity[] {
+    const sorted = [...items];
+
+    sorted.sort((first, second) => {
+      const compareValue = sortBy === 'name'
+        ? first.name.localeCompare(second.name)
+        : first.id - second.id;
+
+      return order === 'desc' ? -compareValue : compareValue;
+    });
+
+    return sorted;
   }
 }
 
