@@ -118,10 +118,10 @@
             <div class="editor-topbar">
               <div>
                 <h2 class="editor-card__title">Ответ</h2>
-                <p class="editor-card__subtitle">Напишите ответ и при необходимости сдайте его совместно.</p>
+                <p class="editor-card__subtitle">{{ answerSubtitle() }}</p>
               </div>
 
-              @if (submission()?.is_group_submission) {
+              @if (isGroupSubmissionUi()) {
                 <span class="status-badge status-badge--submitted">Совместный</span>
               } @else {
                 <span class="status-badge status-badge--pending">Индивидуальный</span>
@@ -131,7 +131,13 @@
             <div class="flat-section flat-section--inline">
               <div class="flat-section__header flat-section__header--inline">
                 <div class="flat-section__header-main">
-                  <h3 class="flat-section__title">Совместный ответ</h3>
+                  <h3 class="flat-section__title">
+                    @if (isGroupSubmissionUi()) {
+                      Совместный ответ
+                    } @else {
+                      Ответить совместно
+                    }
+                  </h3>
 
                   <button
                     type="button"
@@ -219,7 +225,6 @@
                   </div>
                 </div>
               }
-
             </div>
 
             <mat-form-field appearance="outline" class="student-lesson-details__field student-lesson-details__field--editor">

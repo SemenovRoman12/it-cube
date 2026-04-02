@@ -91,6 +91,20 @@ export class StudentLessonDetailsComponent implements OnInit {
 
   public readonly acceptedMembers = computed(() => this.members().filter((member) => member.status === 'accepted'));
   public readonly invitedMembers = computed(() => this.members().filter((member) => member.status === 'invited'));
+  public readonly selectedInviteIds = computed(() => this.form.controls.invited_student_ids.value ?? []);
+  public readonly isGroupSubmissionUi = computed(() => {
+    const submission = this.submission();
+
+    if (submission?.is_group_submission) {
+      return true;
+    }
+
+    if (this.selectedInviteIds().length > 0) {
+      return true;
+    }
+
+    return this.acceptedMembers().length > 1 || this.invitedMembers().length > 0;
+  });
   public readonly canEdit = computed(() => {
     const currentMember = this.currentMember();
     const submission = this.submission();
@@ -121,6 +135,10 @@ export class StudentLessonDetailsComponent implements OnInit {
   });
 
   public readonly canLeaveSubmission = computed(() => {
+    if (!this.isGroupSubmissionUi()) {
+      return false;
+    }
+
     const currentMember = this.currentMember();
     const submission = this.submission();
 
@@ -158,6 +176,12 @@ export class StudentLessonDetailsComponent implements OnInit {
   public getLessonTitle(lesson: StudentLessonEntity): string {
     return (lesson as StudentLessonEntity & { title?: string }).title || lesson.topic;
   }
+
+  public readonly answerModeLabel = computed(() => this.isGroupSubmissionUi() ? 'Совместный' : 'Индивидуальный');
+
+  public readonly answerSubtitle = computed(() => this.isGroupSubmissionUi()
+    ? 'Напишите ответ и при необходимости сдайте его совместно.'
+    : 'Напишите индивидуальный ответ на задание.');
 
   public getLessonDescription(lesson: StudentLessonEntity): string {
     return (lesson as StudentLessonEntity & { description?: string }).description || lesson.topic;
