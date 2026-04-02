@@ -49,6 +49,7 @@ export class TeacherSubjectLessonCreateComponent {
   public readonly isCreating = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly selectedFiles = signal<File[]>([]);
+  public readonly isDragOver = signal(false);
   public readonly today = new Date();
 
   public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
@@ -95,7 +96,7 @@ export class TeacherSubjectLessonCreateComponent {
     this.journalApi
       .createLesson(this.buildLessonPayload(teacherId, value.title, value.description, value.due_date))
       .pipe(
-        switchMap((created) => this.uploadLessonFilesOrRollback(created.id, teacherId).pipe(switchMap(() => of(created)))),
+        switchMap((created) => this.uploadLessonFilesOrRollback(created, teacherId)),
         finalize(() => this.isCreating.set(false)),
         catchError(() => {
           this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_ERROR');
@@ -113,8 +114,24 @@ export class TeacherSubjectLessonCreateComponent {
 
   public onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const files = Array.from(input.files ?? []);
-    this.selectedFiles.set(files);
+    this.addFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  public onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  public onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+  }
+
+  public onDropFiles(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+    this.addFiles(Array.from(event.dataTransfer?.files ?? []));
   }
 
   public removeSelectedFile(index: number): void {
@@ -148,10 +165,11 @@ export class TeacherSubjectLessonCreateComponent {
     };
   }
 
-  private uploadLessonFilesOrRollback(lessonId: number, teacherId: number) {
+  private uploadLessonFilesOrRollback(createdLesson: { id: number }, teacherId: number) {
+    const lessonId = createdLesson.id;
     const files = this.selectedFiles();
     if (!files.length) {
-      return of(null);
+      return of(createdLesson);
     }
 
     return forkJoin(
@@ -174,6 +192,7 @@ export class TeacherSubjectLessonCreateComponent {
         ),
       ),
     ).pipe(
+      switchMap(() => of(createdLesson)),
       catchError((error) => this.rollbackLessonCreation(lessonId, error)),
     );
   }
@@ -183,5 +202,13 @@ export class TeacherSubjectLessonCreateComponent {
       switchMap(() => throwError(() => originalError)),
       catchError(() => throwError(() => originalError)),
     );
+  }
+
+  private addFiles(files: File[]): void {
+    if (!files.length) {
+      return;
+    }
+
+    this.selectedFiles.set([...this.selectedFiles(), ...files]);
   }
 }

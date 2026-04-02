@@ -115,6 +115,45 @@
   justify-content: flex-start;
 }
 
+.lesson-files__dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px dashed var(--mat-sys-outline);
+  border-radius: 12px;
+  background: var(--mat-sys-surface);
+  text-align: center;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+
+  mat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.lesson-files__dropzone--active {
+  border-color: var(--mat-sys-primary);
+  background: var(--mat-sys-primary-container);
+  transform: scale(1.01);
+}
+
+.lesson-files__dropzone-text {
+  display: grid;
+  gap: 4px;
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.88rem;
+  }
+}
+
 .file-list {
   display: grid;
   gap: 8px;

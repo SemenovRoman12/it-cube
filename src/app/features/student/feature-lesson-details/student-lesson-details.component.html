@@ -250,6 +250,22 @@
                 }
               </div>
 
+              @if (canManageFiles()) {
+                <div
+                  class="attachment-dropzone"
+                  [class.attachment-dropzone--active]="isFileDragOver()"
+                  (dragover)="onFileDragOver($event)"
+                  (dragleave)="onFileDragLeave($event)"
+                  (drop)="onFileDrop($event)"
+                >
+                  <mat-icon>upload_file</mat-icon>
+                  <div class="attachment-dropzone__text">
+                    <strong>Перетащите файлы сюда</strong>
+                    <span>или используйте кнопку «Добавить файлы»</span>
+                  </div>
+                </div>
+              }
+
               @if (pendingFiles().length) {
                 <div class="attachment-list attachment-list--pending">
                   @for (file of pendingFiles(); track file.name + file.size + $index) {

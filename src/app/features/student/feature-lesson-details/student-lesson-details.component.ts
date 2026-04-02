@@ -64,6 +64,7 @@ export class StudentLessonDetailsComponent implements OnInit {
   public readonly assignmentFiles = signal<LessonFileEntity[]>([]);
   public readonly submissionFiles = signal<LessonFileEntity[]>([]);
   public readonly pendingFiles = signal<File[]>([]);
+  public readonly isFileDragOver = signal(false);
   public readonly isLoading = signal(false);
   public readonly isSaving = signal(false);
   public readonly error = signal<string | null>(null);
@@ -247,8 +248,24 @@ export class StudentLessonDetailsComponent implements OnInit {
 
   public onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const nextFiles = Array.from(input.files ?? []);
-    this.pendingFiles.set([...this.pendingFiles(), ...nextFiles]);
+    this.addPendingFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  public onFileDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isFileDragOver.set(true);
+  }
+
+  public onFileDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isFileDragOver.set(false);
+  }
+
+  public onFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isFileDragOver.set(false);
+    this.addPendingFiles(Array.from(event.dataTransfer?.files ?? []));
   }
 
   public removePendingFile(index: number): void {
@@ -548,6 +565,14 @@ export class StudentLessonDetailsComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((files) => this.submissionFiles.set(files));
       });
+  }
+
+  private addPendingFiles(files: File[]): void {
+    if (!files.length) {
+      return;
+    }
+
+    this.pendingFiles.set([...this.pendingFiles(), ...files]);
   }
 }
 
