@@ -239,29 +239,26 @@
                   <p class="editor-card__subtitle">Файлы будут видны учителю и всем участникам команды.</p>
                 </div>
 
-                @if (canManageFiles()) {
-                  <div>
-                    <input #submissionFileInput type="file" multiple hidden (change)="onFilesSelected($event)" />
-                    <button mat-stroked-button type="button" (click)="submissionFileInput.click()" [disabled]="isSaving()">
-                      <mat-icon>attach_file</mat-icon>
-                      Добавить файлы
-                    </button>
-                  </div>
-                }
               </div>
 
               @if (canManageFiles()) {
                 <div
                   class="attachment-dropzone"
                   [class.attachment-dropzone--active]="isFileDragOver()"
+                  tabindex="0"
+                  role="button"
                   (dragover)="onFileDragOver($event)"
                   (dragleave)="onFileDragLeave($event)"
                   (drop)="onFileDrop($event)"
+                  (click)="submissionFileInput.click()"
+                  (keydown.enter)="submissionFileInput.click()"
+                  (keydown.space)="$event.preventDefault(); submissionFileInput.click()"
                 >
+                  <input #submissionFileInput type="file" multiple hidden (change)="onFilesSelected($event)" />
                   <mat-icon>upload_file</mat-icon>
                   <div class="attachment-dropzone__text">
                     <strong>Перетащите файлы сюда</strong>
-                    <span>или используйте кнопку «Добавить файлы»</span>
+                    <span>или нажмите сюда для выбора файлов</span>
                   </div>
                 </div>
               }

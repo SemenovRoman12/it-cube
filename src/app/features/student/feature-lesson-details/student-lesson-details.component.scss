@@ -170,6 +170,7 @@
 .attachment-dropzone {
   display: grid;
   justify-items: center;
+  cursor: pointer;
   gap: 8px;
   padding: 22px 16px;
   border: 1px dashed var(--mat-sys-outline);
@@ -184,6 +185,11 @@
     font-size: 32px;
     color: var(--mat-sys-primary);
   }
+}
+
+.attachment-dropzone:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
 }
 
 .attachment-dropzone--active {

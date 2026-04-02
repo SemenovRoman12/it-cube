@@ -60,22 +60,20 @@
           <div
             class="lesson-files__dropzone"
             [class.lesson-files__dropzone--active]="isDragOver()"
+            tabindex="0"
+            role="button"
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
             (drop)="onDropFiles($event)"
+            (click)="fileInput.click()"
+            (keydown.enter)="fileInput.click()"
+            (keydown.space)="$event.preventDefault(); fileInput.click()"
           >
             <mat-icon>upload_file</mat-icon>
             <div class="lesson-files__dropzone-text">
               <strong>Перетащите файлы сюда</strong>
-              <span>или нажмите кнопку ниже для выбора файлов</span>
+              <span>или нажмите сюда для выбора файлов</span>
             </div>
-          </div>
-
-          <div class="lesson-files__actions">
-            <button mat-stroked-button type="button" (click)="fileInput.click()">
-              <mat-icon>attach_file</mat-icon>
-              Добавить файлы
-            </button>
           </div>
 
           @if (selectedFiles().length) {
