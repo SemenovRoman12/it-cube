@@ -139,6 +139,8 @@
     "OPEN": "Open personal storage",
     "BACK": "Back to profile",
     "UPLOAD": "Upload files",
+    "DROPZONE_TITLE": "Drop files here",
+    "DROPZONE_SUBTITLE": "Or use the upload button above",
     "DOWNLOAD": "Download",
     "USAGE": "Storage usage",
     "REMAINING": "{{size}} left",

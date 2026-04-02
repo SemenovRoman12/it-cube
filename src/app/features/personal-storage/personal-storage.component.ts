@@ -38,6 +38,7 @@ export class PersonalStorageComponent {
 
   public readonly currentUser = this.authService.user;
   public readonly files = signal<PersonalFileEntity[]>([]);
+  public readonly isDragOver = signal(false);
   public readonly isLoading = signal(false);
   public readonly isUploading = signal(false);
   public readonly deletingFileId = signal<number | null>(null);
@@ -92,6 +93,22 @@ export class PersonalStorageComponent {
     }
 
     this.uploadFiles(files);
+  }
+
+  public onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  public onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+  }
+
+  public onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver.set(false);
+    this.uploadFiles(Array.from(event.dataTransfer?.files ?? []));
   }
 
   public downloadFile(file: PersonalFileEntity): void {
@@ -154,6 +171,7 @@ export class PersonalStorageComponent {
     }
 
     this.isUploading.set(true);
+    this.isDragOver.set(false);
     this.error.set(null);
     this.success.set(null);
 

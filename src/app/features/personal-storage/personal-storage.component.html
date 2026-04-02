@@ -35,6 +35,17 @@
       </div>
 
       <mat-progress-bar mode="determinate" [value]="usedPercent()" />
+
+      <div
+        class="storage-dropzone"
+        [class.storage-dropzone--active]="isDragOver()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
+        <mat-icon class="storage-dropzone__icon">cloud_upload</mat-icon>
+        <div class="storage-dropzone__title">{{ 'PERSONAL_STORAGE.DROPZONE_TITLE' | translate }}</div>
+        <div class="storage-dropzone__subtitle">{{ 'PERSONAL_STORAGE.DROPZONE_SUBTITLE' | translate }}</div>
+      </div>
     </mat-card-content>
   </mat-card>
 
