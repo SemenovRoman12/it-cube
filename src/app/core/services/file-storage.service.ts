@@ -62,6 +62,10 @@ export class FileStorageService {
     return null;
   }
 
+  public validateFiles(files: File[]): string | null {
+    return files.map((file) => this.validateFile(file)).find((message) => !!message) ?? null;
+  }
+
   public async uploadAssignmentFile(lessonId: number, file: File): Promise<StoredFileUpload> {
     return this.uploadFile(`assignments/${lessonId}`, file);
   }

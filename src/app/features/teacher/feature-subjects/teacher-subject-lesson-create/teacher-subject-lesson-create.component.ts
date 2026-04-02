@@ -77,18 +77,13 @@ export class TeacherSubjectLessonCreateComponent {
     }
 
     const value = this.form.getRawValue();
-    const nowIso = new Date().toISOString();
-    const lessonDate = this.toIsoDate(this.today);
 
     if (!value.due_date) {
       this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_DEADLINE_REQUIRED');
       return;
     }
 
-    const dueAt = new Date(value.due_date);
-    dueAt.setHours(23, 59, 0, 0);
-
-    const invalidFile = this.selectedFiles().map((file) => this.fileStorage.validateFile(file)).find((message) => !!message);
+    const invalidFile = this.fileStorage.validateFiles(this.selectedFiles());
     if (invalidFile) {
       this.error.set(invalidFile);
       return;
@@ -98,55 +93,9 @@ export class TeacherSubjectLessonCreateComponent {
     this.error.set(null);
 
     this.journalApi
-      .createLesson({
-        teacher_id: teacherId,
-        group_id: this.groupId,
-        subject_id: this.subjectId,
-        date: lessonDate,
-        topic: value.title,
-        lesson_type: 'assignment',
-        title: value.title,
-        description: value.description,
-        due_at: dueAt.toISOString(),
-        created_at: nowIso,
-        updated_at: nowIso,
-      })
+      .createLesson(this.buildLessonPayload(teacherId, value.title, value.description, value.due_date))
       .pipe(
-        switchMap((created) => {
-          const files = this.selectedFiles();
-          if (!files.length) {
-            return of(created);
-          }
-
-          return forkJoin(
-            files.map((file) =>
-              from(this.fileStorage.uploadAssignmentFile(created.id, file)).pipe(
-                switchMap((stored) =>
-                  this.journalApi.createLessonFile({
-                    lesson_id: created.id,
-                    submission_id: null,
-                    owner_type: 'teacher_assignment',
-                    uploaded_by_user_id: teacherId,
-                    file_name: stored.fileName,
-                    file_url: stored.fileUrl,
-                    storage_path: stored.storagePath,
-                    mime_type: stored.mimeType,
-                    size_bytes: stored.sizeBytes,
-                    created_at: new Date().toISOString(),
-                  }),
-                ),
-              ),
-            ),
-          ).pipe(
-            switchMap(() => of(created)),
-            catchError((error) =>
-              this.journalApi.deleteLesson(created.id).pipe(
-                switchMap(() => throwError(() => error)),
-                catchError(() => throwError(() => error)),
-              ),
-            ),
-          );
-        }),
+        switchMap((created) => this.uploadLessonFilesOrRollback(created.id, teacherId).pipe(switchMap(() => of(created)))),
         finalize(() => this.isCreating.set(false)),
         catchError(() => {
           this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_ERROR');
@@ -177,5 +126,62 @@ export class TeacherSubjectLessonCreateComponent {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private buildLessonPayload(teacherId: number, title: string, description: string, dueDate: Date) {
+    const nowIso = new Date().toISOString();
+    const dueAt = new Date(dueDate);
+    dueAt.setHours(23, 59, 0, 0);
+
+    return {
+      teacher_id: teacherId,
+      group_id: this.groupId,
+      subject_id: this.subjectId,
+      date: this.toIsoDate(this.today),
+      topic: title,
+      lesson_type: 'assignment' as const,
+      title,
+      description,
+      due_at: dueAt.toISOString(),
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+  }
+
+  private uploadLessonFilesOrRollback(lessonId: number, teacherId: number) {
+    const files = this.selectedFiles();
+    if (!files.length) {
+      return of(null);
+    }
+
+    return forkJoin(
+      files.map((file) =>
+        from(this.fileStorage.uploadAssignmentFile(lessonId, file)).pipe(
+          switchMap((stored) =>
+            this.journalApi.createLessonFile({
+              lesson_id: lessonId,
+              submission_id: null,
+              owner_type: 'teacher_assignment',
+              uploaded_by_user_id: teacherId,
+              file_name: stored.fileName,
+              file_url: stored.fileUrl,
+              storage_path: stored.storagePath,
+              mime_type: stored.mimeType,
+              size_bytes: stored.sizeBytes,
+              created_at: new Date().toISOString(),
+            }),
+          ),
+        ),
+      ),
+    ).pipe(
+      catchError((error) => this.rollbackLessonCreation(lessonId, error)),
+    );
+  }
+
+  private rollbackLessonCreation(lessonId: number, originalError: unknown) {
+    return this.journalApi.deleteLesson(lessonId).pipe(
+      switchMap(() => throwError(() => originalError)),
+      catchError(() => throwError(() => originalError)),
+    );
   }
 }

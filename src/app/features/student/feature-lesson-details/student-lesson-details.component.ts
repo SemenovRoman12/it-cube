@@ -177,8 +177,6 @@ export class StudentLessonDetailsComponent implements OnInit {
     return (lesson as StudentLessonEntity & { title?: string }).title || lesson.topic;
   }
 
-  public readonly answerModeLabel = computed(() => this.isGroupSubmissionUi() ? 'Совместный' : 'Индивидуальный');
-
   public readonly answerSubtitle = computed(() => this.isGroupSubmissionUi()
     ? 'Напишите ответ и при необходимости сдайте его совместно.'
     : 'Напишите индивидуальный ответ на задание.');
@@ -212,7 +210,7 @@ export class StudentLessonDetailsComponent implements OnInit {
     const dueAt = lesson.due_at;
     const status = dueAt && new Date(dueAt).getTime() < Date.now() ? 'overdue' : 'submitted';
 
-    const invalidFile = this.pendingFiles().map((file) => this.fileStorage.validateFile(file)).find((message) => !!message);
+    const invalidFile = this.fileStorage.validateFiles(this.pendingFiles());
     if (invalidFile) {
       this.error.set(invalidFile);
       return;
