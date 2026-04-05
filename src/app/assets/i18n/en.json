@@ -133,6 +133,26 @@
       "OPEN_PROFILE": "Open profile"
     }
   },
+  "PERSONAL_STORAGE": {
+    "TITLE": "Personal storage",
+    "SUBTITLE": "Upload, download and remove your files",
+    "OPEN": "Open personal storage",
+    "BACK": "Back to profile",
+    "UPLOAD": "Upload files",
+    "DROPZONE_TITLE": "Drop files here",
+    "DROPZONE_SUBTITLE": "Or use the upload button above",
+    "DOWNLOAD": "Download",
+    "USAGE": "Storage usage",
+    "REMAINING": "{{size}} left",
+    "EMPTY": "You have not uploaded any files yet.",
+    "SUCCESS_UPLOAD": "Files uploaded successfully.",
+    "SUCCESS_DELETE": "File removed.",
+    "ERROR_UNAUTHORIZED": "User is not authorized.",
+    "ERROR_LOAD": "Failed to load files.",
+    "ERROR_UPLOAD": "Failed to upload files.",
+    "ERROR_DELETE": "Failed to delete file.",
+    "ERROR_LIMIT_EXCEEDED": "Personal storage limit of 100 MB exceeded."
+  },
   "LAYOUT": {
     "SIDENAV": {
       "GROUPS": "Groups",

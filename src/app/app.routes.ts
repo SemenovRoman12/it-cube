@@ -32,6 +32,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent),
       },
       {
+        path: 'storage',
+        loadComponent: () => import('./features/personal-storage/personal-storage.component').then(c => c.PersonalStorageComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/admin-container/admin.component').then(c => c.AdminComponent),

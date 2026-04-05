@@ -16,6 +16,7 @@ export interface StoredFileUpload {
 export class FileStorageService {
   private readonly bucket = environment.supabaseBucket;
   private readonly maxFileSizeBytes = 50 * 1024 * 1024;
+  public readonly personalStorageLimitBytes = 100 * 1024 * 1024;
   private readonly allowedExtensions = new Set([
     'pdf',
     'png',
@@ -72,6 +73,10 @@ export class FileStorageService {
 
   public async uploadSubmissionFile(submissionId: number, file: File): Promise<StoredFileUpload> {
     return this.uploadFile(`submissions/${submissionId}`, file);
+  }
+
+  public async uploadPersonalFile(userId: number, file: File): Promise<StoredFileUpload> {
+    return this.uploadFile(`personal/${userId}`, file);
   }
 
   public async removeFile(storagePath: string): Promise<void> {
