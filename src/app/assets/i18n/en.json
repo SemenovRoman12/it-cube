@@ -342,7 +342,7 @@
       "SET_ABSENT": "Set N (absent)"
     },
     "SUBJECTS_FEATURE": {
-      "GROUPS_TITLE": "My subjects",
+      "GROUPS_TITLE": "My groups",
       "GROUPS_SUBTITLE": "Select a group to view subjects",
       "GROUPS_EMPTY": "No groups found.",
       "GROUPS_ERROR": "Failed to load teacher groups.",

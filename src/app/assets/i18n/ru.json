@@ -342,7 +342,7 @@
       "SET_ABSENT": "Поставить Н (отсутствовал)"
     },
     "SUBJECTS_FEATURE": {
-      "GROUPS_TITLE": "Мои предметы",
+      "GROUPS_TITLE": "Мои Группы",
       "GROUPS_SUBTITLE": "Выберите группу для просмотра предметов",
       "GROUPS_EMPTY": "Группы не найдены.",
       "GROUPS_ERROR": "Ошибка загрузки групп учителя.",

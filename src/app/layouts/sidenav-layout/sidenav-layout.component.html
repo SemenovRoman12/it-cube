@@ -29,8 +29,8 @@
       </button>
       <button routerLink="/teacher/subjects" class="side-nav-item" mat-list-item type="button"
         (click)="closeSidenavOnTouch()">
-        <mat-icon matListItemIcon>menu_book</mat-icon>
-        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.MY_SUBJECTS' | translate }}</span>
+        <mat-icon matListItemIcon>group</mat-icon>
+        <span matListItemTitle>{{ 'LAYOUT.SIDENAV.GROUPS' | translate }}</span>
       </button>
       <button routerLink="/teacher/attendance" class="side-nav-item" mat-list-item type="button"
         (click)="closeSidenavOnTouch()">
@@ -44,7 +44,8 @@
         <mat-icon matListItemIcon>person</mat-icon>
         <span matListItemTitle>{{ 'LAYOUT.SIDENAV.MY_SUBJECTS' | translate }}</span>
       </button>
-      <button routerLink="/student/journal" class="side-nav-item" mat-list-item type="button" (click)="closeSidenavOnTouch()">
+      <button routerLink="/student/journal" class="side-nav-item" mat-list-item type="button"
+        (click)="closeSidenavOnTouch()">
         <mat-icon matListItemIcon>fact_check</mat-icon>
         <span matListItemTitle>{{ 'LAYOUT.SIDENAV.STUDENT_JOURNAL' | translate }}</span>
       </button>
