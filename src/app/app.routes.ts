@@ -80,6 +80,10 @@ export const routes: Routes = [
             loadComponent: () => import('./features/teacher/feature-subjects/teacher-subject-lesson-create/teacher-subject-lesson-create.component').then(c => c.TeacherSubjectLessonCreateComponent),
           },
           {
+            path: 'subjects/groups/:groupId/subjects/:subjectId/lessons/:lessonId/edit',
+            loadComponent: () => import('./features/teacher/feature-subjects/teacher-subject-lesson-create/teacher-subject-lesson-create.component').then(c => c.TeacherSubjectLessonCreateComponent),
+          },
+          {
             path: 'subjects/groups/:groupId/subjects/:subjectId/lessons/:lessonId/submissions',
             loadComponent: () => import('./features/teacher/feature-lesson-submissions/teacher-lesson-submissions.component').then(c => c.TeacherLessonSubmissionsComponent),
           },

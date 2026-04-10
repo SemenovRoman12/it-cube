@@ -65,9 +65,29 @@
                   <span class="badge badge--neutral">{{ row.pendingCount }}</span>
                 </td>
                 <td class="lessons-table__actions">
-                  <button mat-stroked-button (click)="openSubmissions(row.lesson.id)">
-                    {{ 'TEACHER.SUBJECTS_FEATURE.ACTION_EVALUATE' | translate }}
-                  </button>
+                  <div class="lessons-table__actions-group">
+                    <button mat-stroked-button (click)="openSubmissions(row.lesson.id)">
+                      {{ 'TEACHER.SUBJECTS_FEATURE.ACTION_EVALUATE' | translate }}
+                    </button>
+
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="onEditLesson(row.lesson.id)"
+                      [attr.aria-label]="'COMMON.ACTIONS.EDIT' | translate">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button
+                      mat-icon-button
+                      type="button"
+                      color="warn"
+                      [disabled]="row.isDeleting"
+                      (click)="onDeleteLesson(row.lesson)"
+                      [attr.aria-label]="'COMMON.ACTIONS.DELETE' | translate">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                 </td>
               </tr>
             }

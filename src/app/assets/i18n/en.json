@@ -377,10 +377,14 @@
       "EVALUATE_SAVE_ERROR": "Failed to save the grade.",
       "EVALUATE_SUCCESS": "Grade saved.",
       "CREATE_TITLE": "Create lesson",
+      "EDIT_TITLE": "Edit lesson",
       "CREATE_DATE_LABEL": "Lesson creation date",
       "CREATE_DEADLINE_LABEL": "Deadline",
       "CREATE_DEADLINE_REQUIRED": "Select a deadline.",
       "CREATE_ERROR": "Failed to create lesson.",
+      "EDIT_ERROR": "Failed to save lesson changes.",
+      "EDIT_LOAD_ERROR": "Failed to load lesson for editing.",
+      "DELETE_ERROR": "Failed to delete assignment.",
       "CREATE_INVALID_PARAMS": "Invalid lesson creation parameters.",
       "CREATE_DESCRIPTION": "Description"
     }
