@@ -49,6 +49,8 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
   public readonly isCreating = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly selectedFiles = signal<File[]>([]);
+  public readonly existingFiles = signal<import('../../../../core/models/lesson-file.model').LessonFileEntity[]>([]);
+  public readonly removedExistingFiles = signal<import('../../../../core/models/lesson-file.model').LessonFileEntity[]>([]);
   public readonly isDragOver = signal(false);
   public readonly today = new Date();
 
@@ -94,6 +96,19 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
           this.error.set('TEACHER.SUBJECTS_FEATURE.EDIT_LOAD_ERROR');
         },
       });
+
+    this.journalApi
+      .getLessonFilesByLesson(this.lessonId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (files) => {
+          this.existingFiles.set(files);
+          this.removedExistingFiles.set([]);
+        },
+        error: () => {
+          this.error.set('TEACHER.SUBJECTS_FEATURE.EDIT_LOAD_ERROR');
+        },
+      });
   }
 
   public get backRoute(): string[] {
@@ -132,6 +147,7 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
       this.journalApi
         .updateLesson(this.lessonId, this.buildLessonUpdatePayload(value.title, value.description, value.due_date))
         .pipe(
+          switchMap((updated) => this.syncEditedLessonFiles(updated.id, teacherId).pipe(switchMap(() => of(updated)))),
           finalize(() => this.isCreating.set(false)),
           catchError(() => {
             this.error.set('TEACHER.SUBJECTS_FEATURE.EDIT_ERROR');
@@ -191,6 +207,16 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
 
   public removeSelectedFile(index: number): void {
     this.selectedFiles.set(this.selectedFiles().filter((_, currentIndex) => currentIndex !== index));
+  }
+
+  public removeExistingFile(fileId: number): void {
+    const file = this.existingFiles().find((item) => item.id === fileId);
+    if (!file) {
+      return;
+    }
+
+    this.existingFiles.set(this.existingFiles().filter((item) => item.id !== fileId));
+    this.removedExistingFiles.set([...this.removedExistingFiles(), file]);
   }
 
   private toIsoDate(date: Date): string {
@@ -262,6 +288,37 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
     ).pipe(
       switchMap(() => of(createdLesson)),
       catchError((error) => this.rollbackLessonCreation(lessonId, error)),
+    );
+  }
+
+  private syncEditedLessonFiles(lessonId: number, teacherId: number) {
+    const deleteRequests = this.removedExistingFiles().map((file) => this.journalApi.removeLessonFile(file));
+    const uploadRequests = this.selectedFiles().map((file) =>
+      from(this.fileStorage.uploadAssignmentFile(lessonId, file)).pipe(
+        switchMap((stored) =>
+          this.journalApi.createLessonFile({
+            lesson_id: lessonId,
+            submission_id: null,
+            owner_type: 'teacher_assignment',
+            uploaded_by_user_id: teacherId,
+            file_name: stored.fileName,
+            file_url: stored.fileUrl,
+            storage_path: stored.storagePath,
+            mime_type: stored.mimeType,
+            size_bytes: stored.sizeBytes,
+            created_at: new Date().toISOString(),
+          }),
+        ),
+      ),
+    );
+
+    const requests = [...deleteRequests, ...uploadRequests];
+    if (!requests.length) {
+      return of(null);
+    }
+
+    return forkJoin(requests).pipe(
+      switchMap(() => of(null)),
     );
   }
 

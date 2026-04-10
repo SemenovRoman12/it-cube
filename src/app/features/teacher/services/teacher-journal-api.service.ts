@@ -166,7 +166,7 @@ export class TeacherJournalApiService {
     );
   }
 
-  private removeLessonFile(file: LessonFileEntity): Observable<void> {
+  public removeLessonFile(file: LessonFileEntity): Observable<void> {
     return from(this.fileStorage.removeFile(file.storage_path)).pipe(
       catchError(() => of(undefined)),
       switchMap(() => this.deleteLessonFile(file.id)),

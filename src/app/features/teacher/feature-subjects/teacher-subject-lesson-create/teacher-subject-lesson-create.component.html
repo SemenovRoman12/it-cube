@@ -51,7 +51,6 @@
           }
         </mat-form-field>
 
-        @if (!isEditMode()) {
         <div class="lesson-files">
           <div class="lesson-files__header">
             <h3 class="lesson-files__title">Файлы задания</h3>
@@ -79,6 +78,26 @@
             </div>
           </div>
 
+          @if (existingFiles().length) {
+            <div class="file-list">
+              @for (file of existingFiles(); track file.id) {
+                <div class="file-item">
+                  <div class="file-item__meta">
+                    <mat-icon>attach_file</mat-icon>
+                    <div>
+                      <div class="file-item__name">{{ file.file_name }}</div>
+                      <div class="file-item__size">{{ (file.size_bytes / 1024 / 1024).toFixed(2) }} МБ</div>
+                    </div>
+                  </div>
+
+                  <button mat-icon-button type="button" (click)="removeExistingFile(file.id)" aria-label="Удалить файл">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
           @if (selectedFiles().length) {
             <div class="file-list">
               @for (file of selectedFiles(); track file.name + file.size + $index) {
@@ -98,8 +117,21 @@
               }
             </div>
           }
+
+          @if (isEditMode() && !existingFiles().length && !selectedFiles().length) {
+            <div class="file-list">
+              <div class="file-item">
+                <div class="file-item__meta">
+                  <mat-icon>info</mat-icon>
+                  <div>
+                    <div class="file-item__name">Файлы не прикреплены</div>
+                    <div class="file-item__size">Можно добавить новые файлы перед сохранением.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
         </div>
-        }
 
         @if (error(); as errKey) {
         <div class="lesson-form__error">
