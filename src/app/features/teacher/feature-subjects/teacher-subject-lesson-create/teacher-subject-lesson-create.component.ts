@@ -56,8 +56,8 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
 
   public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
   public readonly subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
-  public readonly lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
-  public readonly isEditMode = computed(() => Number.isFinite(this.lessonId));
+  public readonly lessonId = this.parseRouteNumber('lessonId');
+  public readonly isEditMode = computed(() => this.lessonId !== null);
 
   public readonly form = this.formBuilder.group({
     title: this.formBuilder.nonNullable.control('', [Validators.required, Validators.minLength(3)]),
@@ -66,7 +66,8 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
   });
 
   public ngOnInit(): void {
-    if (!this.isEditMode()) {
+    const lessonId = this.lessonId;
+    if (lessonId === null) {
       return;
     }
 
@@ -74,7 +75,7 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
     this.error.set(null);
 
     this.journalApi
-      .getLessonById(this.lessonId)
+      .getLessonById(lessonId)
       .pipe(
         finalize(() => this.isCreating.set(false)),
         takeUntilDestroyed(this.destroyRef),
@@ -98,7 +99,7 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
       });
 
     this.journalApi
-      .getLessonFilesByLesson(this.lessonId)
+      .getLessonFilesByLesson(lessonId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (files) => {
@@ -144,8 +145,15 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
     this.error.set(null);
 
     if (this.isEditMode()) {
+      const lessonId = this.lessonId;
+      if (lessonId === null) {
+        this.isCreating.set(false);
+        this.error.set('TEACHER.SUBJECTS_FEATURE.CREATE_INVALID_PARAMS');
+        return;
+      }
+
       this.journalApi
-        .updateLesson(this.lessonId, this.buildLessonUpdatePayload(value.title, value.description, value.due_date))
+        .updateLesson(lessonId, this.buildLessonUpdatePayload(value.title, value.description, value.due_date))
         .pipe(
           switchMap((updated) => this.syncEditedLessonFiles(updated.id, teacherId).pipe(switchMap(() => of(updated)))),
           finalize(() => this.isCreating.set(false)),
@@ -224,6 +232,16 @@ export class TeacherSubjectLessonCreateComponent implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private parseRouteNumber(paramName: string): number | null {
+    const rawValue = this.route.snapshot.paramMap.get(paramName);
+    if (rawValue == null) {
+      return null;
+    }
+
+    const parsedValue = Number(rawValue);
+    return Number.isFinite(parsedValue) ? parsedValue : null;
   }
 
   private buildLessonPayload(teacherId: number, title: string, description: string, dueDate: Date) {
