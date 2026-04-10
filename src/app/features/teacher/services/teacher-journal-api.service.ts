@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from '../../../core/http/api.service';
 import { LessonFileCreate, LessonFileEntity } from '../../../core/models/lesson-file.model';
 import {
@@ -10,6 +10,7 @@ import {
 } from '../../../core/models/lesson-submission.model';
 import { LessonSubmissionMemberEntity } from '../../../core/models/lesson-submission-member.model';
 import { NotificationCreate, NotificationEntity } from '../../../core/models/notification.model';
+import { FileStorageService } from '../../../core/services/file-storage.service';
 import { JournalEntryCreate, JournalEntryEntity, JournalEntryUpdate } from '../models/journal-entry.model';
 import { LessonCreate, LessonEntity, LessonUpdate } from '../models/lesson.model';
 import { UserEntity } from '../../../core/models/user.model';
@@ -19,6 +20,7 @@ import { UserEntity } from '../../../core/models/user.model';
 })
 export class TeacherJournalApiService {
   private readonly api = inject(ApiService);
+  private readonly fileStorage = inject(FileStorageService);
 
   /** Загружает студентов выбранной группы. */
   public getStudentsByGroup(groupId: number): Observable<UserEntity[]> {
@@ -126,6 +128,49 @@ export class TeacherJournalApiService {
 
   public deleteLessonFile(id: number): Observable<void> {
     return this.api.delete<void>(`lesson_files/${id}`, undefined as void);
+  }
+
+  public deleteLessonSubmission(id: number): Observable<void> {
+    return this.api.delete<void>(`lesson_submissions/${id}`, undefined as void);
+  }
+
+  public deleteLessonSubmissionMember(id: number): Observable<void> {
+    return this.api.delete<void>(`lesson_submission_members/${id}`, undefined as void);
+  }
+
+  public deleteAssignmentWithRelations(lessonId: number): Observable<void> {
+    return forkJoin({
+      assignmentFiles: this.getLessonFilesByLesson(lessonId),
+      submissions: this.getLessonSubmissionsByLesson(lessonId),
+      members: this.getLessonSubmissionMembersByLesson(lessonId),
+    }).pipe(
+      switchMap(({ assignmentFiles, submissions, members }) => {
+        const submissionFileRequests = submissions.map((submission) => this.getLessonFilesBySubmission(submission.id));
+
+        return (submissionFileRequests.length ? forkJoin(submissionFileRequests) : of([])).pipe(
+          switchMap((submissionFilesChunks) => {
+            const submissionFiles = submissionFilesChunks.flat();
+            const deleteRequests: Observable<void>[] = [
+              ...assignmentFiles.map((file) => this.removeLessonFile(file)),
+              ...submissionFiles.map((file) => this.removeLessonFile(file)),
+              ...members.map((member) => this.deleteLessonSubmissionMember(member.id)),
+              ...submissions.map((submission) => this.deleteLessonSubmission(submission.id)),
+            ];
+
+            return (deleteRequests.length ? forkJoin(deleteRequests) : of([])).pipe(
+              switchMap(() => this.deleteLesson(lessonId)),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  private removeLessonFile(file: LessonFileEntity): Observable<void> {
+    return from(this.fileStorage.removeFile(file.storage_path)).pipe(
+      catchError(() => of(undefined)),
+      switchMap(() => this.deleteLessonFile(file.id)),
+    );
   }
 
   public createNotification(payload: NotificationCreate): Observable<NotificationEntity> {

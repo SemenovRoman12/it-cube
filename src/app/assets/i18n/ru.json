@@ -377,10 +377,14 @@
       "EVALUATE_SAVE_ERROR": "Не удалось сохранить оценку.",
       "EVALUATE_SUCCESS": "Оценка сохранена.",
       "CREATE_TITLE": "Создание урока",
+      "EDIT_TITLE": "Редактирование урока",
       "CREATE_DATE_LABEL": "Дата создания урока",
       "CREATE_DEADLINE_LABEL": "Дедлайн",
       "CREATE_DEADLINE_REQUIRED": "Выберите дедлайн.",
       "CREATE_ERROR": "Не удалось создать урок.",
+      "EDIT_ERROR": "Не удалось сохранить изменения урока.",
+      "EDIT_LOAD_ERROR": "Не удалось загрузить урок для редактирования.",
+      "DELETE_ERROR": "Не удалось удалить задание.",
       "CREATE_INVALID_PARAMS": "Некорректные параметры создания урока.",
       "CREATE_DESCRIPTION": "Описание"
     }

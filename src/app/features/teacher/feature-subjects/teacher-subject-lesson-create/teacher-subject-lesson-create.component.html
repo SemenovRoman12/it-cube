@@ -6,18 +6,20 @@
     </a>
 
     <div class="page__title-block">
-      <mat-icon class="page__title-icon">add_circle</mat-icon>
-      <h1 class="page__title">{{ 'TEACHER.SUBJECTS_FEATURE.CREATE_TITLE' | translate }}</h1>
+      <mat-icon class="page__title-icon">{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+      <h1 class="page__title">{{ (isEditMode() ? 'TEACHER.SUBJECTS_FEATURE.EDIT_TITLE' : 'TEACHER.SUBJECTS_FEATURE.CREATE_TITLE') | translate }}</h1>
     </div>
   </div>
 
   <mat-card appearance="outlined" class="form-card">
     <mat-card-content>
       <form [formGroup]="form" (ngSubmit)="onCreateLesson()" class="lesson-form">
+        @if (!isEditMode()) {
         <p class="lesson-form__date-label">
           {{ 'TEACHER.SUBJECTS_FEATURE.CREATE_DATE_LABEL' | translate }}:
           <strong>{{ today | date:'dd.MM.yyyy' }}</strong>
         </p>
+        }
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'COMMON.FIELDS.TITLE' | translate }}</mat-label>
@@ -49,6 +51,7 @@
           }
         </mat-form-field>
 
+        @if (!isEditMode()) {
         <div class="lesson-files">
           <div class="lesson-files__header">
             <h3 class="lesson-files__title">Файлы задания</h3>
@@ -96,6 +99,7 @@
             </div>
           }
         </div>
+        }
 
         @if (error(); as errKey) {
         <div class="lesson-form__error">
@@ -110,15 +114,15 @@
           </a>
           <button mat-flat-button color="primary" type="submit" [disabled]="isCreating()">
             @if (isCreating()) {
-            {{ 'COMMON.STATUS.CREATING' | translate }}
+            {{ (isEditMode() ? 'COMMON.ACTIONS.SAVE_CHANGES' : 'COMMON.STATUS.CREATING') | translate }}
             }
 
             @if (!isCreating()) {
-            <mat-icon>add</mat-icon>
+            <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
             }
 
             @if (!isCreating()) {
-            {{ 'COMMON.ACTIONS.CREATE_LESSON' | translate }}
+            {{ (isEditMode() ? 'COMMON.ACTIONS.SAVE_CHANGES' : 'COMMON.ACTIONS.CREATE_LESSON') | translate }}
             }
           </button>
         </div>

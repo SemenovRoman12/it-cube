@@ -142,6 +142,28 @@
 .lessons-table__actions {
   text-align: right !important;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.lessons-table__actions-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 40px;
+
+  button[mat-stroked-button] {
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  button[mat-icon-button] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
 }
 
 .lessons-table__row {

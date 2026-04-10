@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -37,7 +37,7 @@ import { TeacherJournalApiService } from '../../services/teacher-journal-api.ser
   styleUrl: './teacher-subject-lesson-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TeacherSubjectLessonCreateComponent {
+export class TeacherSubjectLessonCreateComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -54,12 +54,47 @@ export class TeacherSubjectLessonCreateComponent {
 
   public readonly groupId = Number(this.route.snapshot.paramMap.get('groupId'));
   public readonly subjectId = Number(this.route.snapshot.paramMap.get('subjectId'));
+  public readonly lessonId = Number(this.route.snapshot.paramMap.get('lessonId'));
+  public readonly isEditMode = computed(() => Number.isFinite(this.lessonId));
 
   public readonly form = this.formBuilder.group({
     title: this.formBuilder.nonNullable.control('', [Validators.required, Validators.minLength(3)]),
     description: this.formBuilder.nonNullable.control('', [Validators.required, Validators.minLength(3)]),
     due_date: this.formBuilder.control<Date | null>(null, Validators.required),
   });
+
+  public ngOnInit(): void {
+    if (!this.isEditMode()) {
+      return;
+    }
+
+    this.isCreating.set(true);
+    this.error.set(null);
+
+    this.journalApi
+      .getLessonById(this.lessonId)
+      .pipe(
+        finalize(() => this.isCreating.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (lesson) => {
+          if (!lesson) {
+            this.error.set('TEACHER.SUBJECTS_FEATURE.SUBMISSIONS_LESSON_NOT_FOUND');
+            return;
+          }
+
+          this.form.patchValue({
+            title: lesson.title ?? lesson.topic,
+            description: lesson.description ?? '',
+            due_date: lesson.due_at ? new Date(lesson.due_at) : null,
+          });
+        },
+        error: () => {
+          this.error.set('TEACHER.SUBJECTS_FEATURE.EDIT_LOAD_ERROR');
+        },
+      });
+  }
 
   public get backRoute(): string[] {
     return ['/teacher/subjects/groups', String(this.groupId), 'subjects', String(this.subjectId)];
@@ -92,6 +127,26 @@ export class TeacherSubjectLessonCreateComponent {
 
     this.isCreating.set(true);
     this.error.set(null);
+
+    if (this.isEditMode()) {
+      this.journalApi
+        .updateLesson(this.lessonId, this.buildLessonUpdatePayload(value.title, value.description, value.due_date))
+        .pipe(
+          finalize(() => this.isCreating.set(false)),
+          catchError(() => {
+            this.error.set('TEACHER.SUBJECTS_FEATURE.EDIT_ERROR');
+            return of(null);
+          }),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((updated) => {
+          if (updated) {
+            this.router.navigate(this.backRoute);
+          }
+        });
+
+      return;
+    }
 
     this.journalApi
       .createLesson(this.buildLessonPayload(teacherId, value.title, value.description, value.due_date))
@@ -162,6 +217,19 @@ export class TeacherSubjectLessonCreateComponent {
       due_at: dueAt.toISOString(),
       created_at: nowIso,
       updated_at: nowIso,
+    };
+  }
+
+  private buildLessonUpdatePayload(title: string, description: string, dueDate: Date) {
+    const dueAt = new Date(dueDate);
+    dueAt.setHours(23, 59, 0, 0);
+
+    return {
+      topic: title,
+      title,
+      description,
+      due_at: dueAt.toISOString(),
+      updated_at: new Date().toISOString(),
     };
   }
 
